@@ -2,8 +2,9 @@ export interface Activity {
   id: number;
   agent: string;
   action: string;
-  description: string;
-  status: 'running' | 'completed' | 'failed';
+  description?: string;
+  status: 'running' | 'completed' | 'failed' | 'pending';
+  metadata?: Record<string, unknown>;
   timestamp: string;
   created_at: string;
 }
