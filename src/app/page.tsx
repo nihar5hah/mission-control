@@ -26,6 +26,8 @@ import {
   Plus,
   Filter,
   MoreVertical,
+  X,
+  Save,
 } from 'lucide-react';
 import { useActivities, useTasks, useDocuments } from '@/hooks/useSupabase';
 
@@ -169,9 +171,14 @@ export default function MissionControl() {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedActivity, setExpandedActivity] = useState<number | null>(null);
   const [filterType, setFilterType] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'activity' | 'task'; id: number } | null>(null);
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [newTaskForm, setNewTaskForm] = useState({ title: '', scheduled_for: '', day: '' });
+  const [statusDropdown, setStatusDropdown] = useState<{ type: 'activity' | 'task'; id: number } | null>(null);
+  const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
 
-  const { activities, loading: activitiesLoading } = useActivities();
-  const { tasks, loading: tasksLoading, updateStatus } = useTasks();
+  const { activities, loading: activitiesLoading, deleteActivity, updateActivity } = useActivities();
+  const { tasks, loading: tasksLoading, updateStatus, createTask, deleteTask } = useTasks();
   const { documents, loading: documentsLoading } = useDocuments(searchQuery);
 
   /* ============ ENHANCED ACTIVITY DATA ============ */
@@ -189,6 +196,58 @@ export default function MissionControl() {
   const filteredActivities = filterType
     ? enhancedActivities.filter((a) => a.type === filterType)
     : enhancedActivities;
+
+  /* ============ HANDLERS ============ */
+  const handleDeleteActivity = async (id: number) => {
+    setDeletingIds((prev) => new Set([...prev, id]));
+    try {
+      await deleteActivity(id);
+    } finally {
+      setDeletingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      setDeleteConfirm(null);
+    }
+  };
+
+  const handleDeleteTask = async (id: number) => {
+    setDeletingIds((prev) => new Set([...prev, id]));
+    try {
+      await deleteTask(id);
+    } finally {
+      setDeletingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      setDeleteConfirm(null);
+    }
+  };
+
+  const handleCreateTask = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTaskForm.title.trim()) return;
+
+    const now = new Date();
+    const scheduled_for = newTaskForm.scheduled_for || now.toISOString();
+
+    await createTask({
+      title: newTaskForm.title,
+      scheduled_for,
+      day: newTaskForm.day || now.toLocaleDateString('en-US', { weekday: 'long' }),
+      status: 'pending',
+    });
+
+    setNewTaskForm({ title: '', scheduled_for: '', day: '' });
+    setShowTaskModal(false);
+  };
+
+  const handleUpdateActivityStatus = async (id: number, status: string) => {
+    await updateActivity(id, { status: status as any });
+    setStatusDropdown(null);
+  };
 
   /* ============ UTILITY FUNCTIONS ============ */
   const formatTime = (dateString: string) => {
@@ -381,22 +440,23 @@ export default function MissionControl() {
             const config = getActivityConfig(activity.type);
             const Icon = config.icon;
             const isExpanded = expandedActivity === activity.id;
+            const isDeleting = deletingIds.has(activity.id);
 
             return (
               <motion.div
                 key={activity.id}
                 variants={item}
-                onClick={() => setExpandedActivity(isExpanded ? null : activity.id)}
+                onClick={() => !isDeleting && setExpandedActivity(isExpanded ? null : activity.id)}
                 className="group cursor-pointer"
               >
                 <motion.div
                   layout
-                  className="bg-[#161616] border border-[#262626] rounded-lg overflow-hidden hover:border-[#333] hover:bg-[#1A1A1A] transition-all"
-                  whileHover={{ x: 2 }}
+                  className={`bg-[#161616] border border-[#262626] rounded-lg overflow-hidden hover:border-[#333] hover:bg-[#1A1A1A] transition-all ${isDeleting ? 'opacity-50' : ''}`}
+                  whileHover={!isDeleting ? { x: 2 } : {}}
                 >
                   {/* Main Row */}
                   <div className="p-4 flex items-start gap-3">
-                    <motion.div className={`flex-shrink-0 p-2 rounded-md ${config.bg} border ${config.border}`} whileHover={{ scale: 1.1 }}>
+                    <motion.div className={`flex-shrink-0 p-2 rounded-md ${config.bg} border ${config.border}`} whileHover={!isDeleting ? { scale: 1.1 } : {}}>
                       <Icon className={`w-4 h-4 ${config.color}`} />
                     </motion.div>
 
@@ -409,9 +469,84 @@ export default function MissionControl() {
                       <p className="text-sm text-[#888] line-clamp-1">{activity.description}</p>
                     </div>
 
-                    <motion.div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <motion.div animate={{ rotate: isExpanded ? 90 : 0 }} transition={{ duration: 0.2 }}>
-                        <ChevronRight className="w-5 h-5 text-[#666]" />
+                    <motion.div className="flex-shrink-0 flex items-center gap-2">
+                      {/* Status Dropdown Button */}
+                      <div className="relative group/dropdown">
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setStatusDropdown(statusDropdown?.type === 'activity' && statusDropdown?.id === activity.id ? null : { type: 'activity', id: activity.id });
+                          }}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-md hover:bg-[#262626]"
+                          disabled={isDeleting}
+                        >
+                          <MoreVertical className="w-4 h-4 text-[#666]" />
+                        </motion.button>
+
+                        {/* Dropdown Menu */}
+                        <AnimatePresence>
+                          {statusDropdown?.type === 'activity' && statusDropdown?.id === activity.id && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -8 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -8 }}
+                              className="absolute right-0 mt-1 w-40 bg-[#1A1A1A] border border-[#262626] rounded-lg shadow-lg z-50"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <div className="p-2 space-y-1">
+                                <button
+                                  onClick={() => handleUpdateActivityStatus(activity.id, 'running')}
+                                  className={`w-full text-left px-3 py-2 rounded text-sm transition-colors ${
+                                    activity.status === 'running'
+                                      ? 'bg-[#5E6AD2]/20 text-[#5E6AD2]'
+                                      : 'text-[#888] hover:bg-[#262626]'
+                                  }`}
+                                >
+                                  Running
+                                </button>
+                                <button
+                                  onClick={() => handleUpdateActivityStatus(activity.id, 'completed')}
+                                  className={`w-full text-left px-3 py-2 rounded text-sm transition-colors ${
+                                    activity.status === 'completed'
+                                      ? 'bg-[#5EAD5E]/20 text-[#5EAD5E]'
+                                      : 'text-[#888] hover:bg-[#262626]'
+                                  }`}
+                                >
+                                  Completed
+                                </button>
+                                <button
+                                  onClick={() => handleUpdateActivityStatus(activity.id, 'failed')}
+                                  className={`w-full text-left px-3 py-2 rounded text-sm transition-colors ${
+                                    activity.status === 'failed'
+                                      ? 'bg-[#E55454]/20 text-[#E55454]'
+                                      : 'text-[#888] hover:bg-[#262626]'
+                                  }`}
+                                >
+                                  Failed
+                                </button>
+                                <div className="border-t border-[#262626]" />
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDeleteConfirm({ type: 'activity', id: activity.id });
+                                  }}
+                                  className="w-full text-left px-3 py-2 rounded text-sm text-[#E55454] hover:bg-[#E55454]/10 transition-colors"
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+
+                      {/* Expand Indicator */}
+                      <motion.div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <motion.div animate={{ rotate: isExpanded ? 90 : 0 }} transition={{ duration: 0.2 }}>
+                          <ChevronRight className="w-5 h-5 text-[#666]" />
+                        </motion.div>
                       </motion.div>
                     </motion.div>
                   </div>
@@ -483,9 +618,22 @@ export default function MissionControl() {
         exit="exit"
         transition={{ duration: 0.3 }}
       >
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold text-white mb-1">Weekly Schedule</h2>
-          <p className="text-sm text-[#888]">{tasks.length} upcoming tasks</p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-semibold text-white mb-1">Weekly Schedule</h2>
+            <p className="text-sm text-[#888]">{tasks.length} upcoming tasks</p>
+          </div>
+          
+          {/* Create Task Button */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowTaskModal(true)}
+            className="px-4 py-2 rounded-lg bg-[#5E6AD2] text-white text-sm font-medium hover:bg-[#4A55BF] transition-all flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            New Task
+          </motion.button>
         </div>
 
         {tasksLoading ? (
@@ -521,28 +669,50 @@ export default function MissionControl() {
                   {/* Tasks */}
                   <div className="p-3 space-y-2 min-h-[120px]">
                     {dayTasks.length > 0 ? (
-                      dayTasks.map((task) => (
-                        <motion.button
-                          key={task.id}
-                          onClick={() => updateStatus(task.id, task.status === 'completed' ? 'pending' : 'completed')}
-                          className={`w-full text-left p-2 rounded text-xs font-medium transition-all border ${
-                            task.status === 'completed'
-                              ? 'bg-[#5EAD5E]/10 text-[#5EAD5E] border-[#5EAD5E]/30'
-                              : 'bg-[#5E8FAD]/10 text-[#5E8FAD] border-[#5E8FAD]/30 hover:bg-[#5E8FAD]/15'
-                          }`}
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                        >
-                          <div className="flex items-center gap-1.5">
-                            {task.status === 'completed' ? (
-                              <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
-                            ) : (
-                              <div className="w-3.5 h-3.5 rounded-full border border-current flex-shrink-0" />
-                            )}
-                            <span className="line-clamp-1">{task.title}</span>
-                          </div>
-                        </motion.button>
-                      ))
+                      dayTasks.map((task) => {
+                        const isDeleting = deletingIds.has(task.id);
+
+                        return (
+                          <motion.div
+                            key={task.id}
+                            className="group relative"
+                            initial={{ opacity: 1 }}
+                            animate={{ opacity: isDeleting ? 0.5 : 1 }}
+                          >
+                            <motion.button
+                              onClick={() => !isDeleting && updateStatus(task.id, task.status === 'completed' ? 'pending' : 'completed')}
+                              className={`w-full text-left p-2 rounded text-xs font-medium transition-all border ${
+                                task.status === 'completed'
+                                  ? 'bg-[#5EAD5E]/10 text-[#5EAD5E] border-[#5EAD5E]/30'
+                                  : 'bg-[#5E8FAD]/10 text-[#5E8FAD] border-[#5E8FAD]/30 hover:bg-[#5E8FAD]/15'
+                              }`}
+                              whileHover={!isDeleting ? { scale: 1.02 } : {}}
+                              whileTap={!isDeleting ? { scale: 0.98 } : {}}
+                              disabled={isDeleting}
+                            >
+                              <div className="flex items-center gap-1.5">
+                                {task.status === 'completed' ? (
+                                  <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
+                                ) : (
+                                  <div className="w-3.5 h-3.5 rounded-full border border-current flex-shrink-0" />
+                                )}
+                                <span className="line-clamp-1 flex-1">{task.title}</span>
+                              </div>
+                            </motion.button>
+
+                            {/* Delete Button */}
+                            <motion.button
+                              onClick={() => setDeleteConfirm({ type: 'task', id: task.id })}
+                              className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-[#E55454]/20"
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              disabled={isDeleting}
+                            >
+                              <Trash2 className="w-3 h-3 text-[#E55454]" />
+                            </motion.button>
+                          </motion.div>
+                        );
+                      })
                     ) : (
                       <p className="text-xs text-[#666] text-center py-4">No tasks</p>
                     )}
@@ -659,20 +829,178 @@ export default function MissionControl() {
     </motion.div>
   );
 
+  /* ============ RENDER: DELETE CONFIRMATION DIALOG ============ */
+  const renderDeleteConfirm = () => (
+    <AnimatePresence>
+      {deleteConfirm && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={() => setDeleteConfirm(null)}
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            className="bg-[#161616] border border-[#262626] rounded-lg shadow-lg max-w-sm w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-white mb-2">Delete {deleteConfirm.type === 'activity' ? 'Activity' : 'Task'}?</h3>
+              <p className="text-sm text-[#888] mb-6">
+                This action cannot be undone. The {deleteConfirm.type === 'activity' ? 'activity' : 'task'} will be permanently deleted.
+              </p>
+
+              <div className="flex gap-3 justify-end">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setDeleteConfirm(null)}
+                  className="px-4 py-2 rounded-lg bg-[#262626] text-white text-sm font-medium hover:bg-[#333] transition-all"
+                >
+                  Cancel
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    if (deleteConfirm.type === 'activity') {
+                      handleDeleteActivity(deleteConfirm.id);
+                    } else {
+                      handleDeleteTask(deleteConfirm.id);
+                    }
+                  }}
+                  className="px-4 py-2 rounded-lg bg-[#E55454] text-white text-sm font-medium hover:bg-[#D43636] transition-all"
+                >
+                  Delete
+                </motion.button>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
+  /* ============ RENDER: TASK CREATION MODAL ============ */
+  const renderTaskModal = () => (
+    <AnimatePresence>
+      {showTaskModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={() => setShowTaskModal(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            className="bg-[#161616] border border-[#262626] rounded-lg shadow-lg max-w-sm w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">Create New Task</h3>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setShowTaskModal(false)}
+                  className="p-1 hover:bg-[#262626] rounded transition-colors"
+                >
+                  <X className="w-5 h-5 text-[#888]" />
+                </motion.button>
+              </div>
+
+              <form onSubmit={handleCreateTask} className="space-y-4">
+                <div>
+                  <label className="block text-sm text-[#888] mb-2">Task Title</label>
+                  <input
+                    type="text"
+                    placeholder="Enter task title..."
+                    value={newTaskForm.title}
+                    onChange={(e) => setNewTaskForm({ ...newTaskForm, title: e.target.value })}
+                    className="w-full bg-[#0F0F0F] border border-[#262626] rounded-lg px-3 py-2 text-white placeholder:text-[#666] focus:outline-none focus:border-[#5E6AD2] focus:bg-[#1A1A1A] transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm text-[#888] mb-2">Scheduled Date</label>
+                  <input
+                    type="datetime-local"
+                    value={newTaskForm.scheduled_for.slice(0, 16) || ''}
+                    onChange={(e) => setNewTaskForm({ ...newTaskForm, scheduled_for: new Date(e.target.value).toISOString() })}
+                    className="w-full bg-[#0F0F0F] border border-[#262626] rounded-lg px-3 py-2 text-white placeholder:text-[#666] focus:outline-none focus:border-[#5E6AD2] focus:bg-[#1A1A1A] transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm text-[#888] mb-2">Day of Week</label>
+                  <select
+                    value={newTaskForm.day}
+                    onChange={(e) => setNewTaskForm({ ...newTaskForm, day: e.target.value })}
+                    className="w-full bg-[#0F0F0F] border border-[#262626] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#5E6AD2] focus:bg-[#1A1A1A] transition-all"
+                  >
+                    <option value="">Auto-detect</option>
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                    <option value="Sunday">Sunday</option>
+                  </select>
+                </div>
+
+                <div className="flex gap-3 justify-end pt-4">
+                  <motion.button
+                    type="button"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setShowTaskModal(false)}
+                    className="px-4 py-2 rounded-lg bg-[#262626] text-white text-sm font-medium hover:bg-[#333] transition-all"
+                  >
+                    Cancel
+                  </motion.button>
+                  <motion.button
+                    type="submit"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-4 py-2 rounded-lg bg-[#5E6AD2] text-white text-sm font-medium hover:bg-[#4A55BF] transition-all flex items-center gap-2"
+                  >
+                    <Save className="w-4 h-4" />
+                    Create Task
+                  </motion.button>
+                </div>
+              </form>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
   /* ============ MAIN RENDER ============ */
   return (
-    <div className="min-h-screen bg-[#0F0F0F]">
-      {renderHeader()}
+    <>
+      {renderDeleteConfirm()}
+      {renderTaskModal()}
+      <div className="min-h-screen bg-[#0F0F0F]">
+        {renderHeader()}
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {renderTabs()}
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          {renderTabs()}
 
-        <AnimatePresence mode="wait">
-          {activeTab === 'activity' && renderActivityFeed()}
-          {activeTab === 'calendar' && renderCalendar()}
-          {activeTab === 'search' && renderSearch()}
-        </AnimatePresence>
+          <AnimatePresence mode="wait">
+            {activeTab === 'activity' && renderActivityFeed()}
+            {activeTab === 'calendar' && renderCalendar()}
+            {activeTab === 'search' && renderSearch()}
+          </AnimatePresence>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

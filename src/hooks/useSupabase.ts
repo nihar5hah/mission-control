@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { activitiesApi, tasksApi, documentsApi } from '@/lib/api';
-import type { Activity, Task, Document } from '@/types/database';
+import type { Activity, Task, Document, ActivityInsert, TaskInsert } from '@/types/database';
 
 // Activities Hook
 export function useActivities(limit?: number) {
@@ -39,6 +39,8 @@ export function useActivities(limit?: number) {
           setActivities((prev) =>
             prev.map((a) => a.id === payload.new.id ? payload.new as Activity : a)
           );
+        } else if (payload.eventType === 'DELETE') {
+          setActivities((prev) => prev.filter((a) => a.id !== payload.old.id));
         }
       })
       .subscribe();
@@ -48,7 +50,23 @@ export function useActivities(limit?: number) {
     };
   }, [limit]);
 
-  return { activities, loading, error };
+  const updateActivity = async (id: number, data: Partial<Activity>) => {
+    try {
+      await activitiesApi.update(id, data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update activity');
+    }
+  };
+
+  const deleteActivity = async (id: number) => {
+    try {
+      await activitiesApi.delete(id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete activity');
+    }
+  };
+
+  return { activities, loading, error, updateActivity, deleteActivity };
 }
 
 // Tasks Hook
@@ -104,7 +122,31 @@ export function useTasks() {
     }
   };
 
-  return { tasks, loading, error, updateStatus };
+  const updateTask = async (id: number, data: Partial<Task>) => {
+    try {
+      await tasksApi.update(id, data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update task');
+    }
+  };
+
+  const createTask = async (task: TaskInsert) => {
+    try {
+      await tasksApi.create(task);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create task');
+    }
+  };
+
+  const deleteTask = async (id: number) => {
+    try {
+      await tasksApi.delete(id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete task');
+    }
+  };
+
+  return { tasks, loading, error, updateStatus, updateTask, createTask, deleteTask };
 }
 
 // Documents Hook (with debounced search)

@@ -38,6 +38,25 @@ export const activitiesApi = {
     if (error) throw error;
     return data;
   },
+
+  async update(id: number, data: Partial<Activity>): Promise<Activity> {
+    const { data: result, error } = await db.activities()
+      .update(data)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return result;
+  },
+
+  async delete(id: number): Promise<void> {
+    const { error } = await db.activities()
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  },
 };
 
 // Tasks API
@@ -70,6 +89,25 @@ export const tasksApi = {
 
     if (error) throw error;
     return data;
+  },
+
+  async update(id: number, data: Partial<Task>): Promise<Task> {
+    const { data: result, error } = await db.tasks()
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return result;
+  },
+
+  async delete(id: number): Promise<void> {
+    const { error } = await db.tasks()
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
   },
 };
 
