@@ -3,11 +3,16 @@ import type { Activity, ActivityInsert, Task, TaskInsert, Document } from '@/typ
 
 // Activities API
 export const activitiesApi = {
-  async getAll(limit = 50): Promise<Activity[]> {
-    const { data, error } = await db.activities()
+  async getAll(limit?: number): Promise<Activity[]> {
+    let query = db.activities()
       .select('*')
-      .order('timestamp', { ascending: false })
-      .limit(limit);
+      .order('timestamp', { ascending: false });
+
+    if (limit) {
+      query = query.limit(limit);
+    }
+
+    const { data, error } = await query;
 
     if (error) throw error;
     return data || [];

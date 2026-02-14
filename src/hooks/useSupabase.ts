@@ -6,7 +6,7 @@ import { activitiesApi, tasksApi, documentsApi } from '@/lib/api';
 import type { Activity, Task, Document } from '@/types/database';
 
 // Activities Hook
-export function useActivities(limit = 50) {
+export function useActivities(limit?: number) {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +34,7 @@ export function useActivities(limit = 50) {
         table: 'activities'
       }, (payload) => {
         if (payload.eventType === 'INSERT') {
-          setActivities((prev) => [payload.new as Activity, ...prev].slice(0, limit));
+          setActivities((prev) => [payload.new as Activity, ...prev]);
         } else if (payload.eventType === 'UPDATE') {
           setActivities((prev) =>
             prev.map((a) => a.id === payload.new.id ? payload.new as Activity : a)

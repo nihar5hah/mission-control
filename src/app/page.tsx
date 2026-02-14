@@ -170,7 +170,7 @@ export default function MissionControl() {
   const [expandedActivity, setExpandedActivity] = useState<number | null>(null);
   const [filterType, setFilterType] = useState<string | null>(null);
 
-  const { activities, loading: activitiesLoading } = useActivities(100);
+  const { activities, loading: activitiesLoading } = useActivities();
   const { tasks, loading: tasksLoading, updateStatus } = useTasks();
   const { documents, loading: documentsLoading } = useDocuments(searchQuery);
 
