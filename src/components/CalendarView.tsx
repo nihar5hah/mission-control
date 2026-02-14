@@ -9,6 +9,8 @@ import {
   CheckCircle,
   Clock,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface Task {
   id: string;
@@ -22,10 +24,8 @@ interface Task {
 }
 
 export default function CalendarView() {
-  const [currentDate, setCurrentDate] = useState(new Date(2026, 1, 14)); // Feb 14, 2026
-  const [viewType, setViewType] = useState<'week' | 'month'>('week');
+  const [currentDate, setCurrentDate] = useState(new Date(2026, 1, 14));
 
-  // Mock tasks
   const tasks: Task[] = [
     {
       id: '1',
@@ -131,7 +131,7 @@ export default function CalendarView() {
   };
 
   const goToToday = () => {
-    setCurrentDate(new Date(2026, 1, 14)); // Feb 14, 2026
+    setCurrentDate(new Date(2026, 1, 14));
   };
 
   return (
@@ -146,24 +146,15 @@ export default function CalendarView() {
           <p className="text-sm text-slate-400 mt-1">Week of {weekDays[0].toLocaleDateString()} - {weekDays[6].toLocaleDateString()}</p>
         </div>
         <div className="flex gap-2">
-          <button
-            onClick={previousWeek}
-            className="p-2 rounded-lg glass hover:border-cyan-400/50 transition-all"
-          >
+          <Button variant="outline" size="icon" onClick={previousWeek}>
             <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button
-            onClick={goToToday}
-            className="px-4 py-2 rounded-lg glass hover:border-cyan-400/50 transition-all text-sm font-medium"
-          >
+          </Button>
+          <Button variant="outline" onClick={goToToday}>
             Today
-          </button>
-          <button
-            onClick={nextWeek}
-            className="p-2 rounded-lg glass hover:border-cyan-400/50 transition-all"
-          >
+          </Button>
+          <Button variant="outline" size="icon" onClick={nextWeek}>
             <ChevronRight className="w-5 h-5" />
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -175,83 +166,87 @@ export default function CalendarView() {
           const isWeekend = idx === 0 || idx === 6;
 
           return (
-            <div
+            <Card
               key={day.toString()}
-              className={`rounded-lg p-4 min-h-96 flex flex-col ${
+              className={`rounded-lg min-h-96 flex flex-col ${
                 isToday
-                  ? 'glass border border-cyan-400/50 bg-cyan-400/10'
+                  ? 'bg-slate-900/50 border-cyan-500/50'
                   : isWeekend
-                  ? 'glass bg-slate-800/50'
-                  : 'glass'
+                  ? 'bg-slate-900/30 border-slate-800'
+                  : 'bg-slate-900/50 border-slate-800'
               }`}
             >
-              <div className="mb-4">
+              <CardHeader className="pb-2">
                 <p className="text-xs font-semibold text-slate-400 uppercase">
                   {dayNames[idx]}
                 </p>
                 <p className={`text-2xl font-bold ${isToday ? 'text-cyan-400' : 'text-slate-200'}`}>
                   {day.getDate()}
                 </p>
-              </div>
-
-              {/* Tasks for day */}
-              <div className="space-y-2 flex-1 overflow-y-auto">
-                {dayTasks.length === 0 ? (
-                  <p className="text-xs text-slate-500 text-center py-4">No tasks</p>
-                ) : (
-                  dayTasks.map((task) => (
-                    <div
-                      key={task.id}
-                      className={`p-2 rounded text-xs border ${getPriorityColor(task.priority)} cursor-pointer hover:shadow-lg transition-all group`}
-                    >
-                      <div className="flex items-start gap-2">
-                        <div className="mt-0.5">{getStatusIcon(task.status)}</div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate group-hover:text-white">
-                            {task.title}
-                          </p>
-                          {task.scheduledTime && (
-                            <p className="text-xs opacity-75 mt-0.5">{task.scheduledTime}</p>
-                          )}
+              </CardHeader>
+              <CardContent className="flex-1 overflow-y-auto">
+                <div className="space-y-2">
+                  {dayTasks.length === 0 ? (
+                    <p className="text-xs text-slate-500 text-center py-4">No tasks</p>
+                  ) : (
+                    dayTasks.map((task) => (
+                      <div
+                        key={task.id}
+                        className={`p-2 rounded text-xs border cursor-pointer hover:shadow-lg transition-all group ${getPriorityColor(task.priority)}`}
+                      >
+                        <div className="flex items-start gap-2">
+                          <div className="mt-0.5">{getStatusIcon(task.status)}</div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium truncate group-hover:text-white">
+                              {task.title}
+                            </p>
+                            {task.scheduledTime && (
+                              <p className="text-xs opacity-75 mt-0.5">{task.scheduledTime}</p>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           );
         })}
       </div>
 
       {/* Upcoming Tasks Summary */}
-      <div className="glass rounded-lg p-6">
-        <h3 className="font-semibold text-slate-100 mb-4 flex items-center gap-2">
-          <Flag className="w-5 h-5 text-cyan-400" />
-          Upcoming Critical Tasks
-        </h3>
-        <div className="space-y-3">
-          {tasks
-            .filter((t) => t.priority === 'critical' || t.priority === 'high')
-            .sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate))
-            .map((task) => (
-              <div key={task.id} className="flex items-center gap-3 pb-3 border-b border-slate-700/50 last:border-0 last:pb-0">
-                <div className={`flex-shrink-0 ${getPriorityColor(task.priority)} rounded p-2`}>
-                  {getStatusIcon(task.status)}
+      <Card className="bg-slate-900/50 border-slate-800">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Flag className="w-5 h-5 text-cyan-400" />
+            Upcoming Critical Tasks
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {tasks
+              .filter((t) => t.priority === 'critical' || t.priority === 'high')
+              .sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate))
+              .map((task) => (
+                <div key={task.id} className="flex items-center gap-3 pb-3 border-b border-slate-800 last:border-0 last:pb-0">
+                  <div className={`flex-shrink-0 rounded p-2 ${getPriorityColor(task.priority)}`}>
+                    {getStatusIcon(task.status)}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-slate-200">{task.title}</p>
+                    <p className="text-xs text-slate-400">
+                      {new Date(task.scheduledDate).toLocaleDateString()} {task.scheduledTime || ''}
+                    </p>
+                  </div>
+                  <span className={`text-xs font-semibold px-2 py-1 rounded ${getPriorityColor(task.priority)}`}>
+                    {task.priority.toUpperCase()}
+                  </span>
                 </div>
-                <div className="flex-1">
-                  <p className="font-medium text-slate-200">{task.title}</p>
-                  <p className="text-xs text-slate-400">
-                    {new Date(task.scheduledDate).toLocaleDateString()} {task.scheduledTime || ''}
-                  </p>
-                </div>
-                <span className={`text-xs font-semibold ${getPriorityColor(task.priority)}`}>
-                  {task.priority.toUpperCase()}
-                </span>
-              </div>
-            ))}
-        </div>
-      </div>
+              ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

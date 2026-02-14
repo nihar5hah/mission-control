@@ -2,6 +2,8 @@
 
 import { useState, useMemo } from 'react';
 import { Search as SearchIcon, Loader, FileText, BookOpen, CheckSquare } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface SearchResult {
   type: 'document' | 'memory' | 'task';
@@ -16,7 +18,6 @@ export default function SearchPanel() {
   const [query, setQuery] = useState('');
   const [searching, setSearching] = useState(false);
 
-  // Mock data
   const mockResults: SearchResult[] = [
     {
       type: 'document',
@@ -68,7 +69,6 @@ export default function SearchPanel() {
     if (!query.trim()) return [];
     
     setSearching(true);
-    // Simulate search delay
     setTimeout(() => setSearching(false), 300);
 
     return mockResults.filter((result) => {
@@ -115,19 +115,19 @@ export default function SearchPanel() {
     <div className="space-y-6 max-w-4xl">
       {/* Search Input */}
       <div className="relative">
-        <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
           {searching ? (
             <Loader className="w-5 h-5 text-cyan-400 animate-spin" />
           ) : (
             <SearchIcon className="w-5 h-5 text-slate-500" />
           )}
         </div>
-        <input
+        <Input
           type="text"
           placeholder="Search memories, documents, tasks... (try 'API', 'database', 'integration')"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full glass rounded-lg py-4 pl-12 pr-4 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-400/50 transition-colors"
+          className="pl-10 bg-slate-900/50 border-slate-800 focus-visible:ring-cyan-500"
         />
       </div>
 
@@ -141,84 +141,89 @@ export default function SearchPanel() {
       {/* Results List */}
       <div className="space-y-4">
         {query.trim() === '' ? (
-          <div className="glass rounded-lg p-12 text-center">
-            <SearchIcon className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-            <p className="text-slate-400">Start typing to search</p>
-            <p className="text-xs text-slate-500 mt-2">
-              Search across memories, documents, and tasks
-            </p>
-          </div>
+          <Card className="bg-slate-900/50 border-slate-800">
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <SearchIcon className="w-12 h-12 text-slate-600 mb-3" />
+              <p className="text-slate-400">Start typing to search</p>
+              <p className="text-xs text-slate-500 mt-2">
+                Search across memories, documents, and tasks
+              </p>
+            </CardContent>
+          </Card>
         ) : results.length === 0 ? (
-          <div className="glass rounded-lg p-12 text-center">
-            <SearchIcon className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-            <p className="text-slate-400">No results found</p>
-            <p className="text-xs text-slate-500 mt-2">
-              Try different keywords or check your filters
-            </p>
-          </div>
+          <Card className="bg-slate-900/50 border-slate-800">
+            <CardContent className="flex flex-col items-center justify-center py-12">
+              <SearchIcon className="w-12 h-12 text-slate-600 mb-3" />
+              <p className="text-slate-400">No results found</p>
+              <p className="text-xs text-slate-500 mt-2">
+                Try different keywords or check your filters
+              </p>
+            </CardContent>
+          </Card>
         ) : (
           results.map((result) => (
-            <div
-              key={`${result.type}-${result.id}`}
-              className="glass rounded-lg p-5 hover:border-cyan-400/50 transition-all cursor-pointer group"
-            >
-              <div className="flex items-start gap-4">
-                <div className="mt-1 flex-shrink-0">{getResultIcon(result.type)}</div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-3 mb-2">
-                    <h3 className="font-semibold text-slate-100 group-hover:text-cyan-400 transition-colors">
-                      {result.title}
-                    </h3>
-                    <span
-                      className={`text-xs font-semibold px-2 py-1 rounded border whitespace-nowrap ${getTypeColor(
-                        result.type
-                      )}`}
-                    >
-                      {getTypeLabel(result.type)}
-                    </span>
-                  </div>
-
-                  <p className="text-sm text-slate-400 line-clamp-2 mb-3">
-                    {result.content}
-                  </p>
-
-                  <div className="flex items-center justify-between">
-                    {result.tags && result.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {result.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="text-xs px-2 py-1 rounded bg-slate-800/50 text-slate-300 cursor-pointer hover:bg-slate-800 transition-colors"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    {result.date && (
-                      <span className="text-xs text-slate-500 ml-auto">
-                        {new Date(result.date).toLocaleDateString()}
+            <Card key={`${result.type}-${result.id}`} className="bg-slate-900/50 border-slate-800 hover:border-cyan-500/50 transition-colors cursor-pointer">
+              <CardContent className="p-5">
+                <div className="flex items-start gap-4">
+                  <div className="mt-1 flex-shrink-0">{getResultIcon(result.type)}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <h3 className="font-semibold text-slate-100 group-hover:text-cyan-400 transition-colors">
+                        {result.title}
+                      </h3>
+                      <span
+                        className={`text-xs font-semibold px-2 py-1 rounded border whitespace-nowrap ${getTypeColor(
+                          result.type
+                        )}`}
+                      >
+                        {getTypeLabel(result.type)}
                       </span>
-                    )}
+                    </div>
+
+                    <p className="text-sm text-slate-400 line-clamp-2 mb-3">
+                      {result.content}
+                    </p>
+
+                    <div className="flex items-center justify-between">
+                      {result.tags && result.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {result.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="text-xs px-2 py-1 rounded bg-slate-800/50 text-slate-300 cursor-pointer hover:bg-slate-800 transition-colors"
+                            >
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {result.date && (
+                        <span className="text-xs text-slate-500 ml-auto">
+                          {new Date(result.date).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           ))
         )}
       </div>
 
       {/* Search Tips */}
       {!query.trim() && (
-        <div className="glass rounded-lg p-6 bg-slate-800/30">
-          <h3 className="text-sm font-semibold text-slate-300 mb-3">💡 Search Tips</h3>
-          <ul className="space-y-2 text-xs text-slate-400">
-            <li>• Search by keywords: "database", "API", "integration"</li>
-            <li>• Search by date: "Feb 14", "2026-02-14"</li>
-            <li>• Search by tags: "#critical", "#completed", "#high-priority"</li>
-            <li>• Combine searches: "API integration"</li>
-          </ul>
-        </div>
+        <Card className="bg-slate-900/30 border-slate-800">
+          <CardContent className="p-6">
+            <h3 className="text-sm font-semibold text-slate-300 mb-3">💡 Search Tips</h3>
+            <ul className="space-y-2 text-xs text-slate-400">
+              <li>• Search by keywords: "database", "API", "integration"</li>
+              <li>• Search by date: "Feb 14", "2026-02-14"</li>
+              <li>• Search by tags: "#critical", "#completed", "#high-priority"</li>
+              <li>• Combine searches: "API integration"</li>
+            </ul>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

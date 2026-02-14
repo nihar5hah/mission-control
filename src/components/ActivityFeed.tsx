@@ -6,10 +6,10 @@ import {
   AlertCircle,
   Loader,
   Zap,
-  Clock,
-  ChevronDown,
   RefreshCw,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface Activity {
   id: string;
@@ -28,7 +28,6 @@ export default function ActivityFeed() {
   const [filter, setFilter] = useState<'all' | 'running' | 'completed' | 'failed'>('all');
   const [autoRefresh, setAutoRefresh] = useState(true);
 
-  // Mock data
   useEffect(() => {
     setLoading(true);
     const mockActivities: Activity[] = [
@@ -96,12 +95,10 @@ export default function ActivityFeed() {
     }, 300);
   }, []);
 
-  // Auto-refresh
   useEffect(() => {
     if (!autoRefresh) return;
 
     const interval = setInterval(() => {
-      // In real app, fetch from Convex
       setActivities((prev) => [
         {
           id: Date.now().toString(),
@@ -131,7 +128,7 @@ export default function ActivityFeed() {
       case 'failed':
         return <AlertCircle className="w-4 h-4 text-red-400" />;
       default:
-        return <Clock className="w-4 h-4 text-slate-400" />;
+        return <Loader className="w-4 h-4 text-slate-400" />;
     }
   };
 
@@ -154,30 +151,26 @@ export default function ActivityFeed() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex gap-2">
           {(['all', 'running', 'completed', 'failed'] as const).map((f) => (
-            <button
+            <Button
               key={f}
+              variant={filter === f ? 'default' : 'outline'}
+              size="sm"
               onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                filter === f
-                  ? 'glass border border-cyan-400/50 text-cyan-400'
-                  : 'glass text-slate-400 hover:text-slate-300'
-              }`}
+              className={filter === f ? 'bg-cyan-500 hover:bg-cyan-600' : ''}
             >
               {f.charAt(0).toUpperCase() + f.slice(1)}
-            </button>
+            </Button>
           ))}
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setAutoRefresh(!autoRefresh)}
-            className={`p-2 rounded-lg transition-all ${
-              autoRefresh ? 'glass border border-cyan-400/50 text-cyan-400' : 'glass text-slate-400'
-            }`}
-            title={autoRefresh ? 'Auto-refresh enabled' : 'Auto-refresh disabled'}
-          >
-            <RefreshCw className={`w-4 h-4 ${autoRefresh ? 'animate-spin' : ''}`} />
-          </button>
-        </div>
+        <Button
+          variant={autoRefresh ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setAutoRefresh(!autoRefresh)}
+          className={autoRefresh ? 'bg-cyan-500 hover:bg-cyan-600' : ''}
+        >
+          <RefreshCw className={`w-4 h-4 mr-2 ${autoRefresh ? 'animate-spin' : ''}`} />
+          Auto-refresh
+        </Button>
       </div>
 
       {/* Activities List */}
@@ -186,45 +179,37 @@ export default function ActivityFeed() {
           <Loader className="w-8 h-8 text-cyan-400 animate-spin" />
         </div>
       ) : filteredActivities.length === 0 ? (
-        <div className="glass rounded-lg p-12 text-center">
-          <Zap className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-          <p className="text-slate-400">No activities found</p>
-        </div>
+        <Card className="bg-slate-900/50 border-slate-800">
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <Zap className="w-12 h-12 text-slate-600 mb-3" />
+            <p className="text-slate-400">No activities found</p>
+          </CardContent>
+        </Card>
       ) : (
         <div className="space-y-3">
           {filteredActivities.map((activity) => (
-            <div
-              key={activity.id}
-              className="glass rounded-lg p-4 hover:border-cyan-400/50 transition-all group cursor-pointer"
-            >
-              <div className="flex items-start gap-4">
-                <div className="mt-1">{getStatusIcon(activity.status)}</div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <h3 className="font-semibold text-slate-200 group-hover:text-cyan-400 transition-colors">
-                        {activity.title}
-                      </h3>
-                      {activity.description && (
-                        <p className="text-sm text-slate-400 mt-1">{activity.description}</p>
-                      )}
+            <Card key={activity.id} className="bg-slate-900/50 border-slate-800 hover:border-cyan-500/50 transition-colors cursor-pointer">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-4">
+                  <div className="mt-1">{getStatusIcon(activity.status)}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <h3 className="font-semibold text-slate-200 group-hover:text-cyan-400 transition-colors">
+                          {activity.title}
+                        </h3>
+                        {activity.description && (
+                          <p className="text-sm text-slate-400 mt-1">{activity.description}</p>
+                        )}
+                      </div>
+                      <span className="text-xs text-slate-500 whitespace-nowrap">
+                        {formatTime(activity.timestamp)}
+                      </span>
                     </div>
-                    <span className="text-xs text-slate-500 whitespace-nowrap">
-                      {formatTime(activity.timestamp)}
-                    </span>
                   </div>
-                  {activity.metadata && (
-                    <div className="mt-2 text-xs text-slate-500">
-                      {Object.entries(activity.metadata).map(([key, value]) => (
-                        <span key={key} className="inline-block mr-3">
-                          <span className="text-slate-600">{key}:</span> {String(value)}
-                        </span>
-                      ))}
-                    </div>
-                  )}
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
