@@ -3,6 +3,7 @@ import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, Clock, CheckCircle, XCircle, Play } from "lucide-react";
+import { Suspense } from "react";
 
 interface ActivityItem {
   _id: string;
@@ -14,7 +15,7 @@ interface ActivityItem {
   metadata?: any;
 }
 
-export function ActivitiesList() {
+function ActivitiesContent() {
   const activities = useQuery(api.activities.getActivities, {
     limit: 50,
   });
@@ -123,3 +124,12 @@ export function ActivitiesList() {
     </div>
   );
 }
+
+export function ActivitiesList() {
+  return (
+    <Suspense fallback={<div className="text-[#8A8A8A]">Loading activities...</div>}>
+      <ActivitiesContent />
+    </Suspense>
+  );
+}
+

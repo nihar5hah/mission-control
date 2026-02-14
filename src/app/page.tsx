@@ -8,9 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ActivitiesList } from '@/components/ActivitiesList';
 import { TasksList } from '@/components/TasksList';
+import { ClientOnly } from '@/components/ClientOnly';
 import { SearchPanel } from '@/components/SearchPanel';
-
-export const dynamic = 'force-dynamic';
 
 // Types
 interface CronJob {
@@ -170,7 +169,11 @@ const searchData: SearchResult[] = [
 
 // Components
 function ActivityPanel() {
-  return <ActivitiesList />;
+  return (
+    <ClientOnly fallback={<div className="text-[#8A8A8A]">Loading activities...</div>}>
+      <ActivitiesList />
+    </ClientOnly>
+  );
 }
 
 function CronJobsPanel() {
@@ -252,11 +255,19 @@ function CronJobsPanel() {
 }
 
 function TasksPanel() {
-  return <TasksList />;
+  return (
+    <ClientOnly fallback={<div className="text-[#8A8A8A]">Loading tasks...</div>}>
+      <TasksList />
+    </ClientOnly>
+  );
 }
 
 function SearchPanelWrapper() {
-  return <SearchPanel />;
+  return (
+    <ClientOnly fallback={<div className="text-[#8A8A8A]">Loading search...</div>}>
+      <SearchPanel />
+    </ClientOnly>
+  );
 }
 
 function Sidebar() {
