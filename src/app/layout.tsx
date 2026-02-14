@@ -1,10 +1,18 @@
+'use client';
+
 import type { Metadata } from 'next';
+import { ConvexProvider, ConvexReactClient } from 'convex/react';
 import './globals.css';
 
-export const metadata: Metadata = {
-  title: 'Mission Control | AI Agent Dashboard',
-  description: 'Real-time activity monitoring and task management for AI agents',
-};
+const convex = new ConvexReactClient(
+  process.env.NEXT_PUBLIC_CONVEX_URL!
+);
+
+// Note: Metadata removed due to client component
+// export const metadata: Metadata = {
+//   title: 'Mission Control | AI Agent Dashboard',
+//   description: 'Real-time activity monitoring and task management for AI agents',
+// };
 
 export default function RootLayout({
   children,
@@ -14,7 +22,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {children}
+        <ConvexProvider client={convex}>
+          {children}
+        </ConvexProvider>
       </body>
     </html>
   );

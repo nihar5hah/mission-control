@@ -1,5 +1,4 @@
 {
-  "node": "18",
-  "generator": {},
   "functions": "./convex/**/*.ts"
 }
+

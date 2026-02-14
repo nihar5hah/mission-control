@@ -6,6 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ActivitiesList } from '@/components/ActivitiesList';
+import { TasksList } from '@/components/TasksList';
+import { SearchPanel } from '@/components/SearchPanel';
+
+export const dynamic = 'force-dynamic';
 
 // Types
 interface CronJob {
@@ -165,87 +170,41 @@ const searchData: SearchResult[] = [
 
 // Components
 function ActivityPanel() {
-  const [filter, setFilter] = useState<string>('all');
-
-  const filteredActivities = filter === 'all' 
-    ? activities 
-    : activities.filter(a => a.type === filter);
-
-  const getIcon = (type: string) => {
-    switch (type) {
-      case 'cron': return <Clock className="w-4 h-4" />;
-      case 'session': return <Activity className="w-4 h-4" />;
-      case 'task': return <ListTodo className="w-4 h-4" />;
-      case 'memory': return <Brain className="w-4 h-4" />;
-      default: return <Activity className="w-4 h-4" />;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed': return 'text-[#5EAD5E]';
-      case 'running': return 'text-[#5E8FAD]';
-      case 'failed': return 'text-[#E55454]';
-      default: return 'text-[#8A8A8A]';
-    }
-  };
-
-  const formatDuration = (ms: number) => {
-    if (ms > 60000) return `${Math.round(ms / 60000)}m`;
-    return `${Math.round(ms / 1000)}s`;
-  };
-
-  const formatTime = (ts: number) => {
-    const diff = Date.now() - ts;
-    if (diff < 60000) return 'just now';
-    if (diff < 3600000) return `${Math.round(diff / 60000)}m ago`;
-    if (diff < 86400000) return `${Math.round(diff / 3600000)}h ago`;
-    return new Date(ts).toLocaleDateString();
-  };
-
-  return (
-    <div className="space-y-4">
-      <div className="flex gap-2">
-        {['all', 'cron', 'session', 'task', 'memory'].map(f => (
-          <Button
-            key={f}
-            variant={filter === f ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setFilter(f)}
-            className={filter === f ? 'bg-[#5E6AD2]' : 'text-[#8A8A8A] hover:text-white'}
-          >
-            {f.charAt(0).toUpperCase() + f.slice(1)}
-          </Button>
-        ))}
-      </div>
-
-      <div className="space-y-1">
-        {filteredActivities.map(activity => (
-          <div
-            key={activity.id}
-            className="flex items-start gap-3 p-3 rounded-md hover:bg-[#141414] transition-colors"
-          >
-            <div className={`mt-0.5 ${getStatusColor(activity.status)}`}>
-              {getIcon(activity.type)}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <p className="font-medium text-sm text-white">{activity.title}</p>
-                <span className="text-xs text-[#8A8A8A]">{formatTime(activity.timestamp)}</span>
-              </div>
-              <p className="text-xs text-[#8A8A8A] truncate">{activity.description}</p>
-              {activity.duration && (
-                <span className="text-xs text-[#5E6AD2]">{formatDuration(activity.duration)}</span>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  return <ActivitiesList />;
 }
 
 function CronJobsPanel() {
+  const cronJobs = [
+    {
+      id: '0f9a832d',
+      name: 'morning-brief',
+      enabled: true,
+      schedule: { expr: '30 3 * * *', tz: 'Asia/Kolkata' },
+      state: { nextRunAtMs: 1771106400000, lastRunAtMs: 1771068000000, lastStatus: 'ok', lastDurationMs: 45000 }
+    },
+    {
+      id: '3b9fd363',
+      name: 'daily-research-report',
+      enabled: true,
+      schedule: { expr: '0 14 * * *', tz: 'Asia/Kolkata' },
+      state: { nextRunAtMs: 1771144200000, lastRunAtMs: 1771068085108, lastStatus: 'ok', lastDurationMs: 33253 }
+    },
+    {
+      id: 'e4a1a3a4',
+      name: 'build-eval-system',
+      enabled: true,
+      schedule: { expr: '30 20 * * *', tz: 'UTC' },
+      state: { nextRunAtMs: 1771187400000, lastRunAtMs: 1771102995130, lastStatus: 'ok', lastDurationMs: 66910 }
+    },
+    {
+      id: 'd23d1993',
+      name: 'night-shift',
+      enabled: true,
+      schedule: { expr: '0 2 * * *', tz: 'Asia/Kolkata' },
+      state: { nextRunAtMs: 1771187400000, lastRunAtMs: 1771101238187, lastStatus: 'ok', lastDurationMs: 602876 }
+    }
+  ];
+
   const formatSchedule = (expr: string) => {
     const [min, hour, , ,] = expr.split(' ');
     return `${hour}:${min}`;
@@ -293,127 +252,11 @@ function CronJobsPanel() {
 }
 
 function TasksPanel() {
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'urgent': return 'bg-[#E55454]';
-      case 'high': return 'bg-[#D4A853]';
-      case 'medium': return 'bg-[#5E6AD2]';
-      default: return 'bg-[#8A8A8A]';
-    }
-  };
-
-  return (
-    <div className="space-y-1">
-      {tasks.map(task => (
-        <div
-          key={task.id}
-          className="flex items-center gap-3 p-3 rounded-md hover:bg-[#141414] transition-colors"
-        >
-          <div className={`w-1.5 h-1.5 rounded-full ${getPriorityColor(task.priority)}`} />
-          <div className="flex-1">
-            <p className="text-sm text-white">{task.title}</p>
-          </div>
-          <span className={`text-xs px-2 py-0.5 rounded ${
-            task.status === 'completed' ? 'bg-[#5EAD5E]/20 text-[#5EAD5E]' :
-            task.status === 'in_progress' ? 'bg-[#5E8FAD]/20 text-[#5E8FAD]' :
-            'bg-[#2A2A2A] text-[#8A8A8A]'
-          }`}>
-            {task.status.replace('_', ' ')}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
+  return <TasksList />;
 }
 
-function SearchPanel() {
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<SearchResult[]>([]);
-
-  useEffect(() => {
-    if (!query.trim()) {
-      setResults([]);
-      return;
-    }
-    const filtered = searchData.filter(item => 
-      item.title.toLowerCase().includes(query.toLowerCase()) ||
-      item.content.toLowerCase().includes(query.toLowerCase())
-    );
-    setResults(filtered);
-  }, [query]);
-
-  const getIcon = (type: string) => {
-    switch (type) {
-      case 'memory': return <Brain className="w-4 h-4" />;
-      case 'cron': return <Clock className="w-4 h-4" />;
-      case 'task': return <ListTodo className="w-4 h-4" />;
-      case 'document': return <FileText className="w-4 h-4" />;
-      default: return <Search className="w-4 h-4" />;
-    }
-  };
-
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case 'memory': return 'text-[#A855F7]';
-      case 'cron': return 'text-[#5E6AD2]';
-      case 'task': return 'text-[#5EAD5E]';
-      case 'document': return 'text-[#5E8FAD]';
-      default: return 'text-[#8A8A8A]';
-    }
-  };
-
-  return (
-    <div className="space-y-4">
-      <Input
-        placeholder="Search memories, tasks, cron jobs..."
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        className="bg-[#141414] border-[#2A2A2A] text-white placeholder:text-[#8A8A8A]"
-      />
-
-      {results.length === 0 && query && (
-        <p className="text-sm text-[#8A8A8A] text-center py-8">No results found</p>
-      )}
-
-      {results.length > 0 && (
-        <div className="space-y-1">
-          {results.map(result => (
-            <div
-              key={`${result.type}-${result.id}`}
-              className="p-3 rounded-md hover:bg-[#141414] transition-colors cursor-pointer"
-            >
-              <div className="flex items-start gap-3">
-                <div className={`mt-0.5 ${getTypeColor(result.type)}`}>
-                  {getIcon(result.type)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <p className="font-medium text-sm text-white">{result.title}</p>
-                    <span className={`text-xs ${getTypeColor(result.type)}`}>{result.type}</span>
-                  </div>
-                  <p className="text-xs text-[#8A8A8A] line-clamp-2 mt-1">{result.content}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {!query && (
-        <div className="space-y-4">
-          <div>
-            <h4 className="text-xs font-medium text-[#8A8A8A] uppercase mb-2">Recent Memories</h4>
-            {memoryFiles.map((mem, i) => (
-              <div key={i} className="p-3 rounded-md bg-[#141414] mb-2">
-                <p className="font-medium text-sm text-white">{mem.title}</p>
-                <p className="text-xs text-[#8A8A8A] line-clamp-2 mt-1">{mem.content}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
+function SearchPanelWrapper() {
+  return <SearchPanel />;
 }
 
 function Sidebar() {
@@ -512,7 +355,7 @@ export default function Dashboard() {
           {activeTab === 'activity' && <ActivityPanel />}
           {activeTab === 'schedule' && <CronJobsPanel />}
           {activeTab === 'tasks' && <TasksPanel />}
-          {activeTab === 'search' && <SearchPanel />}
+          {activeTab === 'search' && <SearchPanelWrapper />}
         </main>
       </div>
     </div>

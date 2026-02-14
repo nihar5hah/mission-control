@@ -38,11 +38,7 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   })
-    .index("by_type", ["type"])
-    .searchIndex("search_content", {
-      searchField: "content",
-      filterFields: ["type"],
-    }),
+    .index("by_type", ["type"]),
 
   memories: defineTable({
     date: v.string(), // YYYY-MM-DD format
@@ -50,9 +46,5 @@ export default defineSchema({
     tags: v.optional(v.array(v.string())),
     createdAt: v.number(),
   })
-    .index("by_date", ["date"])
-    .searchIndex("search_memories", {
-      searchField: "content",
-      filterFields: ["date"],
-    }),
+    .index("by_date", ["date"]),
 });
