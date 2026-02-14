@@ -1,50 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 6.3%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 6.3%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 239 65% 58%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 9.4%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 9.4%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 9.4%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 50.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.5%;
-    --input: 0 0% 14.5%;
-    --ring: 239 65% 58%;
-    --radius: 0.375rem;
+    /* Linear-inspired color palette */
+    --background: #0F0F0F;
+    --foreground: #FAFAFA;
+
+    /* Subtle grays for UI elements */
+    --border: #262626;
+    --input: #1A1A1A;
+    --muted-bg: #161616;
+    --subtle: #121212;
+
+    /* Linear accent colors */
+    --primary: #5E6AD2;
+    --primary-light: #6F7BDB;
+    --primary-dark: #4A55BF;
+
+    /* Status colors with refined palette */
+    --success: #5EAD5E;
+    --success-light: #6FBC6F;
+    --danger: #E55454;
+    --danger-light: #ED6B6B;
+    --warning: #D4A853;
+    --info: #5E8FAD;
+    --running: #5E8FAD;
+  }
+
+  * {
+    @apply border-[#262626];
   }
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
+/* Typography */
 html {
   scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background-color: #0D0D0D;
-  color: #FAFAFA;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  @apply bg-[#0F0F0F] text-[#FAFAFA];
+  font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+h1 { @apply text-3xl; }
+h2 { @apply text-2xl; }
+h3 { @apply text-xl; }
+h4 { @apply text-lg; }
+h5 { @apply text-base; }
+h6 { @apply text-sm; }
+
+code {
+  font-family: 'Source Code Pro', monospace;
+  font-size: 0.875em;
 }
 
 /* Scrollbar */
@@ -54,52 +77,72 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0D0D0D;
+  @apply bg-[#121212];
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2A2A2A;
-  border-radius: 4px;
+  @apply bg-[#2A2A2A] rounded;
+  transition: background-color 200ms ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3A3A3A;
+  @apply bg-[#3A3A3A];
 }
 
-/* Typography */
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 600;
-  letter-spacing: -0.02em;
+/* Selection */
+::selection {
+  @apply bg-[#5E6AD2] text-[#FAFAFA];
 }
 
-/* Utility classes */
-.text-muted {
-  color: #8A8A8A;
+/* Links */
+a {
+  @apply text-[#5E6AD2] hover:text-[#6F7BDB] transition-colors;
 }
 
-.bg-subtle {
-  background-color: #141414;
+/* Input styles */
+input, textarea, select {
+  @apply bg-[#1A1A1A] text-[#FAFAFA] placeholder:text-[#666];
+  transition: all 200ms ease;
 }
 
-.border-subtle {
-  border-color: #2A2A2A;
+input:focus, textarea:focus, select:focus {
+  @apply outline-none ring-1 ring-[#5E6AD2] ring-offset-0;
 }
 
-/* Status colors */
-.status-success {
-  color: #5EAD5E;
+/* Status utilities */
+.status-completed {
+  @apply text-[#5EAD5E];
 }
 
-.status-error {
-  color: #E55454;
+.status-running {
+  @apply text-[#5E8FAD];
 }
 
-.status-warning {
-  color: #D4A853;
+.status-pending {
+  @apply text-[#888];
 }
 
-.status-info {
-  color: #5E8FAD;
+.status-failed {
+  @apply text-[#E55454];
+}
+
+.status-in-progress {
+  @apply text-[#5E8FAD];
+}
+
+/* Gradient utilities */
+.gradient-primary {
+  @apply bg-gradient-to-r from-[#5E6AD2] to-[#6F7BDB];
+}
+
+/* Glass effect */
+.glass {
+  @apply bg-white/[0.02] backdrop-blur-xl border border-white/10;
+}
+
+/* Smooth transitions */
+.transition-smooth {
+  @apply transition-all duration-200 ease-out;
 }
 
 /* Animations */
@@ -108,6 +151,103 @@ h1, h2, h3, h4, h5, h6 {
   to { opacity: 1; }
 }
 
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(94, 106, 210, 0.3); }
+  50% { box-shadow: 0 0 0 6px rgba(94, 106, 210, 0); }
+}
+
 .animate-fade-in {
-  animation: fadeIn 0.2s ease-out;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideInUp 0.4s ease-out;
+}
+
+.animate-slide-down {
+  animation: slideInDown 0.4s ease-out;
+}
+
+.animate-slide-left {
+  animation: slideInLeft 0.3s ease-out;
+}
+
+.animate-slide-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* Component styles */
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2.5 rounded-lg bg-[#5E6AD2] text-white font-medium text-sm hover:bg-[#6F7BDB] transition-smooth;
+  }
+
+  .btn-secondary {
+    @apply px-4 py-2.5 rounded-lg bg-[#161616] text-[#FAFAFA] font-medium text-sm border border-[#262626] hover:bg-[#1F1F1F] transition-smooth;
+  }
+
+  .card {
+    @apply bg-[#161616] border border-[#262626] rounded-xl p-6 transition-smooth hover:border-[#333] hover:bg-[#1A1A1A];
+  }
+
+  .card-sm {
+    @apply bg-[#161616] border border-[#262626] rounded-lg p-4 transition-smooth;
+  }
 }

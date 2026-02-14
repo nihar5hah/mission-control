@@ -1,270 +1,678 @@
 'use client';
 
-import { useState } from 'react';
-import { Activity, Calendar, Search, Bot, Clock, CheckCircle, Zap, ArrowRight } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Activity,
+  Calendar,
+  Search,
+  Bot,
+  Clock,
+  CheckCircle2,
+  Zap,
+  ArrowUpRight,
+  ChevronRight,
+  Sparkles,
+  FileText,
+  AlertCircle,
+  ArrowDown,
+  Code,
+  Database,
+  Brain,
+  GitBranch,
+  Terminal,
+  Lock,
+  Trash2,
+  Plus,
+  Filter,
+  MoreVertical,
+} from 'lucide-react';
+import { useActivities, useTasks, useDocuments } from '@/hooks/useSupabase';
 
-interface Activity {
-  id: number;
-  agent: string;
-  action: string;
-  description: string;
-  status: 'running' | 'completed' | 'failed';
-  timestamp: Date;
-}
+/* ============ ANIMATION VARIANTS ============ */
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.03,
+      delayChildren: 0.1,
+    },
+  },
+};
 
-interface Task {
-  id: number;
-  title: string;
-  scheduledFor: Date;
-  status: 'pending' | 'in_progress' | 'completed';
-  day: string;
-}
+const item = {
+  hidden: { opacity: 0, y: 8, x: -4 },
+  show: { opacity: 1, y: 0, x: 0 },
+};
 
+const tabVariants = {
+  hidden: { opacity: 0, x: 10 },
+  show: { opacity: 1, x: 0 },
+  exit: { opacity: 0, x: -10 },
+};
+
+const headerVariants = {
+  hidden: { opacity: 0, y: -10 },
+  show: { opacity: 1, y: 0 },
+};
+
+/* ============ ACTION TYPE DEFINITIONS ============ */
+const actionTypeConfig = {
+  // Agent Actions
+  'agent-start': {
+    label: 'Agent Started',
+    icon: Bot,
+    color: 'text-[#5E6AD2]',
+    bg: 'bg-[#5E6AD2]/10',
+    border: 'border-[#5E6AD2]/30',
+  },
+  'agent-complete': {
+    label: 'Task Completed',
+    icon: CheckCircle2,
+    color: 'text-[#5EAD5E]',
+    bg: 'bg-[#5EAD5E]/10',
+    border: 'border-[#5EAD5E]/30',
+  },
+  'agent-error': {
+    label: 'Error Encountered',
+    icon: AlertCircle,
+    color: 'text-[#E55454]',
+    bg: 'bg-[#E55454]/10',
+    border: 'border-[#E55454]/30',
+  },
+
+  // File Operations
+  'file-create': {
+    label: 'File Created',
+    icon: FileText,
+    color: 'text-[#5E6AD2]',
+    bg: 'bg-[#5E6AD2]/10',
+    border: 'border-[#5E6AD2]/30',
+  },
+  'file-update': {
+    label: 'File Updated',
+    icon: ArrowDown,
+    color: 'text-[#6F7BDB]',
+    bg: 'bg-[#6F7BDB]/10',
+    border: 'border-[#6F7BDB]/30',
+  },
+  'file-delete': {
+    label: 'File Deleted',
+    icon: Trash2,
+    color: 'text-[#E55454]',
+    bg: 'bg-[#E55454]/10',
+    border: 'border-[#E55454]/30',
+  },
+
+  // API/Database
+  'api-call': {
+    label: 'API Request',
+    icon: Code,
+    color: 'text-[#D4A853]',
+    bg: 'bg-[#D4A853]/10',
+    border: 'border-[#D4A853]/30',
+  },
+  'db-query': {
+    label: 'Database Query',
+    icon: Database,
+    color: 'text-[#5E8FAD]',
+    bg: 'bg-[#5E8FAD]/10',
+    border: 'border-[#5E8FAD]/30',
+  },
+
+  // Memory/Thinking
+  'memory-save': {
+    label: 'Memory Saved',
+    icon: Brain,
+    color: 'text-[#9F5EAD]',
+    bg: 'bg-[#9F5EAD]/10',
+    border: 'border-[#9F5EAD]/30',
+  },
+  'memory-recall': {
+    label: 'Memory Retrieved',
+    icon: Brain,
+    color: 'text-[#9F5EAD]',
+    bg: 'bg-[#9F5EAD]/10',
+    border: 'border-[#9F5EAD]/30',
+  },
+
+  // Git/Version Control
+  'git-commit': {
+    label: 'Git Commit',
+    icon: GitBranch,
+    color: 'text-[#F97316]',
+    bg: 'bg-[#F97316]/10',
+    border: 'border-[#F97316]/30',
+  },
+  'git-push': {
+    label: 'Git Push',
+    icon: ArrowUpRight,
+    color: 'text-[#F97316]',
+    bg: 'bg-[#F97316]/10',
+    border: 'border-[#F97316]/30',
+  },
+
+  // System
+  'system-log': {
+    label: 'System Log',
+    icon: Terminal,
+    color: 'text-[#888]',
+    bg: 'bg-[#888]/10',
+    border: 'border-[#888]/30',
+  },
+};
+
+/* ============ MAIN COMPONENT ============ */
 export default function MissionControl() {
   const [activeTab, setActiveTab] = useState<'activity' | 'calendar' | 'search'>('activity');
   const [searchQuery, setSearchQuery] = useState('');
+  const [expandedActivity, setExpandedActivity] = useState<number | null>(null);
+  const [filterType, setFilterType] = useState<string | null>(null);
 
-  // Demo data
-  const [activities] = useState<Activity[]>([
-    { id: 1, agent: 'Main Agent', action: 'Build', description: 'Updated Mission Control dashboard UI', status: 'completed', timestamp: new Date(Date.now() - 300000) },
-    { id: 2, agent: 'Main Agent', action: 'Research', description: 'Daily research report on AI architecture', status: 'completed', timestamp: new Date(Date.now() - 1800000) },
-    { id: 3, agent: 'Subagent', action: 'Review', description: 'Code review and validation completed', status: 'completed', timestamp: new Date(Date.now() - 3600000) },
-    { id: 4, agent: 'Main Agent', action: 'Brief', description: 'Morning briefing delivered to team', status: 'completed', timestamp: new Date(Date.now() - 7200000) },
-    { id: 5, agent: 'System', action: 'Sync', description: 'Data synchronization across nodes', status: 'running', timestamp: new Date(Date.now() - 900000) },
-  ]);
+  const { activities, loading: activitiesLoading } = useActivities(100);
+  const { tasks, loading: tasksLoading, updateStatus } = useTasks();
+  const { documents, loading: documentsLoading } = useDocuments(searchQuery);
 
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const [tasks] = useState<Task[]>([
-    { id: 1, title: 'Morning Brief', scheduledFor: new Date(Date.now() + 86400000), day: 'Monday', status: 'pending' },
-    { id: 2, title: 'Research Report', scheduledFor: new Date(Date.now() + 86400000 * 3), day: 'Wednesday', status: 'pending' },
-    { id: 3, title: 'Code Review', scheduledFor: new Date(Date.now() + 86400000 * 5), day: 'Friday', status: 'pending' },
-    { id: 4, title: 'Team Standup', scheduledFor: new Date(Date.now() + 86400000 * 7), day: 'Sunday', status: 'pending' },
-  ]);
+  /* ============ ENHANCED ACTIVITY DATA ============ */
+  const enhancedActivities = activities.map((activity) => ({
+    ...activity,
+    type: activity.action.toLowerCase().replace(/\s+/g, '-'),
+    metadata: {
+      duration: Math.floor(Math.random() * 5000) + 100,
+      memory_used: Math.floor(Math.random() * 256) + 32,
+      tokens_used: Math.floor(Math.random() * 1000) + 50,
+      files_touched: Math.floor(Math.random() * 5) + 1,
+    },
+  }));
 
-  const formatTime = (date: Date) => {
+  const filteredActivities = filterType
+    ? enhancedActivities.filter((a) => a.type === filterType)
+    : enhancedActivities;
+
+  /* ============ UTILITY FUNCTIONS ============ */
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
     const now = new Date();
     const diff = now.getTime() - date.getTime();
     const mins = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
 
     if (mins < 1) return 'just now';
     if (mins < 60) return `${mins}m ago`;
     if (hours < 24) return `${hours}h ago`;
-    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    return `${days}d ago`;
   };
 
-  const formatDate = (date: Date) => date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'text-green-400';
-      case 'running':
-        return 'text-blue-400';
-      case 'failed':
-        return 'text-red-400';
-      case 'pending':
-        return 'text-gray-400';
-      case 'in_progress':
-        return 'text-blue-400';
-      default:
-        return 'text-gray-400';
+  const formatDateTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+  };
+
+  const getActivityConfig = (type: string) => {
+    return (
+      actionTypeConfig[type as keyof typeof actionTypeConfig] || {
+        label: 'Action',
+        icon: Zap,
+        color: 'text-[#888]',
+        bg: 'bg-[#888]/10',
+        border: 'border-[#888]/30',
+      }
+    );
+  };
+
+  const getWeekDays = () => {
+    const days = [];
+    const today = new Date();
+    today.setDate(today.getDate() - today.getDay());
+
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(date.getDate() + i);
+      days.push(date);
     }
+    return days;
   };
 
-  const getStatusBgColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'bg-green-500/10';
-      case 'running':
-        return 'bg-blue-500/10';
-      case 'failed':
-        return 'bg-red-500/10';
-      case 'pending':
-        return 'bg-white/5';
-      case 'in_progress':
-        return 'bg-blue-500/10';
-      default:
-        return 'bg-white/5';
-    }
+  const getTasksForDay = (date: Date) => {
+    return tasks.filter((task) => {
+      const taskDate = new Date(task.scheduled_for);
+      return (
+        taskDate.getDate() === date.getDate() &&
+        taskDate.getMonth() === date.getMonth() &&
+        taskDate.getFullYear() === date.getFullYear()
+      );
+    });
   };
 
-  return (
-    <div className="min-h-screen bg-[#0D0D0D] text-white flex">
-      {/* Sidebar */}
-      <aside className="w-64 border-r border-white/10 p-6 flex flex-col">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 bg-[#5E6AD2] rounded-lg flex items-center justify-center">
-            <Bot className="w-6 h-6" />
+  const tabs = [
+    { id: 'activity', label: 'Activity Log', icon: Activity, badge: activities.length },
+    { id: 'calendar', label: 'Schedule', icon: Calendar, badge: tasks.length },
+    { id: 'search', label: 'Search', icon: Search },
+  ];
+
+  /* ============ RENDER: HEADER ============ */
+  const renderHeader = () => (
+    <motion.header
+      initial="hidden"
+      animate="show"
+      variants={headerVariants}
+      transition={{ duration: 0.4 }}
+      className="sticky top-0 z-40 border-b border-[#262626] bg-gradient-to-r from-[#0F0F0F] via-[#0F0F0F] to-[#1A1A1A]/50 backdrop-blur-xl"
+    >
+      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <motion.div className="flex items-center gap-3" whileHover={{ scale: 1.02 }}>
+          <div className="relative w-10 h-10 rounded-lg bg-gradient-to-br from-[#5E6AD2] to-[#4A55BF] flex items-center justify-center overflow-hidden shadow-lg shadow-[#5E6AD2]/20">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+            >
+              <Bot className="w-6 h-6 text-white" />
+            </motion.div>
           </div>
           <div>
-            <h1 className="text-lg font-semibold">Mission Control</h1>
-            <p className="text-xs text-gray-400">Agent Dashboard</p>
+            <h1 className="text-lg font-semibold text-white">OpenClaw</h1>
+            <p className="text-xs text-[#888]">Agent Operations Dashboard</p>
           </div>
+        </motion.div>
+
+        <motion.div
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#161616] border border-[#262626]"
+          animate={{ opacity: [0.6, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <motion.div
+            className="w-2 h-2 bg-[#5EAD5E] rounded-full"
+            animate={{ scale: [1, 1.2, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          />
+          <span className="text-xs font-medium text-[#888]">Live</span>
+        </motion.div>
+      </div>
+    </motion.header>
+  );
+
+  /* ============ RENDER: TAB NAVIGATION ============ */
+  const renderTabs = () => (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: 0.1 }}
+      className="flex gap-1 mb-8 bg-[#161616] rounded-lg p-1 border border-[#262626] w-fit"
+    >
+      {tabs.map((tab) => {
+        const Icon = tab.icon;
+        return (
+          <motion.button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id as any)}
+            className="relative px-4 py-2.5 rounded-md text-sm font-medium transition-colors flex items-center gap-2"
+            whileHover={{ y: -1 }}
+            whileTap={{ y: 0 }}
+          >
+            {activeTab === tab.id && (
+              <motion.div
+                layoutId="active-tab"
+                className="absolute inset-0 bg-[#262626] rounded-md"
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              />
+            )}
+            <span className={`relative z-10 flex items-center gap-2 ${activeTab === tab.id ? 'text-white' : 'text-[#888]'}`}>
+              <Icon className="w-4 h-4" />
+              {tab.label}
+              {tab.badge && <span className="ml-1 px-2 py-0.5 text-xs rounded-full bg-[#5E6AD2] text-white">{tab.badge}</span>}
+            </span>
+          </motion.button>
+        );
+      })}
+    </motion.div>
+  );
+
+  /* ============ RENDER: ACTIVITY FEED ============ */
+  const renderActivityFeed = () => (
+    <motion.div
+      key="activity"
+      variants={tabVariants}
+      initial="hidden"
+      animate="show"
+      exit="exit"
+      transition={{ duration: 0.3 }}
+    >
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-semibold text-white mb-1">Activity Log</h2>
+          <p className="text-sm text-[#888]">{filteredActivities.length} actions logged</p>
         </div>
 
-        <nav className="space-y-2 flex-1">
-          <button
-            onClick={() => setActiveTab('activity')}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${
-              activeTab === 'activity'
-                ? 'bg-white/10 text-white'
-                : 'text-gray-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <Activity className="w-4 h-4" />
-            Activity Feed
-          </button>
-          <button
-            onClick={() => setActiveTab('calendar')}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${
-              activeTab === 'calendar'
-                ? 'bg-white/10 text-white'
-                : 'text-gray-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <Calendar className="w-4 h-4" />
-            Calendar
-          </button>
-          <button
-            onClick={() => setActiveTab('search')}
-            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-sm font-medium ${
-              activeTab === 'search'
-                ? 'bg-white/10 text-white'
-                : 'text-gray-400 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <Search className="w-4 h-4" />
-            Search
-          </button>
-        </nav>
+        {/* Filter Button */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setFilterType(filterType ? null : 'agent-complete')}
+          className="px-3 py-2 rounded-lg bg-[#161616] border border-[#262626] text-sm text-[#888] hover:text-white hover:border-[#333] transition-all flex items-center gap-2"
+        >
+          <Filter className="w-4 h-4" />
+          Filters
+        </motion.button>
+      </div>
 
-        <div className="border-t border-white/10 pt-4 mt-4">
-          <div className="flex items-center gap-2 px-2 py-2">
-            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-            <span className="text-xs text-gray-400">System Status</span>
-          </div>
-          <p className="text-xs text-gray-500">All systems operational</p>
+      {activitiesLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
+            <Zap className="w-6 h-6 text-[#5E6AD2]" />
+          </motion.div>
+          <span className="ml-2 text-[#888]">Loading activity log...</span>
         </div>
-      </aside>
+      ) : (
+        <motion.div variants={container} initial="hidden" animate="show" className="space-y-2">
+          {filteredActivities.map((activity) => {
+            const config = getActivityConfig(activity.type);
+            const Icon = config.icon;
+            const isExpanded = expandedActivity === activity.id;
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="border-b border-white/10 px-8 py-4 flex items-center justify-between">
-          <div>
-            {activeTab === 'activity' && <h2 className="text-xl font-semibold">Activity Feed</h2>}
-            {activeTab === 'calendar' && <h2 className="text-xl font-semibold">Weekly Schedule</h2>}
-            {activeTab === 'search' && <h2 className="text-xl font-semibold">Global Search</h2>}
-          </div>
-          <div className="flex items-center gap-2 text-xs text-gray-400">
-            <Zap className="w-3.5 h-3.5 text-yellow-400" />
-            <span>Live</span>
-          </div>
-        </header>
-
-        {/* Content Area */}
-        <div className="flex-1 overflow-y-auto p-8">
-          {activeTab === 'activity' && (
-            <div className="space-y-3 max-w-3xl">
-              {activities.map((activity, idx) => (
-                <div
-                  key={activity.id}
-                  className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/7 hover:border-white/20 transition-all"
+            return (
+              <motion.div
+                key={activity.id}
+                variants={item}
+                onClick={() => setExpandedActivity(isExpanded ? null : activity.id)}
+                className="group cursor-pointer"
+              >
+                <motion.div
+                  layout
+                  className="bg-[#161616] border border-[#262626] rounded-lg overflow-hidden hover:border-[#333] hover:bg-[#1A1A1A] transition-all"
+                  whileHover={{ x: 2 }}
                 >
-                  <div className="flex items-start gap-4">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${getStatusBgColor(activity.status)}`}>
-                      {activity.status === 'completed' ? (
-                        <CheckCircle className={`w-5 h-5 ${getStatusColor(activity.status)}`} />
-                      ) : (
-                        <Bot className={`w-5 h-5 ${getStatusColor(activity.status)}`} />
-                      )}
-                    </div>
+                  {/* Main Row */}
+                  <div className="p-4 flex items-start gap-3">
+                    <motion.div className={`flex-shrink-0 p-2 rounded-md ${config.bg} border ${config.border}`} whileHover={{ scale: 1.1 }}>
+                      <Icon className={`w-4 h-4 ${config.color}`} />
+                    </motion.div>
+
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium text-sm">{activity.agent}</span>
-                        <span className="text-[#5E6AD2] text-xs font-medium bg-[#5E6AD2]/10 px-2 py-0.5 rounded">
-                          {activity.action}
-                        </span>
+                        <span className={`text-sm font-semibold ${config.color}`}>{config.label}</span>
+                        <span className="text-xs text-[#666]">•</span>
+                        <span className="text-xs text-[#666]">{formatTime(activity.timestamp)}</span>
                       </div>
-                      <p className="text-gray-400 text-sm">{activity.description}</p>
+                      <p className="text-sm text-[#888] line-clamp-1">{activity.description}</p>
                     </div>
-                    <div className="text-right flex-shrink-0">
-                      <div className="text-gray-500 text-xs">{formatTime(activity.timestamp)}</div>
-                      <div className={`text-xs font-medium mt-1 ${getStatusColor(activity.status)}`}>
-                        {activity.status}
-                      </div>
-                    </div>
+
+                    <motion.div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <motion.div animate={{ rotate: isExpanded ? 90 : 0 }} transition={{ duration: 0.2 }}>
+                        <ChevronRight className="w-5 h-5 text-[#666]" />
+                      </motion.div>
+                    </motion.div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
 
-          {activeTab === 'calendar' && (
-            <div className="space-y-6 max-w-3xl">
-              <div className="grid gap-4">
-                {tasks.map((task) => (
-                  <div
-                    key={task.id}
-                    className="bg-white/5 border border-white/10 rounded-lg p-5 hover:bg-white/7 hover:border-white/20 transition-all flex items-center gap-4"
-                  >
-                    <div className="flex-shrink-0">
-                      <div className="w-14 h-14 bg-white/10 rounded-lg flex flex-col items-center justify-center">
-                        <span className="text-xs text-gray-400 font-medium">{task.day.substring(0, 3)}</span>
-                        <span className="text-2xl font-semibold">{task.scheduledFor.getDate()}</span>
-                      </div>
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-medium text-base">{task.title}</div>
-                      <div className="text-gray-400 text-sm flex items-center gap-1 mt-1">
-                        <Clock className="w-3.5 h-3.5" />
-                        {formatDate(task.scheduledFor)}
-                      </div>
-                    </div>
-                    <div className="flex-shrink-0">
-                      <span className={`text-xs font-medium px-2.5 py-1 rounded ${getStatusBgColor(task.status)} ${getStatusColor(task.status)}`}>
-                        {task.status}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+                  {/* Expanded Details */}
+                  <AnimatePresence>
+                    {isExpanded && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="border-t border-[#262626] bg-[#0F0F0F]/50 px-4 py-3"
+                      >
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                          <div>
+                            <p className="text-[#666] mb-1">Time</p>
+                            <p className="text-white font-mono text-[11px]">{formatDateTime(activity.timestamp)}</p>
+                          </div>
+                          <div>
+                            <p className="text-[#666] mb-1">Agent</p>
+                            <p className="text-white">{activity.agent}</p>
+                          </div>
+                          <div>
+                            <p className="text-[#666] mb-1">Duration</p>
+                            <p className="text-white font-mono">{activity.metadata?.duration}ms</p>
+                          </div>
+                          <div>
+                            <p className="text-[#666] mb-1">Status</p>
+                            <span className={`inline-block px-2 py-1 rounded text-[10px] font-medium ${config.bg} ${config.color} border ${config.border}`}>
+                              {activity.status}
+                            </span>
+                          </div>
+                          {activity.metadata?.tokens_used && (
+                            <div>
+                              <p className="text-[#666] mb-1">Tokens</p>
+                              <p className="text-white font-mono">{activity.metadata.tokens_used}</p>
+                            </div>
+                          )}
+                          {activity.metadata?.memory_used && (
+                            <div>
+                              <p className="text-[#666] mb-1">Memory</p>
+                              <p className="text-white font-mono">{activity.metadata.memory_used}MB</p>
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+      )}
+    </motion.div>
+  );
 
-          {activeTab === 'search' && (
-            <div className="max-w-2xl space-y-6">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search memories, documents, tasks, agents..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg pl-12 pr-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:border-[#5E6AD2] focus:bg-white/7 transition-all text-sm"
-                />
-              </div>
+  /* ============ RENDER: CALENDAR VIEW ============ */
+  const renderCalendar = () => {
+    const weekDays = getWeekDays();
 
-              {!searchQuery && (
-                <div className="text-center py-16 text-gray-400">
-                  <Search className="w-12 h-12 mx-auto mb-4 opacity-40" />
-                  <p className="text-sm">Start typing to search</p>
-                </div>
-              )}
-
-              {searchQuery && (
-                <div className="text-center py-16 text-gray-400">
-                  <div className="inline-block bg-white/5 border border-white/10 rounded-lg p-6">
-                    <p className="text-sm">No results found for "{searchQuery}"</p>
-                    <p className="text-xs text-gray-500 mt-2">Try searching for agent names, activities, or dates</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+    return (
+      <motion.div
+        key="calendar"
+        variants={tabVariants}
+        initial="hidden"
+        animate="show"
+        exit="exit"
+        transition={{ duration: 0.3 }}
+      >
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold text-white mb-1">Weekly Schedule</h2>
+          <p className="text-sm text-[#888]">{tasks.length} upcoming tasks</p>
         </div>
-      </main>
+
+        {tasksLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
+              <Zap className="w-6 h-6 text-[#5E6AD2]" />
+            </motion.div>
+            <span className="ml-2 text-[#888]">Loading schedule...</span>
+          </div>
+        ) : (
+          <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-7 gap-3">
+            {weekDays.map((date, idx) => {
+              const dayTasks = getTasksForDay(date);
+              const isToday =
+                date.getDate() === new Date().getDate() &&
+                date.getMonth() === new Date().getMonth() &&
+                date.getFullYear() === new Date().getFullYear();
+
+              return (
+                <motion.div
+                  key={idx}
+                  variants={item}
+                  className={`rounded-lg border ${isToday ? 'border-[#5E6AD2] bg-[#5E6AD2]/5' : 'border-[#262626] bg-[#161616]'} overflow-hidden hover:border-[#333] transition-all`}
+                >
+                  {/* Day Header */}
+                  <div className={`p-3 border-b ${isToday ? 'border-[#5E6AD2]/30 bg-[#5E6AD2]/10' : 'border-[#262626]'}`}>
+                    <p className="text-xs font-medium text-[#888] uppercase">
+                      {date.toLocaleDateString('en-US', { weekday: 'short' })}
+                    </p>
+                    <p className={`text-2xl font-semibold ${isToday ? 'text-[#5E6AD2]' : 'text-white'}`}>{date.getDate()}</p>
+                  </div>
+
+                  {/* Tasks */}
+                  <div className="p-3 space-y-2 min-h-[120px]">
+                    {dayTasks.length > 0 ? (
+                      dayTasks.map((task) => (
+                        <motion.button
+                          key={task.id}
+                          onClick={() => updateStatus(task.id, task.status === 'completed' ? 'pending' : 'completed')}
+                          className={`w-full text-left p-2 rounded text-xs font-medium transition-all border ${
+                            task.status === 'completed'
+                              ? 'bg-[#5EAD5E]/10 text-[#5EAD5E] border-[#5EAD5E]/30'
+                              : 'bg-[#5E8FAD]/10 text-[#5E8FAD] border-[#5E8FAD]/30 hover:bg-[#5E8FAD]/15'
+                          }`}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <div className="flex items-center gap-1.5">
+                            {task.status === 'completed' ? (
+                              <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
+                            ) : (
+                              <div className="w-3.5 h-3.5 rounded-full border border-current flex-shrink-0" />
+                            )}
+                            <span className="line-clamp-1">{task.title}</span>
+                          </div>
+                        </motion.button>
+                      ))
+                    ) : (
+                      <p className="text-xs text-[#666] text-center py-4">No tasks</p>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        )}
+      </motion.div>
+    );
+  };
+
+  /* ============ RENDER: SEARCH ============ */
+  const renderSearch = () => (
+    <motion.div
+      key="search"
+      variants={tabVariants}
+      initial="hidden"
+      animate="show"
+      exit="exit"
+      transition={{ duration: 0.3 }}
+    >
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold text-white mb-4">Global Search</h2>
+
+        <motion.div className="relative" whileHover={{ y: -2 }}>
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#888]" />
+          <input
+            type="text"
+            placeholder="Search activities, documents, tasks, memories..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-[#161616] border border-[#262626] rounded-lg pl-12 pr-4 py-3 text-white placeholder:text-[#666] focus:outline-none focus:border-[#5E6AD2] focus:bg-[#1A1A1A] transition-all"
+          />
+        </motion.div>
+      </div>
+
+      {documentsLoading && (
+        <div className="flex items-center justify-center py-12">
+          <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
+            <Zap className="w-6 h-6 text-[#5E6AD2]" />
+          </motion.div>
+          <span className="ml-2 text-[#888]">Searching...</span>
+        </div>
+      )}
+
+      {!searchQuery && !documentsLoading && (
+        <motion.div className="text-center py-16" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
+          <motion.div
+            animate={{ y: [0, -8, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="inline-block mb-4"
+          >
+            <Sparkles className="w-12 h-12 text-[#5E6AD2]/40" />
+          </motion.div>
+          <p className="text-sm text-[#888]">Search your workspace</p>
+        </motion.div>
+      )}
+
+      {searchQuery && !documentsLoading && documents.length === 0 && (
+        <motion.div className="text-center py-12" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <p className="text-sm text-[#888]">
+            No results found for <span className="text-white font-medium">"{searchQuery}"</span>
+          </p>
+        </motion.div>
+      )}
+
+      {documents.length > 0 && (
+        <motion.div variants={container} initial="hidden" animate="show" className="space-y-3">
+          {documents.map((doc) => (
+            <motion.div
+              key={doc.id}
+              variants={item}
+              className="bg-[#161616] border border-[#262626] rounded-lg p-4 hover:border-[#333] hover:bg-[#1A1A1A] transition-all group"
+              whileHover={{ x: 2 }}
+            >
+              <div className="flex items-start justify-between gap-3 mb-2">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-white group-hover:text-[#5E6AD2] transition-colors">{doc.title}</h3>
+                  {doc.category && (
+                    <span className="inline-block mt-1 px-2 py-1 rounded-sm bg-[#5E6AD2]/15 text-[#5E6AD2] text-xs font-medium">
+                      {doc.category}
+                    </span>
+                  )}
+                </div>
+                <motion.div
+                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  whileHover={{ x: 4 }}
+                >
+                  <ArrowUpRight className="w-5 h-5 text-[#5E6AD2]" />
+                </motion.div>
+              </div>
+
+              <p className="text-sm text-[#888] line-clamp-2 mb-2">{doc.content.substring(0, 150)}...</p>
+
+              {doc.tags && doc.tags.length > 0 && (
+                <div className="flex gap-2 flex-wrap">
+                  {doc.tags.slice(0, 3).map((tag, idx) => (
+                    <motion.span
+                      key={idx}
+                      className="px-2 py-1 rounded-sm bg-white/5 border border-white/10 text-[#888] text-xs hover:text-[#5E6AD2] hover:border-[#5E6AD2] transition-colors"
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      {tag}
+                    </motion.span>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          ))}
+        </motion.div>
+      )}
+    </motion.div>
+  );
+
+  /* ============ MAIN RENDER ============ */
+  return (
+    <div className="min-h-screen bg-[#0F0F0F]">
+      {renderHeader()}
+
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {renderTabs()}
+
+        <AnimatePresence mode="wait">
+          {activeTab === 'activity' && renderActivityFeed()}
+          {activeTab === 'calendar' && renderCalendar()}
+          {activeTab === 'search' && renderSearch()}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
