@@ -319,13 +319,11 @@ export default function MissionControl() {
 
     // Add all tasks' specific dates to the map
     tasks.forEach((task) => {
-      // Only add specific task dates if they're not "Daily"
-      if (task.day !== 'Daily') {
-        const taskDate = new Date(task.scheduled_for);
-        const dateKey = taskDate.toISOString().split('T')[0];
-        if (!daysMap.has(dateKey)) {
-          daysMap.set(dateKey, taskDate);
-        }
+      // Add each task's specific scheduled_for date to calendar
+      const taskDate = new Date(task.scheduled_for);
+      const dateKey = taskDate.toISOString().split('T')[0];
+      if (!daysMap.has(dateKey)) {
+        daysMap.set(dateKey, taskDate);
       }
     });
 
@@ -334,12 +332,8 @@ export default function MissionControl() {
 
   const getTasksForDay = (date: Date) => {
     return tasks.filter((task) => {
-      // If task is marked as "Daily", it appears every day
-      if (task.day === 'Daily') {
-        return true;
-      }
-
-      // Otherwise, check if the task's scheduled_for date matches this day
+      // Only match based on scheduled_for date - IGNORE the "day" field completely
+      // Each task appears ONLY on its specific scheduled date
       const taskDate = new Date(task.scheduled_for);
       return (
         taskDate.getDate() === date.getDate() &&
