@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useActivities, useTasks, useDocuments } from '@/hooks/useSupabase';
+import { useWorkspaceFiles } from '@/hooks/useWorkspaceFiles';
 import type { Task } from '@/types/database';
 import {
   Activity,
@@ -42,6 +43,10 @@ import {
   Play,
   Send,
 } from 'lucide-react';
+
+import { FileTree } from '@/components/FileTree';
+import { MarkdownViewer } from '@/components/MarkdownViewer';
+import { AgentStatus } from '@/components/AgentStatus';
 
 /* ============ ANIMATION VARIANTS ============ */
 const container = {
@@ -223,7 +228,7 @@ const actionTypeConfig = {
 
 /* ============ MAIN COMPONENT ============ */
 export default function MissionControl() {
-  const [activeTab, setActiveTab] = useState<'activity' | 'calendar' | 'search'>('activity');
+  const [activeTab, setActiveTab] = useState<'activity' | 'calendar' | 'search' | 'documentation'>('activity');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedActivity, setExpandedActivity] = useState<number | null>(null);
   const [filterType, setFilterType] = useState<string | null>(null);
@@ -248,6 +253,7 @@ export default function MissionControl() {
   const { activities, loading: activitiesLoading, deleteActivity, updateActivity } = useActivities();
   const { tasks, loading: tasksLoading, updateStatus, updateTask, createTask, deleteTask } = useTasks();
   const { documents, loading: documentsLoading } = useDocuments(searchQuery);
+  const { files, selectedFile, fileContent, loading: filesLoading, contentLoading, selectFile, refresh: refreshFiles } = useWorkspaceFiles();
 
   /* ============ ENHANCED ACTIVITY DATA ============ */
   const enhancedActivities = activities.map((activity) => ({
@@ -486,6 +492,7 @@ export default function MissionControl() {
   const tabs = [
     { id: 'activity', label: 'Activity Log', icon: Activity, badge: activities.length },
     { id: 'calendar', label: 'Schedule', icon: Calendar, badge: tasks.length },
+    { id: 'documentation', label: 'Documentation', icon: FileText },
     { id: 'search', label: 'Search', icon: Search },
   ];
 
@@ -926,6 +933,88 @@ export default function MissionControl() {
     );
   };
 
+  /* ============ RENDER: DOCUMENTATION ============ */
+  const renderDocumentation = () => (
+    <motion.div
+      key="documentation"
+      variants={tabVariants}
+      initial="hidden"
+      animate="show"
+      exit="exit"
+      transition={{ duration: 0.3 }}
+    >
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold text-white mb-1">Documentation</h2>
+        <p className="text-sm text-[#888]">Browse workspace files and agent documentation</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-280px)] min-h-[500px]">
+        {/* File Tree Panel */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+          className="lg:col-span-1 bg-[#161616] border border-[#262626] rounded-lg overflow-hidden flex flex-col"
+        >
+          <div className="p-4 border-b border-[#262626]">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                <FileText className="w-4 h-4 text-[#5E6AD2]" />
+                Workspace Files
+              </h3>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={refreshFiles}
+                className="p-1.5 rounded hover:bg-[#262626] text-[#666] hover:text-white transition-colors"
+                title="Refresh files"
+              >
+                <RefreshCw className={`w-4 h-4 ${filesLoading ? 'animate-spin' : ''}`} />
+              </motion.button>
+            </div>
+            <p className="text-xs text-[#666] mt-1">Auto-refreshes every 10 seconds</p>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-2">
+            {filesLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
+                  <Zap className="w-5 h-5 text-[#5E6AD2]" />
+                </motion.div>
+              </div>
+            ) : (
+              <FileTree 
+                files={files} 
+                selectedFile={selectedFile} 
+                onSelectFile={selectFile} 
+              />
+            )}
+          </div>
+
+          {/* Agent Status */}
+          <div className="p-4 border-t border-[#262626]">
+            <AgentStatus compact />
+          </div>
+        </motion.div>
+
+        {/* Markdown Viewer Panel */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+          className="lg:col-span-2 bg-[#161616] border border-[#262626] rounded-lg overflow-hidden p-4"
+        >
+          <MarkdownViewer
+            content={fileContent}
+            fileName={selectedFile?.name || ''}
+            loading={contentLoading}
+            onRefresh={() => selectedFile && selectFile(selectedFile)}
+          />
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+
   /* ============ RENDER: SEARCH ============ */
   const renderSearch = () => (
     <motion.div
@@ -1356,6 +1445,7 @@ export default function MissionControl() {
           <AnimatePresence mode="wait">
             {activeTab === 'activity' && renderActivityFeed()}
             {activeTab === 'calendar' && renderCalendar()}
+            {activeTab === 'documentation' && renderDocumentation()}
             {activeTab === 'search' && renderSearch()}
           </AnimatePresence>
         </div>
