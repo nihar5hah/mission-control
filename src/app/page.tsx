@@ -295,8 +295,8 @@ export default function MissionControl() {
   const getWeekDays = () => {
     const days = [];
     const today = new Date();
-    today.setDate(today.getDate() - today.getDay());
-
+    
+    // Start from today + next 6 days (full week from today)
     for (let i = 0; i < 7; i++) {
       const date = new Date(today);
       date.setDate(date.getDate() + i);
@@ -308,16 +308,7 @@ export default function MissionControl() {
   const getAllTaskDays = () => {
     const daysMap = new Map<string, Date>();
     
-    // Add all tasks' dates to the map
-    tasks.forEach((task) => {
-      const taskDate = new Date(task.scheduled_for);
-      const dateKey = taskDate.toISOString().split('T')[0];
-      if (!daysMap.has(dateKey)) {
-        daysMap.set(dateKey, taskDate);
-      }
-    });
-
-    // Also include current week
+    // Always include current week (today + next 6 days)
     const weekDays = getWeekDays();
     weekDays.forEach((date) => {
       const dateKey = date.toISOString().split('T')[0];
@@ -326,11 +317,29 @@ export default function MissionControl() {
       }
     });
 
+    // Add all tasks' specific dates to the map
+    tasks.forEach((task) => {
+      // Only add specific task dates if they're not "Daily"
+      if (task.day !== 'Daily') {
+        const taskDate = new Date(task.scheduled_for);
+        const dateKey = taskDate.toISOString().split('T')[0];
+        if (!daysMap.has(dateKey)) {
+          daysMap.set(dateKey, taskDate);
+        }
+      }
+    });
+
     return Array.from(daysMap.values()).sort((a, b) => a.getTime() - b.getTime());
   };
 
   const getTasksForDay = (date: Date) => {
     return tasks.filter((task) => {
+      // If task is marked as "Daily", it appears every day
+      if (task.day === 'Daily') {
+        return true;
+      }
+
+      // Otherwise, check if the task's scheduled_for date matches this day
       const taskDate = new Date(task.scheduled_for);
       return (
         taskDate.getDate() === date.getDate() &&
