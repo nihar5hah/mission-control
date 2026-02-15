@@ -1,4 +1,5 @@
 import { db } from './supabase';
+import { sendTaskNotification } from './notifications';
 import type { Activity, ActivityInsert, Task, TaskInsert, Document } from '@/types/database';
 
 // Activities API
@@ -97,6 +98,15 @@ export const tasksApi = {
       .single();
 
     if (error) throw error;
+    
+    // Send notification
+    await sendTaskNotification({
+      type: 'created',
+      taskTitle: data.title,
+      taskId: data.id,
+      timestamp: new Date().toISOString(),
+    });
+
     return data;
   },
 
@@ -108,6 +118,17 @@ export const tasksApi = {
       .single();
 
     if (error) throw error;
+    
+    // Send notification for completion
+    if (status === 'completed') {
+      await sendTaskNotification({
+        type: 'completed',
+        taskTitle: data.title,
+        taskId: data.id,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
     return data;
   },
 
@@ -119,15 +140,40 @@ export const tasksApi = {
       .single();
 
     if (error) throw error;
+    
+    // Send notification for update
+    await sendTaskNotification({
+      type: 'updated',
+      taskTitle: result.title,
+      taskId: result.id,
+      timestamp: new Date().toISOString(),
+    });
+
     return result;
   },
 
   async delete(id: number): Promise<void> {
+    // Get task info before deletion for notification
+    const { data: taskData } = await db.tasks()
+      .select('title')
+      .eq('id', id)
+      .single();
+
     const { error } = await db.tasks()
       .delete()
       .eq('id', id);
 
     if (error) throw error;
+    
+    // Send notification
+    if (taskData) {
+      await sendTaskNotification({
+        type: 'deleted',
+        taskTitle: taskData.title,
+        taskId: id,
+        timestamp: new Date().toISOString(),
+      });
+    }
   },
 };
 

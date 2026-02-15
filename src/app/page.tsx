@@ -2,6 +2,8 @@
 
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useActivities, useTasks, useDocuments } from '@/hooks/useSupabase';
+import type { Task } from '@/types/database';
 import {
   Activity,
   Calendar,
@@ -29,7 +31,6 @@ import {
   X,
   Save,
 } from 'lucide-react';
-import { useActivities, useTasks, useDocuments } from '@/hooks/useSupabase';
 
 /* ============ ANIMATION VARIANTS ============ */
 const container = {
@@ -173,12 +174,14 @@ export default function MissionControl() {
   const [filterType, setFilterType] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'activity' | 'task'; id: number } | null>(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
+  const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [newTaskForm, setNewTaskForm] = useState({ title: '', scheduled_for: '', day: '', type: 'one-time' as 'daily' | 'one-time' });
   const [statusDropdown, setStatusDropdown] = useState<{ type: 'activity' | 'task'; id: number } | null>(null);
   const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
+  const [showTaskDropdown, setShowTaskDropdown] = useState<number | null>(null);
 
   const { activities, loading: activitiesLoading, deleteActivity, updateActivity } = useActivities();
-  const { tasks, loading: tasksLoading, updateStatus, createTask, deleteTask } = useTasks();
+  const { tasks, loading: tasksLoading, updateStatus, updateTask, createTask, deleteTask } = useTasks();
   const { documents, loading: documentsLoading } = useDocuments(searchQuery);
 
   /* ============ ENHANCED ACTIVITY DATA ============ */
@@ -233,16 +236,39 @@ export default function MissionControl() {
     const now = new Date();
     const scheduled_for = newTaskForm.scheduled_for || now.toISOString();
 
-    await createTask({
-      title: newTaskForm.title,
-      scheduled_for,
-      day: newTaskForm.day || now.toLocaleDateString('en-US', { weekday: 'long' }),
-      status: 'pending',
-      type: newTaskForm.type,
-    });
+    if (editingTaskId) {
+      // Edit existing task
+      await updateTask(editingTaskId, {
+        title: newTaskForm.title,
+        scheduled_for,
+        day: newTaskForm.day || now.toLocaleDateString('en-US', { weekday: 'long' }),
+        type: newTaskForm.type,
+      });
+    } else {
+      // Create new task
+      await createTask({
+        title: newTaskForm.title,
+        scheduled_for,
+        day: newTaskForm.day || now.toLocaleDateString('en-US', { weekday: 'long' }),
+        status: 'pending',
+        type: newTaskForm.type,
+      });
+    }
 
     setNewTaskForm({ title: '', scheduled_for: '', day: '', type: 'one-time' });
+    setEditingTaskId(null);
     setShowTaskModal(false);
+  };
+
+  const handleEditTask = (task: Task) => {
+    setEditingTaskId(task.id);
+    setNewTaskForm({
+      title: task.title,
+      scheduled_for: task.scheduled_for,
+      day: task.day || '',
+      type: (task.type || 'one-time') as 'daily' | 'one-time',
+    });
+    setShowTaskModal(true);
   };
 
   const handleUpdateActivityStatus = async (id: number, status: string) => {
@@ -746,16 +772,31 @@ export default function MissionControl() {
                               </div>
                             </motion.button>
 
-                            {/* Delete Button */}
-                            <motion.button
-                              onClick={() => setDeleteConfirm({ type: 'task', id: task.id })}
-                              className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-[#E55454]/20"
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              disabled={isDeleting}
-                            >
-                              <Trash2 className="w-3 h-3 text-[#E55454]" />
-                            </motion.button>
+                            {/* Action Buttons */}
+                            <div className="absolute right-1 top-1/2 -translate-y-1/2 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <motion.button
+                                onClick={() => handleEditTask(task)}
+                                className="p-1 rounded hover:bg-[#5E6AD2]/20"
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                disabled={isDeleting}
+                                title="Edit task"
+                              >
+                                <svg className="w-3 h-3 text-[#5E6AD2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              </motion.button>
+                              <motion.button
+                                onClick={() => setDeleteConfirm({ type: 'task', id: task.id })}
+                                className="p-1 rounded hover:bg-[#E55454]/20"
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                disabled={isDeleting}
+                                title="Delete task"
+                              >
+                                <Trash2 className="w-3 h-3 text-[#E55454]" />
+                              </motion.button>
+                            </div>
                           </motion.div>
                         );
                       })
@@ -950,11 +991,15 @@ export default function MissionControl() {
           >
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">Create New Task</h3>
+                <h3 className="text-lg font-semibold text-white">{editingTaskId ? 'Edit Task' : 'Create New Task'}</h3>
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  onClick={() => setShowTaskModal(false)}
+                  onClick={() => {
+                    setShowTaskModal(false);
+                    setEditingTaskId(null);
+                    setNewTaskForm({ title: '', scheduled_for: '', day: '', type: 'one-time' });
+                  }}
                   className="p-1 hover:bg-[#262626] rounded transition-colors"
                 >
                   <X className="w-5 h-5 text-[#888]" />
@@ -1033,7 +1078,7 @@ export default function MissionControl() {
                     className="px-4 py-2 rounded-lg bg-[#5E6AD2] text-white text-sm font-medium hover:bg-[#4A55BF] transition-all flex items-center gap-2"
                   >
                     <Save className="w-4 h-4" />
-                    Create Task
+                    {editingTaskId ? 'Update Task' : 'Create Task'}
                   </motion.button>
                 </div>
               </form>
