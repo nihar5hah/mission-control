@@ -2,6 +2,37 @@ import { db } from './supabase';
 import { sendTaskNotification } from './notifications';
 import type { Activity, ActivityInsert, Task, TaskInsert, Document } from '@/types/database';
 
+// Activity Types for logging
+export type ActivityType = 
+  | 'build'      // Building features/projects
+  | 'research'   // Research tasks
+  | 'sync'       // Data synchronization
+  | 'fix'        // Bug fixes
+  | 'deploy'     // Deployments
+  | 'test'       // Testing
+  | 'agent-start'
+  | 'agent-complete'
+  | 'agent-error'
+  | 'file-create'
+  | 'file-update'
+  | 'file-delete'
+  | 'api-call'
+  | 'db-query'
+  | 'memory-save'
+  | 'memory-recall'
+  | 'git-commit'
+  | 'git-push'
+  | 'system-log';
+
+// Log Activity Request
+export interface LogActivityRequest {
+  agent: string;
+  action: ActivityType | string;
+  description?: string;
+  status?: 'running' | 'completed' | 'failed' | 'pending';
+  metadata?: Record<string, unknown>;
+}
+
 // Activities API
 export const activitiesApi = {
   async getAll(limit?: number): Promise<Activity[]> {
@@ -27,6 +58,50 @@ export const activitiesApi = {
 
     if (error) throw error;
     return data;
+  },
+
+  /**
+   * Log an activity via the /api/activities/log endpoint
+   * This is the preferred way to log activities from agents
+   */
+  async log(request: LogActivityRequest): Promise<Activity> {
+    const response = await fetch('/api/activities/log', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to log activity');
+    }
+
+    const result = await response.json();
+    return result.activity;
+  },
+
+  /**
+   * Get recent activities via the /api/activities/log endpoint
+   */
+  async getRecent(limit?: number, agent?: string, action?: string): Promise<Activity[]> {
+    const params = new URLSearchParams();
+    if (limit) params.set('limit', limit.toString());
+    if (agent) params.set('agent', agent);
+    if (action) params.set('action', action);
+
+    const response = await fetch(`/api/activities/log?${params.toString()}`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch activities');
+    }
+
+    const result = await response.json();
+    return result.activities;
   },
 
   async updateStatus(id: number, status: string): Promise<Activity> {

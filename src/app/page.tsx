@@ -30,6 +30,17 @@ import {
   MoreVertical,
   X,
   Save,
+  // New activity type icons
+  Hammer,        // build
+  Microscope,    // research
+  RefreshCw,     // sync
+  Wrench,        // fix
+  Rocket,        // deploy
+  TestTube,      // test
+  Bug,
+  Beaker,
+  Play,
+  Send,
 } from 'lucide-react';
 
 /* ============ ANIMATION VARIANTS ============ */
@@ -62,6 +73,50 @@ const headerVariants = {
 
 /* ============ ACTION TYPE DEFINITIONS ============ */
 const actionTypeConfig = {
+  // Core Activity Types (New)
+  'build': {
+    label: 'Building',
+    icon: Hammer,
+    color: 'text-[#F59E0B]',
+    bg: 'bg-[#F59E0B]/10',
+    border: 'border-[#F59E0B]/30',
+  },
+  'research': {
+    label: 'Researching',
+    icon: Microscope,
+    color: 'text-[#8B5CF6]',
+    bg: 'bg-[#8B5CF6]/10',
+    border: 'border-[#8B5CF6]/30',
+  },
+  'sync': {
+    label: 'Syncing',
+    icon: RefreshCw,
+    color: 'text-[#06B6D4]',
+    bg: 'bg-[#06B6D4]/10',
+    border: 'border-[#06B6D4]/30',
+  },
+  'fix': {
+    label: 'Fixing Bug',
+    icon: Wrench,
+    color: 'text-[#EF4444]',
+    bg: 'bg-[#EF4444]/10',
+    border: 'border-[#EF4444]/30',
+  },
+  'deploy': {
+    label: 'Deploying',
+    icon: Rocket,
+    color: 'text-[#10B981]',
+    bg: 'bg-[#10B981]/10',
+    border: 'border-[#10B981]/30',
+  },
+  'test': {
+    label: 'Testing',
+    icon: TestTube,
+    color: 'text-[#3B82F6]',
+    bg: 'bg-[#3B82F6]/10',
+    border: 'border-[#3B82F6]/30',
+  },
+
   // Agent Actions
   'agent-start': {
     label: 'Agent Started',
@@ -180,6 +235,16 @@ export default function MissionControl() {
   const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
   const [showTaskDropdown, setShowTaskDropdown] = useState<number | null>(null);
 
+  // Log Activity Modal State
+  const [showLogModal, setShowLogModal] = useState(false);
+  const [logForm, setLogForm] = useState({
+    agent: 'Main Agent',
+    action: 'build' as string,
+    description: '',
+    status: 'completed' as 'running' | 'completed' | 'failed' | 'pending',
+  });
+  const [logging, setLogging] = useState(false);
+
   const { activities, loading: activitiesLoading, deleteActivity, updateActivity } = useActivities();
   const { tasks, loading: tasksLoading, updateStatus, updateTask, createTask, deleteTask } = useTasks();
   const { documents, loading: documentsLoading } = useDocuments(searchQuery);
@@ -274,6 +339,40 @@ export default function MissionControl() {
   const handleUpdateActivityStatus = async (id: number, status: string) => {
     await updateActivity(id, { status: status as any });
     setStatusDropdown(null);
+  };
+
+  // Log Activity Handler
+  const handleLogActivity = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!logForm.description.trim()) return;
+
+    setLogging(true);
+    try {
+      const response = await fetch('/api/activities/log', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(logForm),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to log activity');
+      }
+
+      // Reset form and close modal
+      setLogForm({
+        agent: 'Main Agent',
+        action: 'build',
+        description: '',
+        status: 'completed',
+      });
+      setShowLogModal(false);
+    } catch (error) {
+      console.error('Failed to log activity:', error);
+    } finally {
+      setLogging(false);
+    }
   };
 
   /* ============ UTILITY FUNCTIONS ============ */
@@ -483,16 +582,30 @@ export default function MissionControl() {
           <p className="text-sm text-[#888]">{filteredActivities.length} actions logged</p>
         </div>
 
-        {/* Filter Button */}
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setFilterType(filterType ? null : 'agent-complete')}
-          className="px-3 py-2 rounded-lg bg-[#161616] border border-[#262626] text-sm text-[#888] hover:text-white hover:border-[#333] transition-all flex items-center gap-2"
-        >
-          <Filter className="w-4 h-4" />
-          Filters
-        </motion.button>
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          {/* Log Activity Button */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowLogModal(true)}
+            className="px-4 py-2 rounded-lg bg-[#5E6AD2] text-white text-sm font-medium hover:bg-[#4A55BF] transition-all flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Log Activity
+          </motion.button>
+
+          {/* Filter Button */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setFilterType(filterType ? null : 'agent-complete')}
+            className="px-3 py-2 rounded-lg bg-[#161616] border border-[#262626] text-sm text-[#888] hover:text-white hover:border-[#333] transition-all flex items-center gap-2"
+          >
+            <Filter className="w-4 h-4" />
+            Filters
+          </motion.button>
+        </div>
       </div>
 
       {activitiesLoading ? (
@@ -1089,11 +1202,151 @@ export default function MissionControl() {
     </AnimatePresence>
   );
 
+  /* ============ RENDER: LOG ACTIVITY MODAL ============ */
+  const renderLogModal = () => (
+    <AnimatePresence>
+      {showLogModal && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={() => setShowLogModal(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            className="bg-[#161616] border border-[#262626] rounded-lg shadow-lg max-w-md w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">Log Activity</h3>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setShowLogModal(false)}
+                  className="p-1 hover:bg-[#262626] rounded transition-colors"
+                >
+                  <X className="w-5 h-5 text-[#888]" />
+                </motion.button>
+              </div>
+
+              <form onSubmit={handleLogActivity} className="space-y-4">
+                <div>
+                  <label className="block text-sm text-[#888] mb-2">Agent</label>
+                  <input
+                    type="text"
+                    placeholder="Agent name..."
+                    value={logForm.agent}
+                    onChange={(e) => setLogForm({ ...logForm, agent: e.target.value })}
+                    className="w-full bg-[#0F0F0F] border border-[#262626] rounded-lg px-3 py-2 text-white placeholder:text-[#666] focus:outline-none focus:border-[#5E6AD2] focus:bg-[#1A1A1A] transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm text-[#888] mb-2">Activity Type</label>
+                  <select
+                    value={logForm.action}
+                    onChange={(e) => setLogForm({ ...logForm, action: e.target.value })}
+                    className="w-full bg-[#0F0F0F] border border-[#262626] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#5E6AD2] focus:bg-[#1A1A1A] transition-all"
+                  >
+                    <optgroup label="Core Activity Types">
+                      <option value="build">🔨 Build - Building features/projects</option>
+                      <option value="research">🔬 Research - Research tasks</option>
+                      <option value="sync">🔄 Sync - Data synchronization</option>
+                      <option value="fix">🔧 Fix - Bug fixes</option>
+                      <option value="deploy">🚀 Deploy - Deployments</option>
+                      <option value="test">🧪 Test - Testing</option>
+                    </optgroup>
+                    <optgroup label="Legacy Activity Types">
+                      <option value="agent-start">Agent Started</option>
+                      <option value="agent-complete">Task Completed</option>
+                      <option value="file-create">File Created</option>
+                      <option value="file-update">File Updated</option>
+                      <option value="api-call">API Request</option>
+                      <option value="db-query">Database Query</option>
+                      <option value="git-commit">Git Commit</option>
+                      <option value="git-push">Git Push</option>
+                    </optgroup>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm text-[#888] mb-2">Description</label>
+                  <textarea
+                    placeholder="Describe the activity..."
+                    value={logForm.description}
+                    onChange={(e) => setLogForm({ ...logForm, description: e.target.value })}
+                    rows={3}
+                    className="w-full bg-[#0F0F0F] border border-[#262626] rounded-lg px-3 py-2 text-white placeholder:text-[#666] focus:outline-none focus:border-[#5E6AD2] focus:bg-[#1A1A1A] transition-all resize-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm text-[#888] mb-2">Status</label>
+                  <select
+                    value={logForm.status}
+                    onChange={(e) => setLogForm({ ...logForm, status: e.target.value as any })}
+                    className="w-full bg-[#0F0F0F] border border-[#262626] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#5E6AD2] focus:bg-[#1A1A1A] transition-all"
+                  >
+                    <option value="completed">✅ Completed</option>
+                    <option value="running">⏳ Running</option>
+                    <option value="pending">📋 Pending</option>
+                    <option value="failed">❌ Failed</option>
+                  </select>
+                </div>
+
+                <div className="flex gap-3 justify-end pt-4">
+                  <motion.button
+                    type="button"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setShowLogModal(false)}
+                    className="px-4 py-2 rounded-lg bg-[#262626] text-white text-sm font-medium hover:bg-[#333] transition-all"
+                  >
+                    Cancel
+                  </motion.button>
+                  <motion.button
+                    type="submit"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    disabled={logging || !logForm.description.trim()}
+                    className="px-4 py-2 rounded-lg bg-[#5E6AD2] text-white text-sm font-medium hover:bg-[#4A55BF] transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {logging ? (
+                      <>
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                        </motion.div>
+                        Logging...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        Log Activity
+                      </>
+                    )}
+                  </motion.button>
+                </div>
+              </form>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
   /* ============ MAIN RENDER ============ */
   return (
     <>
       {renderDeleteConfirm()}
       {renderTaskModal()}
+      {renderLogModal()}
       <div className="min-h-screen bg-[#0F0F0F]">
         {renderHeader()}
 
