@@ -485,7 +485,7 @@ export const decisionEngine = {
           decision: 'generate',
           reasoning: `Generated ${subTasks.length} subtasks and ${followups.length} follow-ups`,
           confidence: 0.75,
-          metadata: { subtasks, followups },
+          metadata: { subTasks, followups },
           suggested_actions: subTasks.map(s => s.title),
         };
         break;
@@ -586,3 +586,6 @@ export const decisionEngine = {
 };
 
 export default decisionEngine;
+
+// Export individual engines for direct access if needed
+export { categorizeEngine, routeEngine, generateEngine, recommendEngine, predictEngine };

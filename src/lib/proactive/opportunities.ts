@@ -476,7 +476,7 @@ export const opportunityFinder = {
    * Update opportunity status
    */
   async updateStatus(id: number, status: string): Promise<void> {
-    const updates: Partial<Opportunity> = { status };
+    const updates: Partial<Opportunity> = { status: status as 'dismissed' | 'discovered' | 'investigating' | 'validated' | 'implemented' };
     
     if (status === 'implemented') {
       updates.implemented_at = new Date().toISOString();

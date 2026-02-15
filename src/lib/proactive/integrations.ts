@@ -9,10 +9,13 @@ import type {
   GitHubRepo,
   GitHubIssue,
   GitHubPR,
+  GitHubActivity,
   VercelData,
   VercelDeployment,
+  VercelProject,
   CalendarData,
   CalendarEvent,
+  CalendarPattern,
   FileSystemData,
   FileChange,
   IntelligenceCache,
@@ -69,7 +72,7 @@ export const github = {
     if (!forceRefresh) {
       const cached = await getCachedData('github', cacheKey);
       if (cached) {
-        return cached as GitHubData;
+        return cached as unknown as GitHubData;
       }
     }
 
@@ -84,7 +87,7 @@ export const github = {
       repos,
       recent_issues: issues,
       recent_prs: prs,
-      activity: this.aggregateActivity(repos, issues, prs),
+      activity: this.aggregateActivity(repos, issues, prs) as unknown as GitHubActivity[],
     };
 
     await setCachedData('github', cacheKey, data as unknown as Record<string, unknown>, CACHE_TTL.github);
@@ -282,7 +285,7 @@ export const vercel = {
     if (!forceRefresh) {
       const cached = await getCachedData('vercel', cacheKey);
       if (cached) {
-        return cached as VercelData;
+        return cached as unknown as VercelData;
       }
     }
 
@@ -418,7 +421,7 @@ export const calendar = {
     if (!forceRefresh) {
       const cached = await getCachedData('calendar', cacheKey);
       if (cached) {
-        return cached as CalendarData;
+        return cached as unknown as CalendarData;
       }
     }
 
@@ -540,7 +543,7 @@ export const filesystem = {
     if (!forceRefresh) {
       const cached = await getCachedData('filesystem', cacheKey);
       if (cached) {
-        return cached as FileSystemData;
+        return cached as unknown as FileSystemData;
       }
     }
 

@@ -79,8 +79,17 @@ export async function GET(request: NextRequest) {
 
     try {
       const { decisionEngine } = await import('@/lib/proactive/decisions');
-      suggestions = await decisionEngine.getRecommendations();
-      predictions = await decisionEngine.getPredictions();
+      const recommendations = await decisionEngine.getRecommendations();
+      const predictionsResult = await decisionEngine.getPredictions();
+      
+      // Ensure suggested_actions has a default value
+      suggestions = recommendations.map(r => ({
+        decision: r.decision,
+        reasoning: r.reasoning,
+        confidence: r.confidence,
+        suggested_actions: r.suggested_actions || []
+      }));
+      predictions = predictionsResult;
     } catch (e) {
       console.error('Failed to get recommendations:', e);
     }

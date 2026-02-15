@@ -192,7 +192,7 @@ export interface VercelProject {
 export interface VercelLog {
   id: string;
   message: string;
-  level: 'info' | 'warn' | 'error' | debug;
+  level: 'info' | 'warn' | 'error' | 'debug';
   timestamp: string;
 }
 

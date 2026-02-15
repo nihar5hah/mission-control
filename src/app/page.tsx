@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useActivities, useTasks, useDocuments } from '@/hooks/useSupabase';
+import { useProactiveDashboard } from '@/hooks/useProactiveDashboard';
 import { useWorkspaceFiles } from '@/hooks/useWorkspaceFiles';
 import type { Task } from '@/types/database';
 import {
@@ -31,6 +32,7 @@ import {
   MoreVertical,
   X,
   Save,
+  Eye,
   // New activity type icons
   Hammer,        // build
   Microscope,    // research
@@ -42,6 +44,15 @@ import {
   Beaker,
   Play,
   Send,
+  AlertTriangle,
+  Cog,
+  DollarSign,
+  GraduationCap,
+  Lightbulb,
+  Target,
+  TrendingUp,
+  Users,
+  Workflow,
 } from 'lucide-react';
 
 import { FileTree } from '@/components/FileTree';
@@ -228,7 +239,7 @@ const actionTypeConfig = {
 
 /* ============ MAIN COMPONENT ============ */
 export default function MissionControl() {
-  const [activeTab, setActiveTab] = useState<'activity' | 'calendar' | 'search' | 'documentation'>('activity');
+  const [activeTab, setActiveTab] = useState<'activity' | 'calendar' | 'proactive' | 'search' | 'documentation'>('activity');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedActivity, setExpandedActivity] = useState<number | null>(null);
   const [filterType, setFilterType] = useState<string | null>(null);
@@ -254,6 +265,7 @@ export default function MissionControl() {
   const { tasks, loading: tasksLoading, updateStatus, updateTask, createTask, deleteTask } = useTasks();
   const { documents, loading: documentsLoading } = useDocuments(searchQuery);
   const { files, selectedFile, fileContent, loading: filesLoading, contentLoading, selectFile, refresh: refreshFiles } = useWorkspaceFiles();
+  const { stats, actions, patterns, opportunities, suggestions, predictions, loading: proactiveLoading, refreshing, refresh: refreshProactive, triggerAnalysis, triggerScan, updateOpportunityStatus, completeAction, dismissAction } = useProactiveDashboard();
 
   /* ============ ENHANCED ACTIVITY DATA ============ */
   const enhancedActivities = activities.map((activity) => ({
@@ -492,6 +504,7 @@ export default function MissionControl() {
   const tabs = [
     { id: 'activity', label: 'Activity Log', icon: Activity, badge: activities.length },
     { id: 'calendar', label: 'Schedule', icon: Calendar, badge: tasks.length },
+    { id: 'proactive', label: 'Proactive', icon: Brain },
     { id: 'documentation', label: 'Documentation', icon: FileText },
     { id: 'search', label: 'Search', icon: Search },
   ];

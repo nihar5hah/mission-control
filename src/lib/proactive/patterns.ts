@@ -331,7 +331,7 @@ export const patternEngine = {
     const timeAnalysis = await timePatterns.analyze();
     results.push({
       type: 'time',
-      data: timeAnalysis,
+      data: timeAnalysis as unknown as Record<string, unknown>,
       confidence: 0.85,
       recommendations: timePatterns.detectOpportunities(timeAnalysis),
     });
@@ -340,7 +340,7 @@ export const patternEngine = {
     const workflowAnalysis = await workflowPatterns.analyze();
     results.push({
       type: 'workflow',
-      data: workflowAnalysis,
+      data: workflowAnalysis as unknown as Record<string, unknown>,
       confidence: 0.75,
       recommendations: [
         ...workflowAnalysis.bottlenecks,
@@ -352,7 +352,7 @@ export const patternEngine = {
     const attentionAnalysis = await attentionPatterns.analyze();
     results.push({
       type: 'attention',
-      data: attentionAnalysis,
+      data: attentionAnalysis as unknown as Record<string, unknown>,
       confidence: attentionAnalysis.focus_score,
       recommendations: attentionAnalysis.interruption_sources,
     });
