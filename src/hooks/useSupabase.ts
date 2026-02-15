@@ -116,7 +116,11 @@ export function useTasks() {
 
   const updateStatus = async (id: number, status: string) => {
     try {
-      await tasksApi.updateStatus(id, status);
+      const updatedTask = await tasksApi.updateStatus(id, status);
+      // Immediately update local state
+      setTasks((prev) =>
+        prev.map((t) => t.id === id ? updatedTask : t)
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update task');
     }
@@ -124,7 +128,11 @@ export function useTasks() {
 
   const updateTask = async (id: number, data: Partial<Task>) => {
     try {
-      await tasksApi.update(id, data);
+      const updatedTask = await tasksApi.update(id, data);
+      // Immediately update local state
+      setTasks((prev) =>
+        prev.map((t) => t.id === id ? updatedTask : t)
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update task');
     }
@@ -132,7 +140,9 @@ export function useTasks() {
 
   const createTask = async (task: TaskInsert) => {
     try {
-      await tasksApi.create(task);
+      const newTask = await tasksApi.create(task);
+      // Immediately add to local state (don't wait for realtime)
+      setTasks((prev) => [...prev, newTask]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create task');
     }
@@ -141,6 +151,8 @@ export function useTasks() {
   const deleteTask = async (id: number) => {
     try {
       await tasksApi.delete(id);
+      // Immediately remove from local state
+      setTasks((prev) => prev.filter((t) => t.id !== id));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete task');
     }
