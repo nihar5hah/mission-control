@@ -31,6 +31,7 @@ import {
   MoreVertical,
   X,
   Save,
+  BookOpen,
   // New activity type icons
   Hammer,        // build
   Microscope,    // research
@@ -47,6 +48,7 @@ import {
 import { FileTree } from '@/components/FileTree';
 import { MarkdownViewer } from '@/components/MarkdownViewer';
 import { AgentStatus } from '@/components/AgentStatus';
+import { StudyTracker } from '@/components/StudyTracker';
 
 /* ============ ANIMATION VARIANTS ============ */
 const container = {
@@ -228,7 +230,7 @@ const actionTypeConfig = {
 
 /* ============ MAIN COMPONENT ============ */
 export default function MissionControl() {
-  const [activeTab, setActiveTab] = useState<'activity' | 'calendar' | 'search' | 'documentation'>('activity');
+  const [activeTab, setActiveTab] = useState<'activity' | 'calendar' | 'search' | 'documentation' | 'study'>('activity');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedActivity, setExpandedActivity] = useState<number | null>(null);
   const [filterType, setFilterType] = useState<string | null>(null);
@@ -492,6 +494,7 @@ export default function MissionControl() {
   const tabs = [
     { id: 'activity', label: 'Activity Log', icon: Activity, badge: activities.length },
     { id: 'calendar', label: 'Schedule', icon: Calendar, badge: tasks.length },
+    { id: 'study', label: 'Study Tracker', icon: BookOpen },
     { id: 'documentation', label: 'Documentation', icon: FileText },
     { id: 'search', label: 'Search', icon: Search },
   ];
@@ -1445,6 +1448,7 @@ export default function MissionControl() {
           <AnimatePresence mode="wait">
             {activeTab === 'activity' && renderActivityFeed()}
             {activeTab === 'calendar' && renderCalendar()}
+            {activeTab === 'study' && <StudyTracker />}
             {activeTab === 'documentation' && renderDocumentation()}
             {activeTab === 'search' && renderSearch()}
           </AnimatePresence>
