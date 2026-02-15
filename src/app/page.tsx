@@ -31,7 +31,6 @@ import {
   MoreVertical,
   X,
   Save,
-  BookOpen,
   // New activity type icons
   Hammer,        // build
   Microscope,    // research
@@ -48,7 +47,6 @@ import {
 import { FileTree } from '@/components/FileTree';
 import { MarkdownViewer } from '@/components/MarkdownViewer';
 import { AgentStatus } from '@/components/AgentStatus';
-import { StudyTracker } from '@/components/StudyTracker';
 
 /* ============ ANIMATION VARIANTS ============ */
 const container = {
@@ -230,7 +228,7 @@ const actionTypeConfig = {
 
 /* ============ MAIN COMPONENT ============ */
 export default function MissionControl() {
-  const [activeTab, setActiveTab] = useState<'activity' | 'calendar' | 'search' | 'documentation' | 'study'>('activity');
+  const [activeTab, setActiveTab] = useState<'activity' | 'calendar' | 'search' | 'documentation'>('activity');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedActivity, setExpandedActivity] = useState<number | null>(null);
   const [filterType, setFilterType] = useState<string | null>(null);
@@ -494,7 +492,6 @@ export default function MissionControl() {
   const tabs = [
     { id: 'activity', label: 'Activity Log', icon: Activity, badge: activities.length },
     { id: 'calendar', label: 'Schedule', icon: Calendar, badge: tasks.length },
-    { id: 'study', label: 'Study Tracker', icon: BookOpen },
     { id: 'documentation', label: 'Documentation', icon: FileText },
     { id: 'search', label: 'Search', icon: Search },
   ];
@@ -1121,6 +1118,363 @@ export default function MissionControl() {
     </motion.div>
   );
 
+  /* ============ RENDER: PROACTIVE INTELLIGENCE DASHBOARD ============ */
+  const renderProactiveDashboard = () => (
+    <motion.div
+      key="proactive"
+      variants={tabVariants}
+      initial="hidden"
+      animate="show"
+      exit="exit"
+      transition={{ duration: 0.3 }}
+    >
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-semibold text-white mb-1">Proactive Intelligence</h2>
+          <p className="text-sm text-[#888]">
+            {stats?.patterns_detected || 0} patterns detected • {stats?.opportunities_found || 0} opportunities found
+          </p>
+        </div>
+
+        <div className="flex gap-2">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={triggerAnalysis}
+            disabled={refreshing}
+            className="px-4 py-2 rounded-lg bg-[#5E6AD2]/20 border border-[#5E6AD2]/30 text-[#5E6AD2] text-sm font-medium hover:bg-[#5E6AD2]/30 transition-all flex items-center gap-2"
+          >
+            <Eye className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            Analyze
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={triggerScan}
+            disabled={refreshing}
+            className="px-4 py-2 rounded-lg bg-[#10B981]/20 border border-[#10B981]/30 text-[#10B981] text-sm font-medium hover:bg-[#10B981]/30 transition-all flex items-center gap-2"
+          >
+            <Search className="w-4 h-4" />
+            Scan Opportunities
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={refreshProactive}
+            disabled={refreshing}
+            className="p-2 rounded-lg bg-[#161616] border border-[#262626] text-[#888] hover:text-white hover:border-[#333] transition-all"
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+          </motion.button>
+        </div>
+      </div>
+
+      {proactiveLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
+            <Zap className="w-6 h-6 text-[#5E6AD2]" />
+          </motion.div>
+          <span className="ml-2 text-[#888]">Loading intelligence...</span>
+        </div>
+      ) : (
+        <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <motion.div variants={item} className="bg-[#161616] border border-[#262626] rounded-lg p-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 rounded-md bg-[#5E6AD2]/10 border border-[#5E6AD2]/30">
+                  <Zap className="w-4 h-4 text-[#5E6AD2]" />
+                </div>
+                <span className="text-xs text-[#888]">Actions Today</span>
+              </div>
+              <p className="text-2xl font-semibold text-white">{stats?.total_actions_today || 0}</p>
+              <p className="text-xs text-[#5EAD5E]">{stats?.completed_actions_today || 0} completed</p>
+            </motion.div>
+
+            <motion.div variants={item} className="bg-[#161616] border border-[#262626] rounded-lg p-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 rounded-md bg-[#10B981]/10 border border-[#10B981]/30">
+                  <Lightbulb className="w-4 h-4 text-[#10B981]" />
+                </div>
+                <span className="text-xs text-[#888]">Opportunities</span>
+              </div>
+              <p className="text-2xl font-semibold text-white">{stats?.opportunities_found || 0}</p>
+              <p className="text-xs text-[#888]">{stats?.opportunities_implemented || 0} implemented</p>
+            </motion.div>
+
+            <motion.div variants={item} className="bg-[#161616] border border-[#262626] rounded-lg p-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 rounded-md bg-[#8B5CF6]/10 border border-[#8B5CF6]/30">
+                  <TrendingUp className="w-4 h-4 text-[#8B5CF6]" />
+                </div>
+                <span className="text-xs text-[#888]">Patterns</span>
+              </div>
+              <p className="text-2xl font-semibold text-white">{stats?.patterns_detected || 0}</p>
+              <p className="text-xs text-[#888]">detected</p>
+            </motion.div>
+
+            <motion.div variants={item} className="bg-[#161616] border border-[#262626] rounded-lg p-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 rounded-md bg-[#F59E0B]/10 border border-[#F59E0B]/30">
+                  <Target className="w-4 h-4 text-[#F59E0B]" />
+                </div>
+                <span className="text-xs text-[#888]">Avg Confidence</span>
+              </div>
+              <p className="text-2xl font-semibold text-white">{Math.round((stats?.avg_confidence_score || 0) * 100)}%</p>
+              <p className="text-xs text-[#888]">pattern accuracy</p>
+            </motion.div>
+          </div>
+
+          {/* Smart Suggestions */}
+          {suggestions.length > 0 && (
+            <motion.div variants={item} className="bg-gradient-to-r from-[#5E6AD2]/10 to-[#8B5CF6]/10 border border-[#5E6AD2]/20 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles className="w-5 h-5 text-[#8B5CF6]" />
+                <h3 className="text-lg font-semibold text-white">Smart Suggestions</h3>
+              </div>
+              <div className="space-y-3">
+                {suggestions.map((suggestion, idx) => (
+                  <motion.div
+                    key={idx}
+                    variants={item}
+                    className="bg-[#161616]/50 border border-[#262626] rounded-lg p-3"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-white">{suggestion.reasoning}</p>
+                        <div className="flex gap-2 mt-2">
+                          <span className="text-xs text-[#666]">Confidence: {Math.round(suggestion.confidence * 100)}%</span>
+                          <span className="text-xs text-[#666]">•</span>
+                          <span className="text-xs text-[#666] capitalize">{suggestion.decision.replace(/_/g, ' ')}</span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => {}}
+                        className="px-3 py-1 rounded bg-[#5E6AD2]/20 text-[#5E6AD2] text-xs font-medium hover:bg-[#5E6AD2]/30 transition-colors"
+                      >
+                        Take Action
+                      </button>
+                    </div>
+                    {suggestion.suggested_actions && suggestion.suggested_actions.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {suggestion.suggested_actions.slice(0, 3).map((action: string, i: number) => (
+                          <span key={i} className="px-2 py-0.5 rounded bg-[#262626] text-[#888] text-xs">
+                            {action}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Predictions */}
+          {predictions.length > 0 && (
+            <motion.div variants={item}>
+              <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-[#F59E0B]" />
+                Upcoming Predictions
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {predictions.map((prediction, idx) => (
+                  <motion.div
+                    key={idx}
+                    variants={item}
+                    className="bg-[#161616] border border-[#262626] rounded-lg p-4 hover:border-[#333] transition-all"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                        prediction.likelihood > 0.7 
+                          ? 'bg-[#EF4444]/20 text-[#EF4444]' 
+                          : 'bg-[#F59E0B]/20 text-[#F59E0B]'
+                      }`}>
+                        {Math.round(prediction.likelihood * 100)}% likely
+                      </span>
+                      <span className="text-xs text-[#666]">{prediction.timeframe}</span>
+                    </div>
+                    <p className="text-sm text-white mb-2">{prediction.description}</p>
+                    <div className="flex flex-wrap gap-1">
+                      {prediction.action_items.slice(0, 2).map((item: string, i: number) => (
+                        <span key={i} className="px-2 py-0.5 rounded bg-[#262626] text-[#888] text-xs">
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Opportunities */}
+          {opportunities.length > 0 && (
+            <motion.div variants={item}>
+              <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                <DollarSign className="w-5 h-5 text-[#10B981]" />
+                Opportunities
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {opportunities.slice(0, 6).map((opp: any, idx: number) => (
+                  <motion.div
+                    key={idx}
+                    variants={item}
+                    className="bg-[#161616] border border-[#262626] rounded-lg p-4 hover:border-[#333] transition-all"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        {opp.type === 'monetization' && <DollarSign className="w-4 h-4 text-[#10B981]" />}
+                        {opp.type === 'automation' && <Cog className="w-4 h-4 text-[#5E6AD2]" />}
+                        {opp.type === 'learning' && <GraduationCap className="w-4 h-4 text-[#8B5CF6]" />}
+                        {opp.type === 'collaboration' && <Users className="w-4 h-4 text-[#F59E0B]" />}
+                        <span className="text-xs font-medium text-[#888] uppercase">{opp.type}</span>
+                      </div>
+                      <span className={`px-2 py-0.5 rounded text-xs ${
+                        opp.potential_value === 'transformative' ? 'bg-[#10B981]/20 text-[#10B981]' :
+                        opp.potential_value === 'high' ? 'bg-[#5EAD5E]/20 text-[#5EAD5E]' :
+                        'bg-[#888]/20 text-[#888]'
+                      }`}>
+                        {opp.potential_value}
+                      </span>
+                    </div>
+                    <h4 className="text-sm font-semibold text-white mb-1">{opp.title}</h4>
+                    <p className="text-xs text-[#888] mb-3 line-clamp-2">{opp.description}</p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => updateOpportunityStatus(opp.id, 'validated')}
+                        className="flex-1 px-3 py-1.5 rounded bg-[#5E6AD2]/20 text-[#5E6AD2] text-xs font-medium hover:bg-[#5E6AD2]/30 transition-colors"
+                      >
+                        Validate
+                      </button>
+                      <button
+                        onClick={() => updateOpportunityStatus(opp.id, 'dismissed')}
+                        className="px-3 py-1.5 rounded bg-[#262626] text-[#888] text-xs hover:text-[#E55454] hover:bg-[#E55454]/10 transition-colors"
+                      >
+                        Dismiss
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Patterns */}
+          {patterns.length > 0 && (
+            <motion.div variants={item}>
+              <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                <Workflow className="w-5 h-5 text-[#8B5CF6]" />
+                Detected Patterns
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {patterns.slice(0, 6).map((pattern: any, idx: number) => (
+                  <motion.div
+                    key={idx}
+                    variants={item}
+                    className="bg-[#161616] border border-[#262626] rounded-lg p-4 hover:border-[#333] transition-all"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                        pattern.category === 'time' ? 'bg-[#06B6D4]/20 text-[#06B6D4]' :
+                        pattern.category === 'workflow' ? 'bg-[#5E6AD2]/20 text-[#5E6AD2]' :
+                        pattern.category === 'attention' ? 'bg-[#F59E0B]/20 text-[#F59E0B]' :
+                        'bg-[#8B5CF6]/20 text-[#8B5CF6]'
+                      }`}>
+                        {pattern.category}
+                      </span>
+                      <span className="text-xs text-[#666]">
+                        {Math.round(pattern.confidence * 100)}% confidence
+                      </span>
+                    </div>
+                    <p className="text-sm text-white mb-2">
+                      {pattern.suggested_action || 'Pattern detected'}
+                    </p>
+                    <div className="flex items-center gap-2 text-xs text-[#666]">
+                      <span>Seen {pattern.occurrence_count || 1} times</span>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Recent Actions */}
+          {actions.length > 0 && (
+            <motion.div variants={item}>
+              <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                <Clock className="w-5 h-5 text-[#5E8FAD]" />
+                Recent Autonomous Actions
+              </h3>
+              <div className="bg-[#161616] border border-[#262626] rounded-lg overflow-hidden">
+                {actions.slice(0, 5).map((action: any, idx: number) => (
+                  <motion.div
+                    key={idx}
+                    variants={item}
+                    className={`p-3 flex items-center justify-between border-b border-[#262626] last:border-0 ${
+                      action.status === 'completed' ? 'opacity-60' : ''
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-2 h-2 rounded-full ${
+                        action.status === 'completed' ? 'bg-[#5EAD5E]' :
+                        action.status === 'pending' ? 'bg-[#F59E0B]' :
+                        action.status === 'failed' ? 'bg-[#E55454]' :
+                        'bg-[#5E6AD2]'
+                      }`} />
+                      <div>
+                        <p className="text-sm text-white">{action.description}</p>
+                        <p className="text-xs text-[#666]">{action.type} • {action.category}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {action.status === 'pending' && (
+                        <>
+                          <button
+                            onClick={() => completeAction(action.id)}
+                            className="px-2 py-1 rounded bg-[#5EAD5E]/20 text-[#5EAD5E] text-xs hover:bg-[#5EAD5E]/30 transition-colors"
+                          >
+                            Complete
+                          </button>
+                          <button
+                            onClick={() => dismissAction(action.id)}
+                            className="px-2 py-1 rounded bg-[#262626] text-[#888] text-xs hover:text-[#E55454] hover:bg-[#E55454]/10 transition-colors"
+                          >
+                            Dismiss
+                          </button>
+                        </>
+                      )}
+                      <span className="text-xs text-[#666]">
+                        {new Date(action.created_at).toLocaleTimeString()}
+                      </span>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Empty State */}
+          {suggestions.length === 0 && predictions.length === 0 && opportunities.length === 0 && patterns.length === 0 && (
+            <motion.div variants={item} className="text-center py-12">
+              <motion.div
+                animate={{ y: [0, -8, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="inline-block mb-4"
+              >
+                <Brain className="w-12 h-12 text-[#5E6AD2]/40" />
+              </motion.div>
+              <p className="text-sm text-[#888] mb-2">No intelligence gathered yet</p>
+              <p className="text-xs text-[#666]">Click "Analyze" to detect patterns and find opportunities</p>
+            </motion.div>
+          )}
+        </motion.div>
+      )}
+    </motion.div>
+  );
+
   /* ============ RENDER: DELETE CONFIRMATION DIALOG ============ */
   const renderDeleteConfirm = () => (
     <AnimatePresence>
@@ -1448,7 +1802,7 @@ export default function MissionControl() {
           <AnimatePresence mode="wait">
             {activeTab === 'activity' && renderActivityFeed()}
             {activeTab === 'calendar' && renderCalendar()}
-            {activeTab === 'study' && <StudyTracker />}
+            {activeTab === 'proactive' && renderProactiveDashboard()}
             {activeTab === 'documentation' && renderDocumentation()}
             {activeTab === 'search' && renderSearch()}
           </AnimatePresence>
