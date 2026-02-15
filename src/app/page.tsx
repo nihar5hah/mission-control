@@ -305,6 +305,30 @@ export default function MissionControl() {
     return days;
   };
 
+  const getAllTaskDays = () => {
+    const daysMap = new Map<string, Date>();
+    
+    // Add all tasks' dates to the map
+    tasks.forEach((task) => {
+      const taskDate = new Date(task.scheduled_for);
+      const dateKey = taskDate.toISOString().split('T')[0];
+      if (!daysMap.has(dateKey)) {
+        daysMap.set(dateKey, taskDate);
+      }
+    });
+
+    // Also include current week
+    const weekDays = getWeekDays();
+    weekDays.forEach((date) => {
+      const dateKey = date.toISOString().split('T')[0];
+      if (!daysMap.has(dateKey)) {
+        daysMap.set(dateKey, date);
+      }
+    });
+
+    return Array.from(daysMap.values()).sort((a, b) => a.getTime() - b.getTime());
+  };
+
   const getTasksForDay = (date: Date) => {
     return tasks.filter((task) => {
       const taskDate = new Date(task.scheduled_for);
@@ -313,6 +337,12 @@ export default function MissionControl() {
         taskDate.getMonth() === date.getMonth() &&
         taskDate.getFullYear() === date.getFullYear()
       );
+    });
+  };
+
+  const getAllTasks = () => {
+    return tasks.sort((a, b) => {
+      return new Date(a.scheduled_for).getTime() - new Date(b.scheduled_for).getTime();
     });
   };
 
@@ -607,7 +637,7 @@ export default function MissionControl() {
 
   /* ============ RENDER: CALENDAR VIEW ============ */
   const renderCalendar = () => {
-    const weekDays = getWeekDays();
+    const allTaskDays = getAllTaskDays();
 
     return (
       <motion.div
@@ -620,8 +650,8 @@ export default function MissionControl() {
       >
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-semibold text-white mb-1">Weekly Schedule</h2>
-            <p className="text-sm text-[#888]">{tasks.length} upcoming tasks</p>
+            <h2 className="text-2xl font-semibold text-white mb-1">Schedule (All Tasks)</h2>
+            <p className="text-sm text-[#888]">{tasks.length} total tasks across all dates</p>
           </div>
           
           {/* Create Task Button */}
@@ -643,9 +673,13 @@ export default function MissionControl() {
             </motion.div>
             <span className="ml-2 text-[#888]">Loading schedule...</span>
           </div>
+        ) : tasks.length === 0 ? (
+          <motion.div className="text-center py-12" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <p className="text-sm text-[#888]">No tasks scheduled yet</p>
+          </motion.div>
         ) : (
-          <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-7 gap-3">
-            {weekDays.map((date, idx) => {
+          <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            {allTaskDays.map((date, idx) => {
               const dayTasks = getTasksForDay(date);
               const isToday =
                 date.getDate() === new Date().getDate() &&
@@ -661,7 +695,7 @@ export default function MissionControl() {
                   {/* Day Header */}
                   <div className={`p-3 border-b ${isToday ? 'border-[#5E6AD2]/30 bg-[#5E6AD2]/10' : 'border-[#262626]'}`}>
                     <p className="text-xs font-medium text-[#888] uppercase">
-                      {date.toLocaleDateString('en-US', { weekday: 'short' })}
+                      {date.toLocaleDateString('en-US', { weekday: 'short', month: 'short' })}
                     </p>
                     <p className={`text-2xl font-semibold ${isToday ? 'text-[#5E6AD2]' : 'text-white'}`}>{date.getDate()}</p>
                   </div>
