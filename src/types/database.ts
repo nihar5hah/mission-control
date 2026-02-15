@@ -15,6 +15,7 @@ export interface Task {
   scheduled_for: string;
   status: 'pending' | 'in_progress' | 'completed';
   day: string;
+  type: 'daily' | 'one-time';
   created_at: string;
   updated_at: string;
 }

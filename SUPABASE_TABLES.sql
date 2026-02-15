@@ -25,6 +25,7 @@ CREATE TABLE tasks (
   scheduled_for TIMESTAMP,
   status TEXT DEFAULT 'pending',
   day TEXT,
+  type TEXT DEFAULT 'one-time' CHECK (type IN ('daily', 'one-time')),
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );

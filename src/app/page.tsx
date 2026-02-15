@@ -173,7 +173,7 @@ export default function MissionControl() {
   const [filterType, setFilterType] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'activity' | 'task'; id: number } | null>(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
-  const [newTaskForm, setNewTaskForm] = useState({ title: '', scheduled_for: '', day: '' });
+  const [newTaskForm, setNewTaskForm] = useState({ title: '', scheduled_for: '', day: '', type: 'one-time' as 'daily' | 'one-time' });
   const [statusDropdown, setStatusDropdown] = useState<{ type: 'activity' | 'task'; id: number } | null>(null);
   const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
 
@@ -238,9 +238,10 @@ export default function MissionControl() {
       scheduled_for,
       day: newTaskForm.day || now.toLocaleDateString('en-US', { weekday: 'long' }),
       status: 'pending',
+      type: newTaskForm.type,
     });
 
-    setNewTaskForm({ title: '', scheduled_for: '', day: '' });
+    setNewTaskForm({ title: '', scheduled_for: '', day: '', type: 'one-time' });
     setShowTaskModal(false);
   };
 
@@ -332,14 +333,22 @@ export default function MissionControl() {
 
   const getTasksForDay = (date: Date) => {
     return tasks.filter((task) => {
-      // Only match based on scheduled_for date - IGNORE the "day" field completely
-      // Each task appears ONLY on its specific scheduled date
-      const taskDate = new Date(task.scheduled_for);
-      return (
-        taskDate.getDate() === date.getDate() &&
-        taskDate.getMonth() === date.getMonth() &&
-        taskDate.getFullYear() === date.getFullYear()
-      );
+      // Show daily recurring tasks every day
+      if (task.type === 'daily' || task.day === 'Daily') {
+        return true;
+      }
+
+      // Show one-time tasks on their scheduled date
+      if (task.type === 'one-time' || !task.type) {
+        const taskDate = new Date(task.scheduled_for);
+        return (
+          taskDate.getDate() === date.getDate() &&
+          taskDate.getMonth() === date.getMonth() &&
+          taskDate.getFullYear() === date.getFullYear()
+        );
+      }
+
+      return false;
     });
   };
 
@@ -990,6 +999,21 @@ export default function MissionControl() {
                     <option value="Saturday">Saturday</option>
                     <option value="Sunday">Sunday</option>
                   </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm text-[#888] mb-2">Task Type</label>
+                  <select
+                    value={newTaskForm.type}
+                    onChange={(e) => setNewTaskForm({ ...newTaskForm, type: e.target.value as 'daily' | 'one-time' })}
+                    className="w-full bg-[#0F0F0F] border border-[#262626] rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[#5E6AD2] focus:bg-[#1A1A1A] transition-all"
+                  >
+                    <option value="one-time">One-time Task</option>
+                    <option value="daily">Daily Recurring</option>
+                  </select>
+                  <p className="text-xs text-[#666] mt-1">
+                    {newTaskForm.type === 'daily' ? 'Will appear every day in the calendar' : 'Will appear only on scheduled date'}
+                  </p>
                 </div>
 
                 <div className="flex gap-3 justify-end pt-4">

@@ -70,6 +70,26 @@ export const tasksApi = {
     return data || [];
   },
 
+  async getDailyTasks(): Promise<Task[]> {
+    const { data, error } = await db.tasks()
+      .select('*')
+      .eq('type', 'daily')
+      .order('created_at', { ascending: true });
+
+    if (error) throw error;
+    return data || [];
+  },
+
+  async getTasksForDate(date: string): Promise<Task[]> {
+    const { data, error } = await db.tasks()
+      .select('*')
+      .eq('scheduled_for', date)
+      .order('created_at', { ascending: true });
+
+    if (error) throw error;
+    return data || [];
+  },
+
   async create(task: TaskInsert): Promise<Task> {
     const { data, error } = await db.tasks()
       .insert(task)
