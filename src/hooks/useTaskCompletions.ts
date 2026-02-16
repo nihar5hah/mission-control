@@ -55,24 +55,16 @@ export function useTaskCompletions() {
    */
   const isCompletedOnDate = useCallback((taskId: number, date: Date): boolean => {
     const key = getCompletionKey(taskId, date);
-    // Ensure we load this if we haven't yet
-    if (completions[key] === undefined) {
-      loadCompletionForDate(taskId, date);
-    }
     return completions[key] === 'completed';
-  }, [completions, getCompletionKey, loadCompletionForDate]);
+  }, [completions, getCompletionKey]);
 
   /**
    * Get completion status for a task on a specific date
    */
   const getStatusOnDate = useCallback((taskId: number, date: Date): 'pending' | 'completed' => {
     const key = getCompletionKey(taskId, date);
-    // Ensure we load this if we haven't yet
-    if (completions[key] === undefined) {
-      loadCompletionForDate(taskId, date);
-    }
     return completions[key] || 'pending';
-  }, [completions, getCompletionKey, loadCompletionForDate]);
+  }, [completions, getCompletionKey]);
 
   /**
    * Toggle completion status for a task on a specific date
@@ -131,6 +123,46 @@ export function useTaskCompletions() {
   }, [getCompletionKey]);
 
   /**
+   * Preload completions for tasks on specific dates
+   * Call this before rendering to avoid loading during render
+   */
+  const preloadCompletions = useCallback(async (taskIds: number[], dates: Date[]) => {
+    const keys = new Set<string>();
+    
+    // Collect all keys we need to load
+    for (const taskId of taskIds) {
+      for (const date of dates) {
+        const key = getCompletionKey(taskId, date);
+        if (completions[key] === undefined) {
+          keys.add(key);
+        }
+      }
+    }
+
+    // Load all missing completions in parallel
+    const loadPromises = Array.from(keys).map(async (key) => {
+      const match = key.match(/^(\d+)_/);
+      if (match) {
+        const taskId = parseInt(match[1], 10);
+        const dateStr = key.split('_')[1];
+        const date = new Date(dateStr);
+        
+        try {
+          const status = await taskCompletionsApi.getCompletion(taskId, date);
+          setCompletions(prev => ({
+            ...prev,
+            [key]: status,
+          }));
+        } catch (err) {
+          console.error(`Failed to load completion for task ${taskId}:`, err);
+        }
+      }
+    });
+
+    await Promise.all(loadPromises);
+  }, [completions, getCompletionKey]);
+
+  /**
    * Clear all completions (useful for testing)
    * Note: This only clears local state, not Supabase
    */
@@ -154,5 +186,6 @@ export function useTaskCompletions() {
     clearAllCompletions,
     getCompletionKey,
     loadCompletionForDate,
+    preloadCompletions,
   };
 }

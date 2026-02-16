@@ -804,6 +804,14 @@ export default function MissionControl() {
     </motion.div>
   );
 
+  // Preload completions when tasks change
+  useEffect(() => {
+    if (tasks.length > 0 && activeTab === 'calendar') {
+      const allTaskDays = getAllTaskDays();
+      preloadCompletions(tasks.map(t => t.id), allTaskDays);
+    }
+  }, [tasks, activeTab, preloadCompletions]);
+
   /* ============ RENDER: CALENDAR VIEW ============ */
   const renderCalendar = () => {
     const allTaskDays = getAllTaskDays();
