@@ -288,10 +288,10 @@ export default function MissionControl() {
     : enhancedActivities;
 
   /* ============ HANDLERS ============ */
-  const handleToggleTaskCompletion = (task: Task, date: Date) => {
+  const handleToggleTaskCompletion = async (task: Task, date: Date) => {
     // For daily tasks, use date-specific completion tracking
     if (task.type === 'daily' || task.day === 'Daily') {
-      toggleDateCompletion(task.id, date);
+      await toggleDateCompletion(task.id, date);
     } else {
       // For one-time tasks, toggle the task status in the database
       const newStatus = task.status === 'completed' ? 'pending' : 'completed';
