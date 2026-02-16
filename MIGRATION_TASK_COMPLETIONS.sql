@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS task_completions (
   id SERIAL PRIMARY KEY,
   task_id INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
   completion_date DATE NOT NULL,
-  status TEXT DEFAULT 'completed' CHECK (status IN ('pending', 'in_progress', 'completed')),
+  status TEXT DEFAULT 'completed' CHECK (status IN ('pending', 'in_progress', 'completed', 'failed')),
   completed_at TIMESTAMP DEFAULT NOW(),
   created_at TIMESTAMP DEFAULT NOW(),
   UNIQUE(task_id, completion_date)

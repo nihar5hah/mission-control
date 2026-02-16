@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { taskCompletionsApi } from '@/lib/supabase';
+import { supabase, taskCompletionsApi } from '@/lib/supabase';
+import type { TaskCompletionStatus } from '@/types/database';
 
 // Completion status for a specific task on a specific date
 export interface TaskCompletionRecord {
-  [key: string]: 'pending' | 'completed'; // key: `${taskId}_${date}`
+  [key: string]: TaskCompletionStatus; // key: `${taskId}_${date}`
 }
 
 /**
@@ -61,7 +62,7 @@ export function useTaskCompletions() {
   /**
    * Get completion status for a task on a specific date
    */
-  const getStatusOnDate = useCallback((taskId: number, date: Date): 'pending' | 'completed' => {
+  const getStatusOnDate = useCallback((taskId: number, date: Date): TaskCompletionStatus => {
     const key = getCompletionKey(taskId, date);
     return completions[key] || 'pending';
   }, [completions, getCompletionKey]);
@@ -73,7 +74,7 @@ export function useTaskCompletions() {
   const toggleCompletion = useCallback(async (taskId: number, date: Date): Promise<void> => {
     const key = getCompletionKey(taskId, date);
     const currentStatus = completions[key];
-    const newStatus = currentStatus === 'completed' ? 'pending' : 'completed';
+    const newStatus: TaskCompletionStatus = currentStatus === 'completed' ? 'pending' : 'completed';
     
     // Optimistic update
     setCompletions(prev => ({
@@ -98,7 +99,7 @@ export function useTaskCompletions() {
   /**
    * Set completion status for a task on a specific date
    */
-  const setCompletion = useCallback(async (taskId: number, date: Date, status: 'pending' | 'completed'): Promise<void> => {
+  const setCompletion = useCallback(async (taskId: number, date: Date, status: TaskCompletionStatus): Promise<void> => {
     const key = getCompletionKey(taskId, date);
     
     // Optimistic update
@@ -170,10 +171,58 @@ export function useTaskCompletions() {
     setCompletions({});
   }, []);
 
+  const normalizeStatus = useCallback((status: string | null | undefined): TaskCompletionStatus => {
+    if (!status) return 'pending';
+    if (status === 'running') return 'in_progress';
+    if (status === 'in_progress' || status === 'completed' || status === 'pending' || status === 'failed') {
+      return status;
+    }
+    return 'pending';
+  }, []);
+
   // Initial load (when component mounts, we start with empty state)
   useEffect(() => {
     setLoaded(true);
   }, []);
+
+  // Realtime subscription for task completion updates
+  useEffect(() => {
+    const channel = supabase
+      .channel('task_completions_channel')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'task_completions',
+      }, (payload) => {
+        if (payload.eventType === 'DELETE') {
+          const oldRow = payload.old as { task_id?: number; completion_date?: string } | null;
+          if (oldRow?.task_id && oldRow.completion_date) {
+            const key = `${oldRow.task_id}_${oldRow.completion_date}`;
+            setCompletions(prev => {
+              const next = { ...prev };
+              delete next[key];
+              return next;
+            });
+          }
+          return;
+        }
+
+        const newRow = payload.new as { task_id?: number; completion_date?: string; status?: string } | null;
+        if (newRow?.task_id && newRow.completion_date) {
+          const key = `${newRow.task_id}_${newRow.completion_date}`;
+          const status = normalizeStatus(newRow.status);
+          setCompletions(prev => ({
+            ...prev,
+            [key]: status,
+          }));
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [normalizeStatus]);
 
   return {
     completions,

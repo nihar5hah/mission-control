@@ -442,6 +442,48 @@ export default function MissionControl() {
     });
   };
 
+  const normalizeTaskStatus = (status?: string) => {
+    if (!status) return 'pending' as const;
+    if (status === 'running' || status === 'in_progress') return 'in_progress' as const;
+    if (status === 'failed') return 'failed' as const;
+    if (status === 'completed') return 'completed' as const;
+    return 'pending' as const;
+  };
+
+  const getTaskStatusConfig = (status: ReturnType<typeof normalizeTaskStatus>) => {
+    switch (status) {
+      case 'completed':
+        return {
+          bg: 'bg-[#5EAD5E]/10',
+          text: 'text-[#5EAD5E]',
+          border: 'border-[#5EAD5E]/30',
+          icon: CheckCircle2,
+        };
+      case 'in_progress':
+        return {
+          bg: 'bg-[#D2B65E]/10',
+          text: 'text-[#D2B65E]',
+          border: 'border-[#D2B65E]/30',
+          icon: Play,
+        };
+      case 'failed':
+        return {
+          bg: 'bg-[#E55454]/10',
+          text: 'text-[#E55454]',
+          border: 'border-[#E55454]/30',
+          icon: AlertTriangle,
+        };
+      case 'pending':
+      default:
+        return {
+          bg: 'bg-[#5E8FAD]/10',
+          text: 'text-[#5E8FAD]',
+          border: 'border-[#5E8FAD]/30',
+          icon: null,
+        };
+    }
+  };
+
   const getActivityConfig = (type: string) => {
     return (
       actionTypeConfig[type as keyof typeof actionTypeConfig] || {
@@ -454,22 +496,31 @@ export default function MissionControl() {
     );
   };
 
+  const getWeekStart = (date: Date) => {
+    const start = new Date(date);
+    const day = start.getDay(); // 0 (Sun) - 6 (Sat)
+    const diff = day === 0 ? -6 : 1 - day; // Monday as start of week
+    start.setDate(start.getDate() + diff);
+    start.setHours(0, 0, 0, 0);
+    return start;
+  };
+
   const getWeekDays = () => {
     const days = [];
     const today = new Date();
-    
-    // Start from today + next 6 days (full week from today)
+    const weekStart = getWeekStart(today);
+
+    // Monday -> Sunday for the current week
     for (let i = 0; i < 7; i++) {
-      const date = new Date(today);
-      date.setDate(date.getDate() + i);
+      const date = new Date(weekStart);
+      date.setDate(weekStart.getDate() + i);
       days.push(date);
     }
     return days;
   };
 
   const getAllTaskDays = () => {
-    // Show exactly 7 days: today + next 6 days
-    // This is the weekly view for the schedule tab
+    // Show exactly 7 days: Monday -> Sunday for the current week
     return getWeekDays();
   };
 
@@ -487,15 +538,18 @@ export default function MissionControl() {
 
       // For daily tasks, use date-specific completion status
       if (isDaily) {
-        const completionStatus = getStatusOnDate(task.id, date);
+        const completionStatus = normalizeTaskStatus(getStatusOnDate(task.id, date));
         return {
           ...task,
-          status: completionStatus as 'pending' | 'completed',
+          status: completionStatus,
         };
       }
 
       // For one-time tasks, use the task's own status
-      return task;
+      return {
+        ...task,
+        status: normalizeTaskStatus(task.status),
+      };
     }).filter((t): t is typeof tasks[0] => t !== null);
   };
 
@@ -888,6 +942,8 @@ export default function MissionControl() {
                     {dayTasks.length > 0 ? (
                       dayTasks.map((task) => {
                         const isDeleting = deletingIds.has(task.id);
+                        const statusConfig = getTaskStatusConfig(normalizeTaskStatus(task.status));
+                        const StatusIcon = statusConfig.icon;
 
                         return (
                           <motion.div
@@ -898,18 +954,16 @@ export default function MissionControl() {
                           >
                             <motion.button
                               onClick={() => !isDeleting && handleToggleTaskCompletion(task, date)}
-                              className={`w-full text-left p-2 rounded text-xs font-medium transition-all border ${
-                                task.status === 'completed'
-                                  ? 'bg-[#5EAD5E]/10 text-[#5EAD5E] border-[#5EAD5E]/30'
-                                  : 'bg-[#5E8FAD]/10 text-[#5E8FAD] border-[#5E8FAD]/30 hover:bg-[#5E8FAD]/15'
+                              className={`w-full text-left p-2 rounded text-xs font-medium transition-all border ${statusConfig.bg} ${statusConfig.text} ${statusConfig.border} ${
+                                normalizeTaskStatus(task.status) === 'pending' ? 'hover:bg-[#5E8FAD]/15' : ''
                               }`}
                               whileHover={!isDeleting ? { scale: 1.02 } : {}}
                               whileTap={!isDeleting ? { scale: 0.98 } : {}}
                               disabled={isDeleting}
                             >
                               <div className="flex items-center gap-1.5">
-                                {task.status === 'completed' ? (
-                                  <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
+                                {StatusIcon ? (
+                                  <StatusIcon className="w-3.5 h-3.5 flex-shrink-0" />
                                 ) : (
                                   <div className="w-3.5 h-3.5 rounded-full border border-current flex-shrink-0" />
                                 )}

@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS tasks (
   id BIGSERIAL PRIMARY KEY,
   title TEXT NOT NULL,
   scheduled_for TIMESTAMPTZ NOT NULL,
-  status TEXT NOT NULL CHECK (status IN ('pending', 'in_progress', 'completed')),
+  status TEXT NOT NULL CHECK (status IN ('pending', 'in_progress', 'completed', 'failed')),
   day TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()

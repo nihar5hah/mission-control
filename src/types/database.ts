@@ -9,11 +9,14 @@ export interface Activity {
   created_at: string;
 }
 
+export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'failed';
+export type TaskCompletionStatus = 'pending' | 'in_progress' | 'completed' | 'failed';
+
 export interface Task {
   id: number;
   title: string;
   scheduled_for: string;
-  status: 'pending' | 'in_progress' | 'completed';
+  status: TaskStatus;
   day: string;
   type: 'daily' | 'one-time';
   created_at: string;
@@ -25,7 +28,7 @@ export interface Task {
 export interface TaskCompletion {
   task_id: number;
   date: string; // YYYY-MM-DD format
-  status: 'pending' | 'completed';
+  status: TaskCompletionStatus;
 }
 
 export interface Document {

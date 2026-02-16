@@ -22,7 +22,7 @@ export const taskCompletionsApi = {
   /**
    * Get completion status for a task on a specific date
    */
-  async getCompletion(taskId: number, date: Date): Promise<'pending' | 'completed'> {
+  async getCompletion(taskId: number, date: Date): Promise<'pending' | 'in_progress' | 'completed' | 'failed'> {
     const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
     
     const { data, error } = await db.taskCompletions()
@@ -36,41 +36,23 @@ export const taskCompletionsApi = {
       throw error;
     }
 
-    return data?.status || 'pending';
+    return (data?.status as any) || 'pending';
   },
 
   /**
    * Set completion status for a task on a specific date
    */
-  async setCompletion(taskId: number, date: Date, status: 'pending' | 'completed'): Promise<void> {
+  async setCompletion(taskId: number, date: Date, status: 'pending' | 'in_progress' | 'completed' | 'failed'): Promise<void> {
     const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
 
-    // First try to get existing record
-    const { data: existing } = await db.taskCompletions()
-      .select('id')
-      .eq('task_id', taskId)
-      .eq('completion_date', dateStr)
-      .single();
+    const { error } = await db.taskCompletions()
+      .upsert({
+        task_id: taskId,
+        completion_date: dateStr,
+        status,
+      }, { onConflict: 'task_id,completion_date' });
 
-    if (existing) {
-      // Update existing record
-      const { error } = await db.taskCompletions()
-        .update({ status })
-        .eq('task_id', taskId)
-        .eq('completion_date', dateStr);
-
-      if (error) throw error;
-    } else {
-      // Insert new record
-      const { error } = await db.taskCompletions()
-        .insert({
-          task_id: taskId,
-          completion_date: dateStr,
-          status,
-        });
-
-      if (error) throw error;
-    }
+    if (error) throw error;
   },
 
   /**
