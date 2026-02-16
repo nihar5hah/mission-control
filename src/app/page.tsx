@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useActivities, useTasks, useDocuments } from '@/hooks/useSupabase';
 import { useTaskCompletions } from '@/hooks/useTaskCompletions';
@@ -269,7 +269,7 @@ export default function MissionControl() {
   const { stats, actions, patterns, opportunities, suggestions, predictions, loading: proactiveLoading, refreshing, refresh: refreshProactive, triggerAnalysis, triggerScan, updateOpportunityStatus, completeAction, dismissAction } = useProactiveDashboard();
   
   // Date-specific completion tracking for daily tasks
-  const { isCompletedOnDate, toggleCompletion: toggleDateCompletion, getStatusOnDate } = useTaskCompletions();
+  const { isCompletedOnDate, toggleCompletion: toggleDateCompletion, getStatusOnDate, preloadCompletions } = useTaskCompletions();
 
   /* ============ ENHANCED ACTIVITY DATA ============ */
   const enhancedActivities = activities.map((activity) => ({
