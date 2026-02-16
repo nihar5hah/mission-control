@@ -289,8 +289,11 @@ export default function MissionControl() {
 
   /* ============ HANDLERS ============ */
   const handleToggleTaskCompletion = async (task: Task, date: Date) => {
+    const normalizedType = task.type || (task.day === 'Daily' ? 'daily' : 'one-time');
+    const isDaily = normalizedType === 'daily' || task.day === 'Daily';
+
     // For daily tasks, use date-specific completion tracking
-    if (task.type === 'daily' || task.day === 'Daily') {
+    if (isDaily) {
       await toggleDateCompletion(task.id, date);
     } else {
       // For one-time tasks, toggle the task status in the database
@@ -472,15 +475,18 @@ export default function MissionControl() {
 
   const getTasksForDay = (date: Date) => {
     return tasks.map((task) => {
+      const normalizedType = task.type || (task.day === 'Daily' ? 'daily' : 'one-time');
+      const isDaily = normalizedType === 'daily' || task.day === 'Daily';
+      const isOneTime = normalizedType === 'one-time';
+      const scheduledDateMatches = new Date(task.scheduled_for).toDateString() === date.toDateString();
+
       // Check if task should be displayed on this date
-      const shouldDisplay = task.type === 'daily' || task.day === 'Daily' || 
-        (task.type === 'one-time' && 
-         new Date(task.scheduled_for).toDateString() === date.toDateString());
+      const shouldDisplay = isDaily || (isOneTime && scheduledDateMatches);
 
       if (!shouldDisplay) return null;
 
       // For daily tasks, use date-specific completion status
-      if (task.type === 'daily' || task.day === 'Daily') {
+      if (isDaily) {
         const completionStatus = getStatusOnDate(task.id, date);
         return {
           ...task,
