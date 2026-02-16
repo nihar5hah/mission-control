@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useActivities, useTasks, useDocuments } from '@/hooks/useSupabase';
+import { useTaskCompletions } from '@/hooks/useTaskCompletions';
 import { useProactiveDashboard } from '@/hooks/useProactiveDashboard';
 import { useWorkspaceFiles } from '@/hooks/useWorkspaceFiles';
 import type { Task } from '@/types/database';
@@ -266,6 +267,9 @@ export default function MissionControl() {
   const { documents, loading: documentsLoading } = useDocuments(searchQuery);
   const { files, selectedFile, fileContent, loading: filesLoading, contentLoading, selectFile, refresh: refreshFiles } = useWorkspaceFiles();
   const { stats, actions, patterns, opportunities, suggestions, predictions, loading: proactiveLoading, refreshing, refresh: refreshProactive, triggerAnalysis, triggerScan, updateOpportunityStatus, completeAction, dismissAction } = useProactiveDashboard();
+  
+  // Date-specific completion tracking for daily tasks
+  const { isCompletedOnDate, toggleCompletion: toggleDateCompletion, getStatusOnDate } = useTaskCompletions();
 
   /* ============ ENHANCED ACTIVITY DATA ============ */
   const enhancedActivities = activities.map((activity) => ({
@@ -284,6 +288,17 @@ export default function MissionControl() {
     : enhancedActivities;
 
   /* ============ HANDLERS ============ */
+  const handleToggleTaskCompletion = (task: Task, date: Date) => {
+    // For daily tasks, use date-specific completion tracking
+    if (task.type === 'daily' || task.day === 'Daily') {
+      toggleDateCompletion(task.id, date);
+    } else {
+      // For one-time tasks, toggle the task status in the database
+      const newStatus = task.status === 'completed' ? 'pending' : 'completed';
+      updateStatus(task.id, newStatus);
+    }
+  };
+
   const handleDeleteActivity = async (id: number) => {
     setDeletingIds((prev) => new Set([...prev, id]));
     try {
@@ -450,49 +465,32 @@ export default function MissionControl() {
   };
 
   const getAllTaskDays = () => {
-    const daysMap = new Map<string, Date>();
-    
-    // Always include current week (today + next 6 days)
-    const weekDays = getWeekDays();
-    weekDays.forEach((date) => {
-      const dateKey = date.toISOString().split('T')[0];
-      if (!daysMap.has(dateKey)) {
-        daysMap.set(dateKey, date);
-      }
-    });
-
-    // Add all tasks' specific dates to the map
-    tasks.forEach((task) => {
-      // Add each task's specific scheduled_for date to calendar
-      const taskDate = new Date(task.scheduled_for);
-      const dateKey = taskDate.toISOString().split('T')[0];
-      if (!daysMap.has(dateKey)) {
-        daysMap.set(dateKey, taskDate);
-      }
-    });
-
-    return Array.from(daysMap.values()).sort((a, b) => a.getTime() - b.getTime());
+    // Show exactly 7 days: today + next 6 days
+    // This is the weekly view for the schedule tab
+    return getWeekDays();
   };
 
   const getTasksForDay = (date: Date) => {
-    return tasks.filter((task) => {
-      // Show daily recurring tasks every day
+    return tasks.map((task) => {
+      // Check if task should be displayed on this date
+      const shouldDisplay = task.type === 'daily' || task.day === 'Daily' || 
+        (task.type === 'one-time' && 
+         new Date(task.scheduled_for).toDateString() === date.toDateString());
+
+      if (!shouldDisplay) return null;
+
+      // For daily tasks, use date-specific completion status
       if (task.type === 'daily' || task.day === 'Daily') {
-        return true;
+        const completionStatus = getStatusOnDate(task.id, date);
+        return {
+          ...task,
+          status: completionStatus as 'pending' | 'completed',
+        };
       }
 
-      // Show one-time tasks on their scheduled date
-      if (task.type === 'one-time' || !task.type) {
-        const taskDate = new Date(task.scheduled_for);
-        return (
-          taskDate.getDate() === date.getDate() &&
-          taskDate.getMonth() === date.getMonth() &&
-          taskDate.getFullYear() === date.getFullYear()
-        );
-      }
-
-      return false;
-    });
+      // For one-time tasks, use the task's own status
+      return task;
+    }).filter((t): t is typeof tasks[0] => t !== null);
   };
 
   const getAllTasks = () => {
@@ -885,7 +883,7 @@ export default function MissionControl() {
                             animate={{ opacity: isDeleting ? 0.5 : 1 }}
                           >
                             <motion.button
-                              onClick={() => !isDeleting && updateStatus(task.id, task.status === 'completed' ? 'pending' : 'completed')}
+                              onClick={() => !isDeleting && handleToggleTaskCompletion(task, date)}
                               className={`w-full text-left p-2 rounded text-xs font-medium transition-all border ${
                                 task.status === 'completed'
                                   ? 'bg-[#5EAD5E]/10 text-[#5EAD5E] border-[#5EAD5E]/30'

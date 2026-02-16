@@ -20,6 +20,14 @@ export interface Task {
   updated_at: string;
 }
 
+// Date-specific completion tracking for daily tasks
+// Key: `${task_id}_${YYYY-MM-DD}`, Value: 'completed' | 'pending'
+export interface TaskCompletion {
+  task_id: number;
+  date: string; // YYYY-MM-DD format
+  status: 'pending' | 'completed';
+}
+
 export interface Document {
   id: number;
   title: string;
