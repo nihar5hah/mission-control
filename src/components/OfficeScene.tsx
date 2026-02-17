@@ -1,0 +1,250 @@
+'use client';
+
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import type { AgentId, AgentState } from '@/types/agents';
+import { AGENT_CONFIG } from '@/types/agents';
+import { Coffee, Users, Sparkles } from 'lucide-react';
+
+const PHASES = ['work', 'chat', 'meeting', 'water', 'return'] as const;
+type OfficePhase = (typeof PHASES)[number];
+
+const DESK_POSITIONS: Record<AgentId, { x: number; y: number }> = {
+  begubot: { x: 18, y: 62 },
+  coder: { x: 44, y: 72 },
+  researcher: { x: 70, y: 62 },
+};
+
+const MEETING_SPOTS: Record<AgentId, { x: number; y: number }> = {
+  begubot: { x: 34, y: 22 },
+  coder: { x: 46, y: 18 },
+  researcher: { x: 58, y: 22 },
+};
+
+const WATER_COOLER_SPOTS: Record<AgentId, { x: number; y: number }> = {
+  begubot: { x: 64, y: 78 },
+  coder: { x: 52, y: 82 },
+  researcher: { x: 74, y: 84 },
+};
+
+const CHAT_SPOTS: Record<AgentId, { x: number; y: number }> = {
+  begubot: { x: 30, y: 50 },
+  coder: { x: 42, y: 54 },
+  researcher: { x: 54, y: 50 },
+};
+
+const speechLines = [
+  'Syncing status updates…',
+  'Pushing a new build.',
+  'Let’s align on priorities.',
+  'I found a quicker path.',
+  'Live agents look good.',
+  'Water break?',
+  'Meeting in 2 minutes.',
+  'Documenting the changes.',
+];
+
+function getPosition(agentId: AgentId, phase: OfficePhase) {
+  if (phase === 'meeting') return MEETING_SPOTS[agentId];
+  if (phase === 'water') return WATER_COOLER_SPOTS[agentId];
+  if (phase === 'chat') return CHAT_SPOTS[agentId];
+  return DESK_POSITIONS[agentId];
+}
+
+function getAgentAction(state?: AgentState) {
+  return state?.session?.current_action || state?.latestActivity?.action || 'idle';
+}
+
+function isWorkingState(action: string | undefined, status: string | undefined) {
+  if (!action) return false;
+  if (status === 'running') return true;
+  return ['building', 'researching', 'deploying', 'testing', 'syncing', 'fixing', 'documenting', 'coordinating'].includes(action);
+}
+
+export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
+  const [phase, setPhase] = useState<OfficePhase>('work');
+  const [speech, setSpeech] = useState<{ agentId: AgentId; text: string } | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const speechTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const agentStateMap = useMemo(() => {
+    return agentStates.reduce<Record<AgentId, AgentState | undefined>>((acc, state) => {
+      acc[state.agent.id] = state;
+      return acc;
+    }, { begubot: undefined, coder: undefined, researcher: undefined });
+  }, [agentStates]);
+
+  useEffect(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+
+    const scheduleNext = () => {
+      if (phase === 'work') {
+        timerRef.current = setTimeout(() => {
+          const next = (['chat', 'meeting', 'water'] as OfficePhase[])[Math.floor(Math.random() * 3)];
+          setPhase(next);
+        }, 6500 + Math.random() * 4500);
+      } else if (phase === 'return') {
+        timerRef.current = setTimeout(() => setPhase('work'), 2500 + Math.random() * 1500);
+      } else {
+        timerRef.current = setTimeout(() => setPhase('return'), 4200 + Math.random() * 2800);
+      }
+    };
+
+    scheduleNext();
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [phase]);
+
+  useEffect(() => {
+    if (speechTimerRef.current) clearTimeout(speechTimerRef.current);
+
+    if (phase === 'chat' || phase === 'meeting' || phase === 'water') {
+      const agentIds: AgentId[] = ['begubot', 'coder', 'researcher'];
+      const talker = agentIds[Math.floor(Math.random() * agentIds.length)];
+      const line = speechLines[Math.floor(Math.random() * speechLines.length)];
+      speechTimerRef.current = setTimeout(() => {
+        setSpeech({ agentId: talker, text: line });
+        setTimeout(() => setSpeech(null), 2200 + Math.random() * 1200);
+      }, 600 + Math.random() * 800);
+    } else {
+      setSpeech(null);
+    }
+
+    return () => {
+      if (speechTimerRef.current) clearTimeout(speechTimerRef.current);
+    };
+  }, [phase]);
+
+  return (
+    <div className="relative w-full overflow-hidden rounded-2xl border border-[#262626] bg-gradient-to-br from-[#0F0F0F] via-[#111111] to-[#191919]">
+      <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, #5E6AD233 0%, transparent 45%), radial-gradient(circle at 80% 10%, #10B98122 0%, transparent 40%)' }} />
+
+      <div className="relative px-6 pt-6 pb-4 flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold text-white">Office Playground</h3>
+          <p className="text-xs text-[#888]">Live office scene with agent animations</p>
+        </div>
+        <div className="flex items-center gap-2 text-xs text-[#888]">
+          <span className="inline-flex items-center gap-1 rounded-full border border-[#2B2B2B] bg-[#121212] px-2 py-1">
+            <span className="h-2 w-2 rounded-full bg-[#10B981] animate-pulse" /> Live Sync
+          </span>
+        </div>
+      </div>
+
+      <div className="relative h-[420px] px-6 pb-6">
+        {/* Floor */}
+        <div className="absolute inset-6 rounded-2xl bg-gradient-to-br from-[#141414] via-[#151515] to-[#1C1C1C] border border-[#242424]" />
+
+        {/* Meeting room */}
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[55%] h-[120px] rounded-2xl border border-[#2B2B2B] bg-[#111111]/80 backdrop-blur">
+          <div className="absolute inset-x-4 top-4 flex items-center gap-2 text-xs text-[#777]">
+            <Users className="w-3 h-3" />
+            <span>Meeting Room</span>
+          </div>
+          <div className="absolute inset-x-10 bottom-4 h-2 rounded-full bg-[#1F1F1F] border border-[#2C2C2C]" />
+        </div>
+
+        {/* Water cooler */}
+        <div className="absolute right-10 bottom-10 w-28 h-20 rounded-2xl border border-[#2B2B2B] bg-[#121212] flex flex-col items-center justify-center gap-2">
+          <Coffee className="w-5 h-5 text-[#5E6AD2]" />
+          <span className="text-[10px] text-[#777]">Water Cooler</span>
+        </div>
+
+        {/* Desks */}
+        {(['begubot', 'coder', 'researcher'] as AgentId[]).map((agentId) => {
+          const desk = DESK_POSITIONS[agentId];
+          const config = AGENT_CONFIG[agentId];
+          return (
+            <div
+              key={`desk-${agentId}`}
+              className="absolute w-28 h-16 rounded-xl border border-[#242424] bg-[#121212]/80"
+              style={{ left: `${desk.x}%`, top: `${desk.y}%` }}
+            >
+              <div className="absolute -top-3 left-4 px-2 py-0.5 rounded-full text-[10px] font-medium" style={{ backgroundColor: `${config.color}22`, color: config.color }}>
+                {config.emoji} {config.name}
+              </div>
+              <div className="absolute bottom-3 left-4 h-1.5 w-12 rounded-full bg-[#1F1F1F]" />
+              <div className="absolute bottom-3 right-4 h-1.5 w-6 rounded-full bg-[#1F1F1F]" />
+            </div>
+          );
+        })}
+
+        {/* Agents */}
+        {(['begubot', 'coder', 'researcher'] as AgentId[]).map((agentId) => {
+          const config = AGENT_CONFIG[agentId];
+          const state = agentStateMap[agentId];
+          const action = getAgentAction(state);
+          const isWorking = isWorkingState(action, state?.latestActivity?.status);
+          const position = getPosition(agentId, phase);
+
+          return (
+            <motion.div
+              key={agentId}
+              className="absolute"
+              animate={{ left: `${position.x}%`, top: `${position.y}%` }}
+              transition={{ type: 'spring', stiffness: 120, damping: 18 }}
+            >
+              <motion.div
+                className="relative w-16 h-16"
+                animate={isWorking ? { y: [0, -2, 0] } : { y: [0, -4, 0] }}
+                transition={{ duration: isWorking ? 1.2 : 2.4, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <div
+                  className="absolute inset-0 rounded-2xl border border-[#2B2B2B] shadow-lg"
+                  style={{ backgroundColor: `${config.color}22` }}
+                />
+                <div
+                  className="absolute top-2 left-2 w-10 h-10 rounded-xl flex items-center justify-center text-lg"
+                  style={{ backgroundColor: `${config.color}30`, color: config.color }}
+                >
+                  {config.emoji}
+                </div>
+                <div className="absolute bottom-2 left-2 text-[10px] text-[#BFBFBF]">
+                  {action}
+                </div>
+
+                {isWorking && (
+                  <div className="absolute -top-2 right-0 flex items-center gap-1">
+                    {[0, 1, 2].map((i) => (
+                      <motion.span
+                        key={i}
+                        className="w-1.5 h-1.5 rounded-full"
+                        style={{ backgroundColor: config.color }}
+                        animate={{ opacity: [0.2, 1, 0.2] }}
+                        transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+
+              <AnimatePresence>
+                {speech?.agentId === agentId && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                    className="absolute -top-12 left-0 px-3 py-1.5 rounded-full border border-[#2B2B2B] bg-[#0F0F0F] text-[10px] text-white shadow-xl"
+                  >
+                    {speech.text}
+                    <span className="absolute -bottom-1 left-3 w-2 h-2 bg-[#0F0F0F] border-l border-b border-[#2B2B2B] rotate-45" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          );
+        })}
+
+        {/* Ambient sparkles */}
+        <motion.div
+          className="absolute left-10 bottom-16 text-[#5E6AD2]/60"
+          animate={{ opacity: [0.2, 0.8, 0.2], y: [0, -6, 0] }}
+          transition={{ duration: 3, repeat: Infinity }}
+        >
+          <Sparkles className="w-4 h-4" />
+        </motion.div>
+      </div>
+    </div>
+  );
+}

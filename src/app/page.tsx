@@ -62,6 +62,8 @@ import { AgentStatus } from '@/components/AgentStatus';
 import { AgentsSidebar } from '@/components/AgentsSidebar';
 import { HierarchyTab } from '@/components/HierarchyTab';
 import { AGENT_CONFIG } from '@/types/agents';
+import type { AgentId } from '@/types/agents';
+import { OfficeScene } from '@/components/OfficeScene';
 
 /* ============ ANIMATION VARIANTS ============ */
 const container = {
@@ -116,7 +118,7 @@ const actionTypeConfig: Record<string, { label: string; icon: React.ComponentTyp
 
 /* ============ MAIN COMPONENT ============ */
 export default function MissionControl() {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'activity' | 'calendar' | 'search' | 'documentation' | 'hierarchy'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'activity' | 'calendar' | 'office' | 'search' | 'documentation' | 'hierarchy'>('dashboard');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedActivity, setExpandedActivity] = useState<number | null>(null);
   const [filterType, setFilterType] = useState<string | null>(null);
@@ -126,6 +128,9 @@ export default function MissionControl() {
   const [newTaskForm, setNewTaskForm] = useState({ title: '', scheduled_for: '', day: '', type: 'one-time' as 'daily' | 'one-time' });
   const [statusDropdown, setStatusDropdown] = useState<{ type: 'activity' | 'task'; id: number } | null>(null);
   const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
+  const [scheduleAgentFilter, setScheduleAgentFilter] = useState<AgentId | 'all'>('all');
+  const [docsAgentFilter, setDocsAgentFilter] = useState<AgentId | 'all'>('all');
+  const [docsQuery, setDocsQuery] = useState('');
 
   // Log Activity Modal State
   const [showLogModal, setShowLogModal] = useState(false);
@@ -141,7 +146,9 @@ export default function MissionControl() {
   const { tasks, loading: tasksLoading, updateStatus, updateTask, createTask, deleteTask } = useTasks();
   const { documents, loading: documentsLoading } = useDocuments(searchQuery);
   const { agentStates, loading: agentsLoading } = useAgentState();
-  const { schedules: agentSchedules } = useAgentSchedules();
+  const { schedules: agentSchedules, loading: schedulesLoading, error: schedulesError } = useAgentSchedules();
+  const { documents: agentDocuments, loading: agentDocsLoading, error: agentDocsError } = useAgentDocuments();
+  const { activities: agentActivities, loading: agentActivitiesLoading } = useAgentActivities(undefined, 15);
 
   // Hooks for additional functionality
   const { isCompletedOnDate, toggleCompletion: toggleDateCompletion, getStatusOnDate, preloadCompletions } = useTaskCompletions();
@@ -356,7 +363,8 @@ export default function MissionControl() {
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: Zap },
     { id: 'activity', label: 'Activity Log', icon: Activity, badge: activities.length },
-    { id: 'calendar', label: 'Schedule', icon: Calendar, badge: tasks.length },
+    { id: 'calendar', label: 'Schedule', icon: Calendar, badge: agentSchedules.length },
+    { id: 'office', label: 'Office', icon: Coffee },
     { id: 'documentation', label: 'Documentation', icon: FileText },
     { id: 'hierarchy', label: 'Hierarchy', icon: Building },
     { id: 'search', label: 'Search', icon: Search },
@@ -681,44 +689,93 @@ export default function MissionControl() {
     </motion.div>
   );
 
-  /* ============ RENDER: CALENDAR VIEW ============ */
+    /* ============ RENDER: CALENDAR VIEW ============ */
   const renderCalendar = () => {
     const allTaskDays = getAllTaskDays();
+    const scheduleItems = scheduleAgentFilter === 'all'
+      ? agentSchedules
+      : agentSchedules.filter((schedule) => schedule.agent_id === scheduleAgentFilter);
+
+    const getSchedulesForDay = (date: Date) => {
+      return scheduleItems.filter((schedule) => {
+        const scheduleDate = new Date(schedule.scheduled_for);
+        return scheduleDate.toDateString() === date.toDateString();
+      });
+    };
+
+    const getScheduleStatusConfig = (status: string) => {
+      switch (status) {
+        case 'completed':
+          return { bg: 'bg-[#5EAD5E]/10', text: 'text-[#5EAD5E]', border: 'border-[#5EAD5E]/30' };
+        case 'in_progress':
+          return { bg: 'bg-[#D2B65E]/10', text: 'text-[#D2B65E]', border: 'border-[#D2B65E]/30' };
+        case 'cancelled':
+          return { bg: 'bg-[#E55454]/10', text: 'text-[#E55454]', border: 'border-[#E55454]/30' };
+        default:
+          return { bg: 'bg-[#5E8FAD]/10', text: 'text-[#5E8FAD]', border: 'border-[#5E8FAD]/30' };
+      }
+    };
+
+    const formatScheduleTime = (dateString: string) => {
+      const date = new Date(dateString);
+      return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    };
 
     return (
       <motion.div key="calendar" variants={tabVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.3 }}>
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-6 flex flex-col gap-4">
           <div>
-            <h2 className="text-2xl font-semibold text-white mb-1">Schedule (All Tasks)</h2>
-            <p className="text-sm text-[#888]">{tasks.length} total tasks</p>
+            <h2 className="text-2xl font-semibold text-white mb-1">Agent Schedules</h2>
+            <p className="text-sm text-[#888]">{scheduleItems.length} items scheduled</p>
           </div>
 
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setShowTaskModal(true)}
-            className="px-4 py-2 rounded-lg bg-[#5E6AD2] text-white text-sm font-medium hover:bg-[#4A55BF] transition-all flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            New Task
-          </motion.button>
+          <div className="flex flex-wrap items-center gap-2">
+            <motion.button
+              whileHover={{ y: -1 }}
+              whileTap={{ y: 0 }}
+              onClick={() => setScheduleAgentFilter('all')}
+              className={`px-3 py-1.5 rounded-full text-xs border transition-all ${scheduleAgentFilter === 'all' ? 'border-[#5E6AD2] text-white bg-[#5E6AD2]/20' : 'border-[#262626] text-[#888] bg-[#121212]'}`}
+            >
+              All Agents
+            </motion.button>
+            {(['begubot', 'coder', 'researcher'] as AgentId[]).map((agentId) => {
+              const config = AGENT_CONFIG[agentId];
+              const isActive = scheduleAgentFilter === agentId;
+              return (
+                <motion.button
+                  key={agentId}
+                  whileHover={{ y: -1 }}
+                  whileTap={{ y: 0 }}
+                  onClick={() => setScheduleAgentFilter(agentId)}
+                  className={`px-3 py-1.5 rounded-full text-xs border transition-all ${isActive ? 'text-white' : 'text-[#888]'}`}
+                  style={isActive ? { borderColor: config.color, backgroundColor: `${config.color}20` } : { borderColor: '#262626', backgroundColor: '#121212' }}
+                >
+                  {config.emoji} {config.name}
+                </motion.button>
+              );
+            })}
+          </div>
         </div>
 
-        {tasksLoading ? (
+        {schedulesLoading ? (
           <div className="flex items-center justify-center py-12">
             <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
               <Zap className="w-6 h-6 text-[#5E6AD2]" />
             </motion.div>
-            <span className="ml-2 text-[#888]">Loading schedule...</span>
+            <span className="ml-2 text-[#888]">Loading agent schedules...</span>
           </div>
-        ) : tasks.length === 0 ? (
+        ) : schedulesError ? (
           <motion.div className="text-center py-12" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <p className="text-sm text-[#888]">No tasks scheduled yet</p>
+            <p className="text-sm text-[#E55454]">Failed to load agent schedules</p>
+          </motion.div>
+        ) : scheduleItems.length === 0 ? (
+          <motion.div className="text-center py-12" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <p className="text-sm text-[#888]">No schedules found for this agent</p>
           </motion.div>
         ) : (
           <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             {allTaskDays.map((date, idx) => {
-              const dayTasks = getTasksForDay(date);
+              const daySchedules = getSchedulesForDay(date);
               const isToday = date.getDate() === new Date().getDate() && date.getMonth() === new Date().getMonth() && date.getFullYear() === new Date().getFullYear();
 
               return (
@@ -733,27 +790,28 @@ export default function MissionControl() {
                   </div>
 
                   <div className="p-3 space-y-2 min-h-[120px]">
-                    {dayTasks.length > 0 ? dayTasks.map((task) => {
-                      const isDeleting = deletingIds.has(task.id);
-                      const statusConfig = getTaskStatusConfig(normalizeTaskStatus(task.status));
-                      const StatusIcon = statusConfig.icon;
-
+                    {daySchedules.length > 0 ? daySchedules.map((schedule) => {
+                      const config = AGENT_CONFIG[schedule.agent_id];
+                      const statusConfig = getScheduleStatusConfig(schedule.status);
                       return (
-                        <motion.button
-                          key={task.id}
-                          onClick={() => !isDeleting && handleToggleTaskCompletion(task, date)}
+                        <motion.div
+                          key={schedule.id}
                           className={`w-full text-left p-2 rounded text-xs font-medium transition-all border ${statusConfig.bg} ${statusConfig.text} ${statusConfig.border}`}
-                          whileHover={!isDeleting ? { scale: 1.02 } : {}}
-                          whileTap={!isDeleting ? { scale: 0.98 } : {}}
-                          disabled={isDeleting}
+                          whileHover={{ scale: 1.02 }}
                         >
-                          <div className="flex items-center gap-1.5">
-                            {StatusIcon ? <StatusIcon className="w-3.5 h-3.5 flex-shrink-0" /> : <div className="w-3.5 h-3.5 rounded-full border border-current flex-shrink-0" />}
-                            <span className="line-clamp-1 flex-1">{task.title}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[11px] px-1.5 py-0.5 rounded-full" style={{ backgroundColor: `${config.color}22`, color: config.color }}>
+                              {config.emoji}
+                            </span>
+                            <span className="flex-1 line-clamp-1">{schedule.title}</span>
+                            <span className="text-[10px] text-[#666]">{formatScheduleTime(schedule.scheduled_for)}</span>
                           </div>
-                        </motion.button>
+                          {schedule.description && (
+                            <p className="mt-1 text-[10px] text-[#666] line-clamp-1">{schedule.description}</p>
+                          )}
+                        </motion.div>
                       );
-                    }) : <p className="text-xs text-[#666] text-center py-4">No tasks</p>}
+                    }) : <p className="text-xs text-[#666] text-center py-4">No schedules</p>}
                   </div>
                 </motion.div>
               );
@@ -764,18 +822,168 @@ export default function MissionControl() {
     );
   };
 
-  /* ============ RENDER: DOCUMENTATION ============ */
+    /* ============ RENDER: DOCUMENTATION ============ */
   const renderDocumentation = () => (
     <motion.div key="documentation" variants={tabVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.3 }}>
-      <div className="mb-8">
-        <h2 className="text-2xl font-semibold text-white mb-1">Documentation</h2>
-        <p className="text-sm text-[#888]">Browse workspace files and agent documentation</p>
+      <div className="mb-6 flex flex-col gap-4">
+        <div>
+          <h2 className="text-2xl font-semibold text-white mb-1">Documentation</h2>
+          <p className="text-sm text-[#888]">Per-agent guides, configs, and memory synced live</p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <motion.div className="relative flex-1 min-w-[220px]" whileHover={{ y: -1 }}>
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#666]" />
+            <input
+              type="text"
+              placeholder="Search agent docs..."
+              value={docsQuery}
+              onChange={(e) => setDocsQuery(e.target.value)}
+              className="w-full bg-[#161616] border border-[#262626] rounded-lg pl-9 pr-4 py-2 text-sm text-white placeholder:text-[#666] focus:outline-none focus:border-[#5E6AD2] focus:bg-[#1A1A1A] transition-all"
+            />
+          </motion.div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <motion.button
+              whileHover={{ y: -1 }}
+              whileTap={{ y: 0 }}
+              onClick={() => setDocsAgentFilter('all')}
+              className={`px-3 py-1.5 rounded-full text-xs border transition-all ${docsAgentFilter === 'all' ? 'border-[#5E6AD2] text-white bg-[#5E6AD2]/20' : 'border-[#262626] text-[#888] bg-[#121212]'}`}
+            >
+              All Agents
+            </motion.button>
+            {(['begubot', 'coder', 'researcher'] as AgentId[]).map((agentId) => {
+              const config = AGENT_CONFIG[agentId];
+              const isActive = docsAgentFilter === agentId;
+              return (
+                <motion.button
+                  key={agentId}
+                  whileHover={{ y: -1 }}
+                  whileTap={{ y: 0 }}
+                  onClick={() => setDocsAgentFilter(agentId)}
+                  className={`px-3 py-1.5 rounded-full text-xs border transition-all ${isActive ? 'text-white' : 'text-[#888]'}`}
+                  style={isActive ? { borderColor: config.color, backgroundColor: `${config.color}20` } : { borderColor: '#262626', backgroundColor: '#121212' }}
+                >
+                  {config.emoji} {config.name}
+                </motion.button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
-      <div className="text-center py-12">
-        <FileText className="w-12 h-12 text-[#5E6AD2]/40 mx-auto mb-4" />
-        <p className="text-sm text-[#888]">Documentation browser coming soon</p>
-        <p className="text-xs text-[#666] mt-1">Per-agent documentation sync will be implemented</p>
+      {agentDocsLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
+            <Zap className="w-6 h-6 text-[#5E6AD2]" />
+          </motion.div>
+          <span className="ml-2 text-[#888]">Loading documentation...</span>
+        </div>
+      ) : agentDocsError ? (
+        <motion.div className="text-center py-12" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <p className="text-sm text-[#E55454]">Failed to load agent documentation</p>
+        </motion.div>
+      ) : (() => {
+        const filteredDocs = agentDocuments
+          .filter((doc) => docsAgentFilter === 'all' || doc.agent_id === docsAgentFilter)
+          .filter((doc) => !docsQuery || doc.title.toLowerCase().includes(docsQuery.toLowerCase()) || doc.content.toLowerCase().includes(docsQuery.toLowerCase()));
+
+        if (filteredDocs.length === 0) {
+          return (
+            <motion.div className="text-center py-12" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <FileText className="w-12 h-12 text-[#5E6AD2]/40 mx-auto mb-4" />
+              <p className="text-sm text-[#888]">No documents found for this filter</p>
+            </motion.div>
+          );
+        }
+
+        return (
+          <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {filteredDocs.map((doc) => {
+              const config = AGENT_CONFIG[doc.agent_id];
+              return (
+                <motion.div
+                  key={doc.id}
+                  variants={item}
+                  className="bg-[#161616] border border-[#262626] rounded-lg p-4 hover:border-[#333] hover:bg-[#1A1A1A] transition-all"
+                  whileHover={{ y: -2 }}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="font-semibold text-white">{doc.title}</h3>
+                      <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px]">
+                        <span className="px-2 py-0.5 rounded-full" style={{ backgroundColor: `${config.color}22`, color: config.color }}>
+                          {config.emoji} {config.name}
+                        </span>
+                        {doc.category && (
+                          <span className="px-2 py-0.5 rounded-full bg-[#5E6AD2]/15 text-[#5E6AD2]">{doc.category}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-xs text-[#888] line-clamp-3">{doc.content}</p>
+                  {doc.source_file && (
+                    <p className="mt-3 text-[10px] text-[#666]">{doc.source_file}</p>
+                  )}
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        );
+      })()}
+    </motion.div>
+  );
+
+  /* ============ RENDER: OFFICE SCENE ============ */
+  const renderOffice = () => (
+    <motion.div key="office" variants={tabVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.3 }}>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-semibold text-white mb-1">Office Playground</h2>
+          <p className="text-sm text-[#888]">Animated live office + real-time agent activity</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-4">
+        <OfficeScene agentStates={agentStates} />
+
+        <div className="bg-[#161616] border border-[#262626] rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-white">Live Agent Activity</h3>
+            <span className="text-xs text-[#666]">Real-time sync</span>
+          </div>
+
+          {agentActivitiesLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
+                <Zap className="w-5 h-5 text-[#5E6AD2]" />
+              </motion.div>
+              <span className="ml-2 text-[#888] text-xs">Syncing...</span>
+            </div>
+          ) : agentActivities.length === 0 ? (
+            <p className="text-xs text-[#888]">No recent agent activity</p>
+          ) : (
+            <div className="space-y-3">
+              {agentActivities.map((activity) => {
+                const config = AGENT_CONFIG[activity.agent_id];
+                return (
+                  <div key={activity.id} className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${config.color}22`, color: config.color }}>
+                      {config.emoji}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs text-white">
+                        <span className="font-semibold">{config.name}</span> · {activity.action}
+                      </p>
+                      <p className="text-[11px] text-[#888] line-clamp-2">{activity.description}</p>
+                      <p className="text-[10px] text-[#666] mt-1">{formatTime(activity.timestamp)}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </motion.div>
   );
@@ -853,6 +1061,7 @@ export default function MissionControl() {
             {activeTab === 'dashboard' && renderDashboard()}
             {activeTab === 'activity' && renderActivityFeed()}
             {activeTab === 'calendar' && renderCalendar()}
+            {activeTab === 'office' && renderOffice()}
             {activeTab === 'documentation' && renderDocumentation()}
             {activeTab === 'hierarchy' && <HierarchyTab />}
             {activeTab === 'search' && renderSearch()}
