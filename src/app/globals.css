@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Newsreader:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
-@import url('https://fonts.cdnfonts.com/css/urbane-demi');
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:wght@400;500;600&family=Playfair+Display:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -57,10 +56,10 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Urbane Demi', 'Newsreader', serif;
+  font-family: 'Playfair Display', 'Newsreader', serif;
   font-weight: 700;
   letter-spacing: -0.02em;
-  line-height: 1.1;
+  line-height: 1.08;
 }
 
 h1 { @apply text-3xl; }
