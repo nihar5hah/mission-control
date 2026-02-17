@@ -63,6 +63,7 @@ import type { FileNode } from '@/hooks/useWorkspaceFiles';
 import { AgentStatus } from '@/components/AgentStatus';
 import { AgentsSidebar } from '@/components/AgentsSidebar';
 import { HierarchyTab } from '@/components/HierarchyTab';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { AGENT_CONFIG } from '@/types/agents';
 import type { AgentId } from '@/types/agents';
 import { OfficeScene } from '@/components/OfficeScene';
@@ -409,14 +410,17 @@ export default function MissionControl() {
           </div>
         </motion.div>
 
-        <motion.div
-          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200"
-          animate={{ opacity: [0.8, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <motion.div className="w-2 h-2 bg-emerald-500 rounded-full" animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }} />
-          <span className="text-xs font-medium text-slate-600">{agentStates.filter(s => s.isOnline).length}/3 Agents Online</span>
-        </motion.div>
+        <div className="flex items-center gap-3">
+          <motion.div
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200"
+            animate={{ opacity: [0.8, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <motion.div className="w-2 h-2 bg-emerald-500 rounded-full" animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }} />
+            <span className="text-xs font-medium text-slate-600">{agentStates.filter(s => s.isOnline).length}/3 Agents Online</span>
+          </motion.div>
+          <ThemeToggle />
+        </div>
       </div>
     </motion.header>
   );
@@ -427,7 +431,12 @@ export default function MissionControl() {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.1 }}
-      className="flex gap-1 mb-6 sm:mb-8 bg-white border border-slate-200 rounded-lg shadow-sm p-1 w-full md:w-fit overflow-x-auto"
+      className="flex gap-1 mb-6 sm:mb-8 rounded-lg p-1 w-full md:w-fit overflow-x-auto shadow-sm"
+      style={{
+        backgroundColor: 'var(--background)',
+        borderColor: 'var(--border)',
+        borderWidth: '1px'
+      }}
     >
       {tabs.map((tab) => {
         const Icon = tab.icon;
@@ -442,14 +451,19 @@ export default function MissionControl() {
             {activeTab === tab.id && (
               <motion.div
                 layoutId="active-tab"
-                className="absolute inset-0 bg-teal-50 rounded-md"
+                className="absolute inset-0 rounded-md"
+                style={{ background: 'var(--gradient-primary)', opacity: 0.1 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
               />
             )}
-            <span className={`relative z-10 flex items-center gap-2 ${activeTab === tab.id ? 'text-teal-700 font-semibold' : 'text-slate-600'}`}>
+            <span className={`relative z-10 flex items-center gap-2 font-medium transition-colors ${activeTab === tab.id ? 'font-semibold' : ''}`}
+              style={{
+                color: activeTab === tab.id ? 'var(--primary)' : 'var(--subtle)'
+              }}
+            >
               <Icon className="w-4 h-4" />
               {tab.label}
-              {tab.badge && <span className="ml-1 px-2 py-0.5 text-xs rounded-full bg-teal-600 text-white">{tab.badge}</span>}
+              {tab.badge && <span className="ml-1 px-2 py-0.5 text-xs rounded-full text-white" style={{ background: 'var(--gradient-primary)' }}>{tab.badge}</span>}
             </span>
           </motion.button>
         );
