@@ -236,34 +236,34 @@ function StatsCards({ stats }: { stats: any }) {
       value: stats?.total_actions_today || 0,
       subValue: `${stats?.completed_actions_today || 0} completed`,
       icon: Zap,
-      color: 'text-[#F59E0B]',
-      bg: 'bg-[#F59E0B]/10',
+      color: '#F59E0B',
+      bg: 'rgba(245, 158, 11, 0.1)',
     },
     {
       label: 'Opportunities',
       value: stats?.opportunities_found || 0,
       subValue: `${stats?.opportunities_implemented || 0} implemented`,
       icon: Lightbulb,
-      color: 'text-[#10B981]',
-      bg: 'bg-[#10B981]/10',
+      color: '#10B981',
+      bg: 'rgba(16, 185, 129, 0.1)',
     },
     {
       label: 'Patterns',
       value: stats?.patterns_detected || 0,
       subValue: 'active detected',
       icon: Brain,
-      color: 'text-[#8B5CF6]',
-      bg: 'bg-[#8B5CF6]/10',
+      color: '#8B5CF6',
+      bg: 'rgba(139, 92, 246, 0.1)',
     },
     {
       label: 'Confidence',
-      value: stats?.avg_confidence_score 
-        ? `${Math.round(stats.avg_confidence_score * 100)}%` 
+      value: stats?.avg_confidence_score
+        ? `${Math.round(stats.avg_confidence_score * 100)}%`
         : '0%',
       subValue: 'avg pattern confidence',
       icon: Target,
-      color: 'text-[#06B6D4]',
-      bg: 'bg-[#06B6D4]/10',
+      color: '#06B6D4',
+      bg: 'rgba(6, 182, 212, 0.1)',
     },
   ];
 
@@ -277,16 +277,23 @@ function StatsCards({ stats }: { stats: any }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.1 }}
-            className="bg-[#161616] border border-[#262626] rounded-lg p-4 hover:border-[#333] transition-all"
+            className="rounded-lg p-4 transition-all"
+            style={{
+              backgroundColor: 'var(--background)',
+              border: '1px solid var(--border)',
+              borderColor: 'var(--border)',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--subtle)')}
+            onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
           >
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs text-[#888] uppercase tracking-wide">{card.label}</span>
-              <div className={`p-2 rounded-md ${card.bg}`}>
-                <Icon className={`w-4 h-4 ${card.color}`} />
+              <span className="text-xs uppercase tracking-wide transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{card.label}</span>
+              <div className="p-2 rounded-md" style={{ backgroundColor: card.bg }}>
+                <Icon className="w-4 h-4" style={{ color: card.color }} />
               </div>
             </div>
-            <p className="text-2xl font-bold text-white">{card.value}</p>
-            <p className="text-xs text-[#666] mt-1">{card.subValue}</p>
+            <p className="text-2xl font-bold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{card.value}</p>
+            <p className="text-xs mt-1 transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{card.subValue}</p>
           </motion.div>
         );
       })}
@@ -300,39 +307,57 @@ function ActionCard({ action, onDismiss }: { action: ProactiveAction; onDismiss:
   const Icon = config.icon;
   const status = statusConfig[action.status as keyof typeof statusConfig] || statusConfig.pending;
 
+  // Extract hex from config and convert to rgba
+  const getColorValue = (hexColor: string) => {
+    const hex = hexColor.replace('#', '');
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    return { hex: hexColor, rgba: `rgba(${r}, ${g}, ${b}, 0.1)` };
+  };
+
+  const configColor = getColorValue(config.color.replace('text-[#', '#').replace(']', ''));
+  const statusColor = getColorValue(status.color.replace('text-[#', '#').replace(']', ''));
+
   return (
     <motion.div
       layout
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
-      className="bg-[#161616] border border-[#262626] rounded-lg p-4 hover:border-[#333] transition-all group"
+      className="rounded-lg p-4 transition-all group"
+      style={{
+        backgroundColor: 'var(--background)',
+        border: '1px solid var(--border)',
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--subtle)')}
+      onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
     >
       <div className="flex items-start gap-3">
-        <div className={`p-2 rounded-md ${config.bg} border ${config.border}`}>
-          <Icon className={`w-4 h-4 ${config.color}`} />
+        <div className="p-2 rounded-md" style={{ backgroundColor: configColor.rgba, border: `1px solid ${configColor.hex}33` }}>
+          <Icon className="w-4 h-4" style={{ color: configColor.hex }} />
         </div>
-        
+
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className={`text-xs font-semibold ${config.color}`}>{config.label}</span>
-            <span className="text-xs text-[#666]">•</span>
-            <span className={`text-xs px-2 py-0.5 rounded ${status.bg} ${status.color}`}>
+            <span className="text-xs font-semibold" style={{ color: configColor.hex }}>{config.label}</span>
+            <span className="text-xs" style={{ color: 'var(--subtle)' }}>•</span>
+            <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: statusColor.rgba, color: statusColor.hex }}>
               {status.label}
             </span>
           </div>
-          <p className="text-sm text-[#888] line-clamp-2">{action.description}</p>
-          
+          <p className="text-sm line-clamp-2" style={{ color: 'var(--subtle)' }}>{action.description}</p>
+
           {action.confidence_score && (
             <div className="mt-2 flex items-center gap-2">
-              <div className="flex-1 h-1 bg-[#262626] rounded-full overflow-hidden">
+              <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--border)' }}>
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${action.confidence_score * 100}%` }}
-                  className="h-full bg-[#5E6AD2]"
+                  style={{ backgroundColor: '#5E6AD2' }}
                 />
               </div>
-              <span className="text-xs text-[#666]">{Math.round(action.confidence_score * 100)}%</span>
+              <span className="text-xs" style={{ color: 'var(--subtle)' }}>{Math.round(action.confidence_score * 100)}%</span>
             </div>
           )}
         </div>
@@ -342,9 +367,12 @@ function ActionCard({ action, onDismiss }: { action: ProactiveAction; onDismiss:
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => onDismiss(action.id)}
-            className="opacity-0 group-hover:opacity-100 p-1.5 rounded hover:bg-[#262626] transition-all"
+            className="opacity-0 group-hover:opacity-100 p-1.5 rounded transition-all"
+            style={{ color: 'var(--subtle)' }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--border)')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
           >
-            <XCircle className="w-4 h-4 text-[#666]" />
+            <XCircle className="w-4 h-4" />
           </motion.button>
         )}
       </div>
@@ -357,49 +385,67 @@ function PatternCard({ pattern }: { pattern: Pattern }) {
   const config = patternCategoryConfig[pattern.category as keyof typeof patternCategoryConfig] || patternCategoryConfig.time;
   const Icon = config.icon;
 
+  // Extract hex from config and convert to rgba
+  const getColorValue = (hexColor: string) => {
+    const hex = hexColor.replace('text-[#', '#').replace(']', '');
+    const hexClean = hex.replace('#', '');
+    const r = parseInt(hexClean.slice(0, 2), 16);
+    const g = parseInt(hexClean.slice(2, 4), 16);
+    const b = parseInt(hexClean.slice(4, 6), 16);
+    return { hex: '#' + hexClean, rgba: `rgba(${r}, ${g}, ${b}, 0.1)` };
+  };
+
+  const configColor = getColorValue(config.color);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-[#161616] border border-[#262626] rounded-lg p-4 hover:border-[#333] transition-all"
+      className="rounded-lg p-4 transition-all"
+      style={{
+        backgroundColor: 'var(--background)',
+        border: '1px solid var(--border)',
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--subtle)')}
+      onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
     >
       <div className="flex items-start gap-3">
-        <div className={`p-2 rounded-md ${config.bg} border ${config.border}`}>
-          <Icon className={`w-4 h-4 ${config.color}`} />
+        <div className="p-2 rounded-md" style={{ backgroundColor: configColor.rgba, border: `1px solid ${configColor.hex}33` }}>
+          <Icon className="w-4 h-4" style={{ color: configColor.hex }} />
         </div>
-        
+
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm font-semibold text-white">{pattern.name}</span>
-            <span className="text-xs text-[#666]">•</span>
-            <span className="text-xs text-[#666]">{pattern.frequency}</span>
+            <span className="text-sm font-semibold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{pattern.name}</span>
+            <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>•</span>
+            <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{pattern.frequency}</span>
           </div>
-          
+
           <div className="flex items-center gap-3 mt-2">
             <div className="flex items-center gap-1">
-              <div className="w-16 h-1.5 bg-[#262626] rounded-full overflow-hidden">
+              <div className="w-16 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--border)' }}>
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${pattern.confidence * 100}%` }}
-                  className="h-full bg-[#10B981]"
+                  style={{ backgroundColor: '#10B981' }}
                 />
               </div>
-              <span className="text-xs text-[#666]">{Math.round(pattern.confidence * 100)}% conf</span>
+              <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{Math.round(pattern.confidence * 100)}% conf</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-16 h-1.5 bg-[#262626] rounded-full overflow-hidden">
+              <div className="w-16 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--border)' }}>
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${pattern.impact_score * 100}%` }}
-                  className="h-full bg-[#F59E0B]"
+                  style={{ backgroundColor: '#F59E0B' }}
                 />
               </div>
-              <span className="text-xs text-[#666]">{Math.round(pattern.impact_score * 100)}% impact</span>
+              <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{Math.round(pattern.impact_score * 100)}% impact</span>
             </div>
           </div>
 
           {pattern.suggested_action && (
-            <p className="text-xs text-[#5E6AD2] mt-3 bg-[#5E6AD2]/5 border border-[#5E6AD2]/20 rounded px-2 py-1.5">
+            <p className="text-xs mt-3 rounded px-2 py-1.5 transition-colors duration-300" style={{ color: '#5E6AD2', backgroundColor: 'rgba(94, 106, 210, 0.05)', border: '1px solid rgba(94, 106, 210, 0.2)' }}>
               💡 {pattern.suggested_action}
             </p>
           )}
@@ -416,57 +462,76 @@ function OpportunityCard({ opportunity, onUpdate }: { opportunity: Opportunity; 
   const status = statusConfig[opportunity.status as keyof typeof statusConfig] || statusConfig.discovered;
 
   const valueColors = {
-    low: 'text-[#666]',
-    medium: 'text-[#FBBF24]',
-    high: 'text-[#F59E0B]',
-    transformative: 'text-[#10B981]',
+    low: '#999',
+    medium: '#FBBF24',
+    high: '#F59E0B',
+    transformative: '#10B981',
   };
 
   const effortColors = {
-    low: 'text-[#10B981]',
-    medium: 'text-[#FBBF24]',
-    high: 'text-[#EF4444]',
+    low: '#10B981',
+    medium: '#FBBF24',
+    high: '#EF4444',
   };
+
+  // Extract hex from config and convert to rgba
+  const getColorValue = (hexColor: string) => {
+    const hex = hexColor.replace('text-[#', '#').replace(']', '');
+    const hexClean = hex.replace('#', '');
+    const r = parseInt(hexClean.slice(0, 2), 16);
+    const g = parseInt(hexClean.slice(2, 4), 16);
+    const b = parseInt(hexClean.slice(4, 6), 16);
+    return { hex: '#' + hexClean, rgba: `rgba(${r}, ${g}, ${b}, 0.1)` };
+  };
+
+  const configColor = getColorValue(config.color);
+  const statusColor = getColorValue(status.color);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-[#161616] border border-[#262626] rounded-lg p-4 hover:border-[#333] transition-all"
+      className="rounded-lg p-4 transition-all"
+      style={{
+        backgroundColor: 'var(--background)',
+        border: '1px solid var(--border)',
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--subtle)')}
+      onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
     >
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-center gap-2">
-          <div className={`p-2 rounded-md ${config.bg} border ${config.border}`}>
-            <Icon className={`w-4 h-4 ${config.color}`} />
+          <div className="p-2 rounded-md" style={{ backgroundColor: configColor.rgba, border: `1px solid ${configColor.hex}33` }}>
+            <Icon className="w-4 h-4" style={{ color: configColor.hex }} />
           </div>
           <div>
-            <span className={`text-xs font-semibold ${config.color}`}>{config.label}</span>
-            <span className="text-xs text-[#666] mx-1.5">•</span>
-            <span className={`text-xs ${status.color}`}>{status.label}</span>
+            <span className="text-xs font-semibold" style={{ color: configColor.hex }}>{config.label}</span>
+            <span className="text-xs mx-1.5 transition-colors duration-300" style={{ color: 'var(--subtle)' }}>•</span>
+            <span className="text-xs" style={{ color: statusColor.hex }}>{status.label}</span>
           </div>
         </div>
       </div>
 
-      <h4 className="text-sm font-semibold text-white mb-2">{opportunity.title}</h4>
-      <p className="text-xs text-[#888] line-clamp-2 mb-3">{opportunity.description}</p>
+      <h4 className="text-sm font-semibold mb-2 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{opportunity.title}</h4>
+      <p className="text-xs line-clamp-2 mb-3 transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{opportunity.description}</p>
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div>
-            <span className="text-xs text-[#666]">Value</span>
-            <p className={`text-sm font-medium ${valueColors[opportunity.potential_value as keyof typeof valueColors] || valueColors.medium}`}>
+            <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Value</span>
+            <p className="text-sm font-medium" style={{ color: valueColors[opportunity.potential_value as keyof typeof valueColors] || valueColors.medium }}>
               {opportunity.potential_value}
             </p>
           </div>
           <div>
-            <span className="text-xs text-[#666]">Effort</span>
-            <p className={`text-sm font-medium ${effortColors[opportunity.effort_estimate as keyof typeof effortColors] || effortColors.medium}`}>
+            <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Effort</span>
+            <p className="text-sm font-medium" style={{ color: effortColors[opportunity.effort_estimate as keyof typeof effortColors] || effortColors.medium }}>
               {opportunity.effort_estimate}
             </p>
           </div>
           <div>
-            <span className="text-xs text-[#666]">Score</span>
-            <p className="text-sm font-medium text-white">{Math.round((opportunity.priority_score || 0.5) * 100)}%</p>
+            <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Score</span>
+            <p className="text-sm font-medium transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{Math.round((opportunity.priority_score || 0.5) * 100)}%</p>
           </div>
         </div>
 
@@ -475,7 +540,10 @@ function OpportunityCard({ opportunity, onUpdate }: { opportunity: Opportunity; 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => onUpdate(opportunity.id, 'investigating')}
-            className="px-3 py-1.5 rounded bg-[#5E6AD2] text-white text-xs font-medium hover:bg-[#4A55BF] transition-all"
+            className="px-3 py-1.5 rounded text-white text-xs font-medium transition-all"
+            style={{ backgroundColor: '#5E6AD2' }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#4A55BF')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#5E6AD2')}
           >
             Investigate
           </motion.button>
@@ -485,7 +553,10 @@ function OpportunityCard({ opportunity, onUpdate }: { opportunity: Opportunity; 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => onUpdate(opportunity.id, 'implemented')}
-            className="px-3 py-1.5 rounded bg-[#10B981] text-white text-xs font-medium hover:bg-[#059669] transition-all"
+            className="px-3 py-1.5 rounded text-white text-xs font-medium transition-all"
+            style={{ backgroundColor: '#10B981' }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#059669')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#10B981')}
           >
             Implement
           </motion.button>
@@ -524,17 +595,20 @@ function EmptyState({ type, onAction }: { type: string; onAction?: () => void })
       animate={{ opacity: 1 }}
       className="text-center py-8"
     >
-      <div className="inline-block p-3 rounded-full bg-[#161616] border border-[#262626] mb-4">
-        <Icon className="w-6 h-6 text-[#666]" />
+      <div className="inline-block p-3 rounded-full mb-4 transition-colors duration-300" style={{ backgroundColor: 'var(--muted-bg)', border: '1px solid var(--border)', color: 'var(--subtle)' }}>
+        <Icon className="w-6 h-6" />
       </div>
-      <p className="text-sm text-white font-medium mb-1">{config.title}</p>
-      <p className="text-xs text-[#666]">{config.description}</p>
+      <p className="text-sm font-medium mb-1 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{config.title}</p>
+      <p className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{config.description}</p>
       {onAction && config.actionLabel && (
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={onAction}
-          className="mt-4 px-4 py-2 rounded bg-[#5E6AD2] text-white text-sm font-medium hover:bg-[#4A55BF] transition-all"
+          className="mt-4 px-4 py-2 rounded text-white text-sm font-medium transition-all"
+          style={{ backgroundColor: '#5E6AD2' }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#4A55BF')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#5E6AD2')}
         >
           {config.actionLabel}
         </motion.button>
@@ -609,9 +683,9 @@ export default function ProactiveHub() {
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
         >
-          <Zap className="w-8 h-8 text-[#5E6AD2]" />
+          <Zap className="w-8 h-8" style={{ color: '#5E6AD2' }} />
         </motion.div>
-        <span className="ml-3 text-[#888]">Loading Proactive Intelligence...</span>
+        <span className="ml-3 transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Loading Proactive Intelligence...</span>
       </div>
     );
   }
@@ -620,14 +694,17 @@ export default function ProactiveHub() {
   if (error) {
     return (
       <div className="text-center py-20">
-        <AlertTriangle className="w-8 h-8 text-[#EF4444] mx-auto mb-4" />
-        <p className="text-white font-medium mb-2">Error loading data</p>
-        <p className="text-sm text-[#666] mb-4">{error}</p>
+        <AlertTriangle className="w-8 h-8 mx-auto mb-4" style={{ color: '#EF4444' }} />
+        <p className="font-medium mb-2 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>Error loading data</p>
+        <p className="text-sm mb-4 transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{error}</p>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={refresh}
-          className="px-4 py-2 rounded bg-[#5E6AD2] text-white text-sm font-medium"
+          className="px-4 py-2 rounded text-white text-sm font-medium transition-all"
+          style={{ backgroundColor: '#5E6AD2' }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#4A55BF')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#5E6AD2')}
         >
           Retry
         </motion.button>
@@ -644,11 +721,11 @@ export default function ProactiveHub() {
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold text-white mb-1 flex items-center gap-2">
-            <Bot className="w-6 h-6 text-[#5E6AD2]" />
+          <h2 className="text-2xl font-semibold mb-1 flex items-center gap-2 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>
+            <Bot className="w-6 h-6" style={{ color: '#5E6AD2' }} />
             Proactive Intelligence
           </h2>
-          <p className="text-sm text-[#888]">
+          <p className="text-sm transition-colors duration-300" style={{ color: 'var(--subtle)' }}>
             Begubot analyzes patterns and finds opportunities for you
           </p>
         </div>
@@ -659,7 +736,20 @@ export default function ProactiveHub() {
             whileTap={{ scale: 0.95 }}
             onClick={handleAnalyze}
             disabled={analyzing}
-            className="px-4 py-2 rounded-lg bg-[#161616] border border-[#262626] text-sm text-[#888] hover:text-white hover:border-[#333] transition-all flex items-center gap-2 disabled:opacity-50"
+            className="px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 disabled:opacity-50"
+            style={{
+              backgroundColor: 'var(--background)',
+              border: '1px solid var(--border)',
+              color: 'var(--subtle)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'var(--subtle)';
+              e.currentTarget.style.color = 'var(--foreground)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'var(--border)';
+              e.currentTarget.style.color = 'var(--subtle)';
+            }}
           >
             <motion.div
               animate={{ rotate: analyzing ? 360 : 0 }}
@@ -675,7 +765,10 @@ export default function ProactiveHub() {
             whileTap={{ scale: 0.95 }}
             onClick={handleFindOpportunities}
             disabled={findingOpp}
-            className="px-4 py-2 rounded-lg bg-[#5E6AD2] text-white text-sm font-medium hover:bg-[#4A55BF] transition-all flex items-center gap-2 disabled:opacity-50"
+            className="px-4 py-2 rounded-lg text-white text-sm font-medium transition-all flex items-center gap-2 disabled:opacity-50"
+            style={{ backgroundColor: '#5E6AD2' }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#4A55BF')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#5E6AD2')}
           >
             <motion.div
               animate={{ rotate: findingOpp ? 360 : 0 }}
@@ -690,7 +783,20 @@ export default function ProactiveHub() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={refresh}
-            className="p-2 rounded-lg bg-[#161616] border border-[#262626] text-[#888] hover:text-white hover:border-[#333] transition-all"
+            className="p-2 rounded-lg transition-all"
+            style={{
+              backgroundColor: 'var(--background)',
+              border: '1px solid var(--border)',
+              color: 'var(--subtle)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'var(--subtle)';
+              e.currentTarget.style.color = 'var(--foreground)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'var(--border)';
+              e.currentTarget.style.color = 'var(--subtle)';
+            }}
           >
             <RefreshCw className="w-4 h-4" />
           </motion.button>
@@ -698,23 +804,35 @@ export default function ProactiveHub() {
       </div>
 
       {/* Section Tabs */}
-      <div className="flex gap-1 mb-6 bg-[#161616] rounded-lg p-1 border border-[#262626] w-fit">
+      <div className="flex gap-1 mb-6 rounded-lg p-1 w-fit transition-colors duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
         {sections.map((section) => {
           const Icon = section.icon;
           return (
             <motion.button
               key={section.id}
               onClick={() => setActiveSection(section.id as any)}
-              className={`relative px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
-                activeSection === section.id ? 'text-white' : 'text-[#888] hover:text-white'
-              }`}
+              className="relative px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2"
+              style={{
+                color: activeSection === section.id ? 'var(--foreground)' : 'var(--subtle)',
+              }}
               whileHover={{ y: -1 }}
               whileTap={{ y: 0 }}
+              onMouseEnter={(e) => {
+                if (activeSection !== section.id) {
+                  e.currentTarget.style.color = 'var(--foreground)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeSection !== section.id) {
+                  e.currentTarget.style.color = 'var(--subtle)';
+                }
+              }}
             >
               {activeSection === section.id && (
                 <motion.div
                   layoutId="proactive-section"
-                  className="absolute inset-0 bg-[#262626] rounded-md"
+                  className="absolute inset-0 rounded-md transition-colors duration-300"
+                  style={{ backgroundColor: 'var(--border)' }}
                   transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                 />
               )}
@@ -742,15 +860,18 @@ export default function ProactiveHub() {
             {/* Quick View Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Recent Actions */}
-              <div className="bg-[#161616] border border-[#262626] rounded-lg p-4">
+              <div className="rounded-lg p-4 transition-colors duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-[#F59E0B]" />
+                  <h3 className="text-sm font-semibold flex items-center gap-2 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>
+                    <Zap className="w-4 h-4" style={{ color: '#F59E0B' }} />
                     Recent Actions
                   </h3>
                   <button
                     onClick={() => setActiveSection('actions')}
-                    className="text-xs text-[#5E6AD2] hover:text-[#4A55BF] flex items-center gap-1"
+                    className="text-xs flex items-center gap-1 transition-colors duration-300"
+                    style={{ color: '#5E6AD2' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = '#7B8AED')}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = '#5E6AD2')}
                   >
                     View all <ArrowRight className="w-3 h-3" />
                   </button>
@@ -767,15 +888,18 @@ export default function ProactiveHub() {
               </div>
 
               {/* Top Patterns */}
-              <div className="bg-[#161616] border border-[#262626] rounded-lg p-4">
+              <div className="rounded-lg p-4 transition-colors duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                    <Brain className="w-4 h-4 text-[#8B5CF6]" />
+                  <h3 className="text-sm font-semibold flex items-center gap-2 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>
+                    <Brain className="w-4 h-4" style={{ color: '#8B5CF6' }} />
                     Detected Patterns
                   </h3>
                   <button
                     onClick={() => setActiveSection('patterns')}
-                    className="text-xs text-[#5E6AD2] hover:text-[#4A55BF] flex items-center gap-1"
+                    className="text-xs flex items-center gap-1 transition-colors duration-300"
+                    style={{ color: '#5E6AD2' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = '#7B8AED')}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = '#5E6AD2')}
                   >
                     View all <ArrowRight className="w-3 h-3" />
                   </button>
@@ -792,15 +916,18 @@ export default function ProactiveHub() {
               </div>
 
               {/* Top Opportunities */}
-              <div className="bg-[#161616] border border-[#262626] rounded-lg p-4 lg:col-span-2">
+              <div className="rounded-lg p-4 lg:col-span-2 transition-colors duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                    <Lightbulb className="w-4 h-4 text-[#10B981]" />
+                  <h3 className="text-sm font-semibold flex items-center gap-2 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>
+                    <Lightbulb className="w-4 h-4" style={{ color: '#10B981' }} />
                     Top Opportunities
                   </h3>
                   <button
                     onClick={() => setActiveSection('opportunities')}
-                    className="text-xs text-[#5E6AD2] hover:text-[#4A55BF] flex items-center gap-1"
+                    className="text-xs flex items-center gap-1 transition-colors duration-300"
+                    style={{ color: '#5E6AD2' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = '#7B8AED')}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = '#5E6AD2')}
                   >
                     View all <ArrowRight className="w-3 h-3" />
                   </button>
@@ -829,8 +956,8 @@ export default function ProactiveHub() {
             exit={{ opacity: 0, y: -10 }}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-white">Proactive Actions</h3>
-              <span className="text-sm text-[#666]">{actions.length} total</span>
+              <h3 className="text-lg font-semibold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>Proactive Actions</h3>
+              <span className="text-sm transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{actions.length} total</span>
             </div>
             <div className="space-y-2">
               {actions.length > 0 ? (
@@ -852,8 +979,8 @@ export default function ProactiveHub() {
             exit={{ opacity: 0, y: -10 }}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-white">Detected Patterns</h3>
-              <span className="text-sm text-[#666]">{patterns.length} active</span>
+              <h3 className="text-lg font-semibold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>Detected Patterns</h3>
+              <span className="text-sm transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{patterns.length} active</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {patterns.length > 0 ? (
@@ -877,8 +1004,8 @@ export default function ProactiveHub() {
             exit={{ opacity: 0, y: -10 }}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-white">Opportunities</h3>
-              <span className="text-sm text-[#666]">{opportunities.length} found</span>
+              <h3 className="text-lg font-semibold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>Opportunities</h3>
+              <span className="text-sm transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{opportunities.length} found</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {opportunities.length > 0 ? (

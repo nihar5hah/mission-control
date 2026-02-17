@@ -515,8 +515,8 @@ export default function MissionControl() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 sm:mb-8">
           <motion.div variants={item} className="rounded-lg shadow-sm p-4 hover:shadow-md transition-all duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-md bg-purple-50 border border-purple-200">
-                <Users className="w-4 h-4 text-purple-600" />
+              <div className="p-2 rounded-md" style={{ backgroundColor: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
+                <Users className="w-4 h-4" style={{ color: '#a855f7' }} />
               </div>
               <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Active Agents</span>
             </div>
@@ -525,8 +525,8 @@ export default function MissionControl() {
 
           <motion.div variants={item} className="rounded-lg shadow-sm p-4 hover:shadow-md transition-all duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-md bg-teal-50 border border-teal-200">
-                <Zap className="w-4 h-4 text-teal-600" />
+              <div className="p-2 rounded-md" style={{ backgroundColor: 'rgba(20, 184, 166, 0.1)', border: '1px solid rgba(20, 184, 166, 0.2)' }}>
+                <Zap className="w-4 h-4" style={{ color: '#14b8a6' }} />
               </div>
               <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Tokens Today</span>
             </div>
@@ -535,8 +535,8 @@ export default function MissionControl() {
 
           <motion.div variants={item} className="rounded-lg shadow-sm p-4 hover:shadow-md transition-all duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-md bg-emerald-50 border border-emerald-200">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <div className="p-2 rounded-md" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                <CheckCircle2 className="w-4 h-4" style={{ color: '#10b981' }} />
               </div>
               <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Tasks Completed</span>
             </div>
@@ -545,8 +545,8 @@ export default function MissionControl() {
 
           <motion.div variants={item} className="rounded-lg shadow-sm p-4 hover:shadow-md transition-all duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-md bg-amber-50 border border-amber-200">
-                <Clock className="w-4 h-4 text-amber-600" />
+              <div className="p-2 rounded-md" style={{ backgroundColor: 'rgba(217, 119, 6, 0.1)', border: '1px solid rgba(217, 119, 6, 0.2)' }}>
+                <Clock className="w-4 h-4" style={{ color: '#d97706' }} />
               </div>
               <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Active Time</span>
             </div>
