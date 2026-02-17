@@ -133,6 +133,7 @@ export default function MissionControl() {
   const [scheduleAgentFilter, setScheduleAgentFilter] = useState<AgentId | 'all'>('all');
   const [docsAgentFilter, setDocsAgentFilter] = useState<AgentId | 'all'>('all');
   const [docsQuery, setDocsQuery] = useState('');
+  const [expandedDocId, setExpandedDocId] = useState<number | null>(null);
 
   // Log Activity Modal State
   const [showLogModal, setShowLogModal] = useState(false);
@@ -872,27 +873,52 @@ export default function MissionControl() {
           <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {filteredDocs.map((doc) => {
               const config = AGENT_CONFIG[doc.agent_id];
+              const isExpanded = expandedDocId === doc.id;
               return (
                 <motion.div
                   key={doc.id}
                   variants={item}
                   className="bg-[#161616] border border-[#262626] rounded-lg p-4 hover:border-[#333] hover:bg-[#1A1A1A] transition-all"
-                  whileHover={{ y: -2 }}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="font-semibold text-white">{doc.title}</h3>
-                      <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px]">
-                        <span className="px-2 py-0.5 rounded-full" style={{ backgroundColor: `${config.color}22`, color: config.color }}>
-                          {config.emoji} {config.name}
-                        </span>
-                        {doc.category && (
-                          <span className="px-2 py-0.5 rounded-full bg-[#5E6AD2]/15 text-[#5E6AD2]">{doc.category}</span>
-                        )}
+                  <button
+                    onClick={() => setExpandedDocId(isExpanded ? null : doc.id)}
+                    className="w-full text-left"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="font-semibold text-white">{doc.title}</h3>
+                        <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px]">
+                          <span className="px-2 py-0.5 rounded-full" style={{ backgroundColor: `${config.color}22`, color: config.color }}>
+                            {config.emoji} {config.name}
+                          </span>
+                          {doc.category && (
+                            <span className="px-2 py-0.5 rounded-full bg-[#5E6AD2]/15 text-[#5E6AD2]">{doc.category}</span>
+                          )}
+                          {doc.updated_at && (
+                            <span className="text-[10px] text-[#666]">Updated {formatTime(doc.updated_at)}</span>
+                          )}
+                        </div>
                       </div>
+                      <ChevronRight className={`w-4 h-4 text-[#666] transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
                     </div>
-                  </div>
-                  <p className="mt-3 text-xs text-[#888] line-clamp-3">{doc.content}</p>
+                  </button>
+
+                  <AnimatePresence>
+                    {isExpanded ? (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="mt-3 text-xs text-[#C7C7C7] whitespace-pre-wrap"
+                      >
+                        {doc.content}
+                      </motion.div>
+                    ) : (
+                      <p className="mt-3 text-xs text-[#888] line-clamp-3">{doc.content}</p>
+                    )}
+                  </AnimatePresence>
+
                   {doc.source_file && (
                     <p className="mt-3 text-[10px] text-[#666]">{doc.source_file}</p>
                   )}
