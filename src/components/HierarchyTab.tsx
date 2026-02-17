@@ -90,7 +90,7 @@ export function HierarchyTab() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <Building className="w-6 h-6 text-teal-600" />
+          <Building className="w-6 h-6" style={{ color: '#14b8a6' }} />
           <h2 className="text-2xl font-semibold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>Company Hierarchy</h2>
         </div>
         <p className="text-sm transition-colors duration-300" style={{ color: 'var(--subtle)' }}>
@@ -119,16 +119,16 @@ export function HierarchyTab() {
 
         {/* Horizontal connector */}
         <motion.div
-          className="relative w-64 h-0.5 mb-4"
-          style={{ backgroundColor: '#CBD5E1' }}
+          className="relative w-64 h-0.5 mb-4 transition-colors duration-300"
+          style={{ backgroundColor: 'var(--border)' }}
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 0.5, delay: 0.4 }}
         >
           {/* Center vertical line */}
           <motion.div
-            className="absolute left-1/2 -translate-x-1/2 w-0.5 h-8"
-            style={{ backgroundColor: '#CBD5E1', top: '-2rem' }}
+            className="absolute left-1/2 -translate-x-1/2 w-0.5 h-8 transition-colors duration-300"
+            style={{ backgroundColor: 'var(--border)', top: '-2rem' }}
             initial={{ scaleY: 0 }}
             animate={{ scaleY: 1 }}
             transition={{ duration: 0.3, delay: 0.5 }}

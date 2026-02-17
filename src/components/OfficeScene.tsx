@@ -118,7 +118,7 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
 
   return (
     <div className="relative w-full overflow-hidden rounded-lg shadow-sm transition-all duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
-      <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, #14B8A60A 0%, transparent 45%), radial-gradient(circle at 80% 10%, #0F766E08 0%, transparent 40%)' }} />
+      <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, rgba(20, 184, 166, 0.1) 0%, transparent 45%), radial-gradient(circle at 80% 10%, rgba(15, 118, 110, 0.05) 0%, transparent 40%)' }} />
 
       <div className="relative px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 flex items-center justify-between">
         <div>
@@ -127,7 +127,7 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
         </div>
         <div className="flex items-center gap-2 text-xs transition-colors duration-300" style={{ color: 'var(--foreground)' }}>
           <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 transition-all duration-300" style={{ border: '1px solid var(--border)', backgroundColor: 'var(--muted-bg)' }}>
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" /> Live Sync
+            <span className="h-2 w-2 rounded-full animate-pulse" style={{ backgroundColor: '#10b981' }} /> Live Sync
           </span>
         </div>
       </div>
@@ -150,7 +150,7 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
 
         {/* Water cooler */}
         <div className="absolute right-6 sm:right-10 bottom-6 sm:bottom-10 w-24 sm:w-28 h-16 sm:h-20 rounded-2xl flex flex-col items-center justify-center gap-1 sm:gap-2 transition-all duration-300" style={{ border: '1px solid var(--border)', backgroundColor: 'var(--background)' }}>
-          <Coffee className="w-5 h-5 text-teal-600" />
+          <Coffee className="w-5 h-5" style={{ color: '#14b8a6' }} />
           <span className="text-[10px] transition-colors duration-300" style={{ color: 'var(--foreground)' }}>Water Cooler</span>
         </div>
 
@@ -255,9 +255,10 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
 
         {/* Ambient sparkles */}
         <motion.div
-          className="absolute left-10 bottom-16 text-teal-500/40"
+          className="absolute left-10 bottom-16"
           animate={{ opacity: [0.2, 0.8, 0.2], y: [0, -6, 0] }}
           transition={{ duration: 3, repeat: Infinity }}
+          style={{ color: 'rgba(20, 184, 166, 0.4)' }}
         >
           <Sparkles className="w-4 h-4" />
         </motion.div>
