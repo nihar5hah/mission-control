@@ -315,15 +315,15 @@ export default function MissionControl() {
 
   const getTaskStatusConfig = (status: ReturnType<typeof normalizeTaskStatus>) => {
     switch (status) {
-      case 'completed': return { bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-200', icon: CheckCircle2 };
-      case 'in_progress': return { bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-200', icon: Play };
-      case 'failed': return { bg: 'bg-red-50', text: 'text-red-600', border: 'border-red-200', icon: AlertTriangle };
-      default: return { bg: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-200', icon: null };
+      case 'completed': return { bg: 'rgba(16, 185, 129, 0.1)', text: '#10b981', border: 'rgba(16, 185, 129, 0.2)', icon: CheckCircle2 };
+      case 'in_progress': return { bg: 'rgba(217, 119, 6, 0.1)', text: '#d97706', border: 'rgba(217, 119, 6, 0.2)', icon: Play };
+      case 'failed': return { bg: 'rgba(239, 68, 68, 0.1)', text: '#ef4444', border: 'rgba(239, 68, 68, 0.2)', icon: AlertTriangle };
+      default: return { bg: 'rgba(59, 130, 246, 0.1)', text: '#3b82f6', border: 'rgba(59, 130, 246, 0.2)', icon: null };
     }
   };
 
   const getActivityConfig = (type: string) => {
-    return actionTypeConfig[type] || { label: 'Action', icon: Zap, color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-200' };
+    return actionTypeConfig[type] || { label: 'Action', icon: Zap, color: '#475569', bg: 'rgba(71, 85, 105, 0.1)', border: 'rgba(71, 85, 105, 0.2)' };
   };
 
   const getWeekStart = (date: Date) => {
@@ -408,7 +408,7 @@ export default function MissionControl() {
           >
             <Menu className="w-5 h-5" />
           </button>
-          <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center overflow-hidden shadow-lg shadow-teal-500/20">
+          <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center overflow-hidden" style={{ backgroundImage: 'linear-gradient(135deg, #14b8a6, #0d9488)', boxShadow: '0 10px 15px -3px rgba(20, 184, 166, 0.2)' }}>
             <motion.div animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}>
               <Building className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </motion.div>
@@ -429,7 +429,7 @@ export default function MissionControl() {
             animate={{ opacity: [0.8, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            <motion.div className="w-2 h-2 bg-emerald-500 rounded-full" animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }} />
+            <motion.div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#10b981' }} animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }} />
             <span className="text-xs font-medium transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{agentStates.filter(s => s.isOnline).length}/3 Agents Online</span>
           </motion.div>
           <ThemeToggle />
@@ -584,7 +584,8 @@ export default function MissionControl() {
                     <p className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{config.role}</p>
                   </div>
                   <motion.div
-                    className={`w-2 h-2 rounded-full ${state.isOnline ? 'bg-emerald-500' : 'bg-slate-400'}`}
+                    className="w-2 h-2 rounded-full transition-colors duration-300"
+                    style={{ backgroundColor: state.isOnline ? '#10b981' : '#9ca3af' }}
                     animate={state.isOnline ? { scale: [1, 1.2, 1] } : {}}
                     transition={{ duration: 2, repeat: Infinity }}
                   />
@@ -620,12 +621,12 @@ export default function MissionControl() {
   const renderActivityFeed = () => {
     const agentIds: AgentId[] = ['begubot', 'coder', 'researcher'];
 
-    const statusStyles: Record<string, string> = {
-      running: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      completed: 'bg-blue-50 text-blue-700 border-blue-200',
-      failed: 'bg-red-50 text-red-700 border-red-200',
-      idle: 'bg-slate-50 border-slate-200 transition-colors duration-300',
-      pending: 'bg-amber-50 text-amber-700 border-amber-200',
+    const statusStyles: Record<string, { bg: string; text: string; border: string }> = {
+      running: { bg: 'rgba(16, 185, 129, 0.1)', text: '#059669', border: 'rgba(16, 185, 129, 0.2)' },
+      completed: { bg: 'rgba(59, 130, 246, 0.1)', text: '#1d4ed8', border: 'rgba(59, 130, 246, 0.2)' },
+      failed: { bg: 'rgba(239, 68, 68, 0.1)', text: '#dc2626', border: 'rgba(239, 68, 68, 0.2)' },
+      idle: { bg: 'var(--muted-bg)', text: 'var(--foreground)', border: 'var(--border)' },
+      pending: { bg: 'rgba(217, 119, 6, 0.1)', text: '#b45309', border: 'rgba(217, 119, 6, 0.2)' },
     };
 
     const actionCategory = (action: string) => {
@@ -672,9 +673,9 @@ export default function MissionControl() {
                 const StatusClass = statusStyles[activity.status] || statusStyles.pending;
                 const CategoryIcon = category.icon;
                 return (
-                  <div key={activity.id} className="flex items-start gap-2 p-2 rounded-md bg-slate-50 border border-slate-200">
-                    <div className="p-1.5 rounded bg-slate-100 border border-slate-200">
-                      <CategoryIcon className="w-3.5 h-3.5 text-slate-700" />
+                  <div key={activity.id} className="flex items-start gap-2 p-2 rounded-md border transition-colors duration-300" style={{ backgroundColor: 'var(--muted-bg)', borderColor: 'var(--border)' }}>
+                    <div className="p-1.5 rounded border transition-colors duration-300" style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)' }}>
+                      <CategoryIcon className="w-3.5 h-3.5 transition-colors duration-300" style={{ color: 'var(--foreground)' }} />
                     </div>
                     <div className="flex-1">
                       <p className="text-xs line-clamp-1 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{activity.description}</p>
@@ -682,7 +683,7 @@ export default function MissionControl() {
                         <span>{category.label}</span>
                         <span>•</span>
                         <span>{formatTime(activity.timestamp)}</span>
-                        <span className={`px-2 py-0.5 rounded-full border ${StatusClass}`}>
+                        <span className="px-2 py-0.5 rounded-full border transition-colors duration-300" style={{ backgroundColor: StatusClass.bg, color: StatusClass.text, borderColor: StatusClass.border }}>
                           {activity.status}
                         </span>
                       </div>
