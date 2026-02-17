@@ -116,7 +116,7 @@ const actionTypeConfig: Record<string, { label: string; icon: React.ComponentTyp
   'memory-recall': { label: 'Memory Retrieved', icon: Brain, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200' },
   'git-commit': { label: 'Git Commit', icon: GitBranch, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-200' },
   'git-push': { label: 'Git Push', icon: ArrowUpRight, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-200' },
-  'system-log': { label: 'System Log', icon: Terminal, color: 'text-slate-600', bg: 'bg-slate-50 dark:bg-slate-950/50', border: 'border-slate-200' },
+  'system-log': { label: 'System Log', icon: Terminal, color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-200' },
 };
 
 /* ============ MAIN COMPONENT ============ */
@@ -323,7 +323,7 @@ export default function MissionControl() {
   };
 
   const getActivityConfig = (type: string) => {
-    return actionTypeConfig[type] || { label: 'Action', icon: Zap, color: 'text-slate-600', bg: 'bg-slate-50 dark:bg-slate-950/50', border: 'border-slate-200' };
+    return actionTypeConfig[type] || { label: 'Action', icon: Zap, color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-200' };
   };
 
   const getWeekStart = (date: Date) => {

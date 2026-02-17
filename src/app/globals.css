@@ -594,51 +594,51 @@ input:focus, textarea:focus, select:focus {
 
 /* Dark mode overrides for status badges and indicators */
 html.dark .bg-purple-50 {
-  @apply bg-purple-950/50;
+  background-color: rgba(75, 0, 130, 0.3);
 }
 
 html.dark .bg-teal-50 {
-  @apply bg-teal-950/50;
+  background-color: rgba(13, 148, 136, 0.3);
 }
 
 html.dark .bg-emerald-50 {
-  @apply bg-emerald-950/50;
+  background-color: rgba(5, 150, 105, 0.3);
 }
 
 html.dark .bg-amber-50 {
-  @apply bg-amber-950/50;
+  background-color: rgba(180, 83, 9, 0.3);
 }
 
 html.dark .bg-blue-50 {
-  @apply bg-blue-950/50;
+  background-color: rgba(30, 58, 138, 0.3);
 }
 
 html.dark .bg-red-50 {
-  @apply bg-red-950/50;
+  background-color: rgba(153, 27, 27, 0.3);
 }
 
 html.dark .border-purple-200 {
-  @apply border-purple-800/30;
+  border-color: rgba(75, 0, 130, 0.2);
 }
 
 html.dark .border-teal-200 {
-  @apply border-teal-800/30;
+  border-color: rgba(13, 148, 136, 0.2);
 }
 
 html.dark .border-emerald-200 {
-  @apply border-emerald-800/30;
+  border-color: rgba(5, 150, 105, 0.2);
 }
 
 html.dark .border-amber-200 {
-  @apply border-amber-800/30;
+  border-color: rgba(180, 83, 9, 0.2);
 }
 
 html.dark .border-blue-200 {
-  @apply border-blue-800/30;
+  border-color: rgba(30, 58, 138, 0.2);
 }
 
 html.dark .border-red-200 {
-  @apply border-red-800/30;
+  border-color: rgba(153, 27, 27, 0.2);
 }
 
 /* Status text colors for dark mode */
@@ -688,11 +688,11 @@ html.dark .text-red-700 {
 
 /* Additional slate color overrides for dark mode */
 html.dark .bg-slate-50 {
-  @apply bg-slate-950/50;
+  background-color: rgba(15, 23, 42, 0.5);
 }
 
 html.dark .border-slate-200 {
-  @apply border-slate-800/30;
+  border-color: rgba(71, 85, 105, 0.3);
 }
 
 html.dark .text-slate-600 {
@@ -700,7 +700,7 @@ html.dark .text-slate-600 {
 }
 
 html.dark .text-slate-500 {
-  @apply text-slate-500;
+  @apply text-slate-400;
 }
 
 html.dark .text-slate-900 {
