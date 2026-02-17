@@ -685,3 +685,24 @@ html.dark .text-red-600 {
 html.dark .text-red-700 {
   @apply text-red-300;
 }
+
+/* Additional slate color overrides for dark mode */
+html.dark .bg-slate-50 {
+  @apply bg-slate-950/50;
+}
+
+html.dark .border-slate-200 {
+  @apply border-slate-800/30;
+}
+
+html.dark .text-slate-600 {
+  @apply text-slate-400;
+}
+
+html.dark .text-slate-500 {
+  @apply text-slate-500;
+}
+
+html.dark .text-slate-900 {
+  @apply text-slate-100;
+}
