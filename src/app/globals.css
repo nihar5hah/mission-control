@@ -7,12 +7,12 @@
 @layer base {
   :root {
     /* Light theme */
-    --background: #0a0a0f;
-    --foreground: #FAFAFA;
-    --border: #262626;
-    --input: #1a1a1a;
-    --muted-bg: #161616;
-    --subtle: #888;
+    --background: #FFFFFF;
+    --foreground: #0F172A;
+    --border: #E2E8F0;
+    --input: #F8FAFC;
+    --muted-bg: #F1F5F9;
+    --subtle: #CBD5E1;
     --primary: #0F766E;
     --primary-light: #14B8A6;
     --primary-dark: #0D5C52;
@@ -32,7 +32,7 @@
 
     /* Shadow system - premium 21st.dev style */
     --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
-    --shadow-lg: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.12), 0 4px 6px -4px rgba(0, 0, 0, 0.08);
     --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
@@ -44,7 +44,7 @@
     :root:not(.light) {
       /* Dark theme - black/grey palette */
       --background: #000000;
-      --foreground: #FAFAFA;
+      --foreground: #FFFFFF;
       --border: #333333;
       --input: #1A1A1A;
       --muted-bg: #242424;
@@ -68,7 +68,7 @@
 
       /* Dark mode shadows */
       --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
-      --shadow-lg: 0 1px 3px 0 rgba(0, 0, 0, 0.6), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
+      --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.6), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
       --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.7), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
       --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.8), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
       --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.9), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
@@ -79,7 +79,7 @@
   html.dark {
     /* Dark theme - black/grey palette (explicit dark class) */
     --background: #000000;
-    --foreground: #FAFAFA;
+    --foreground: #FFFFFF;
     --border: #333333;
     --input: #1A1A1A;
     --muted-bg: #242424;
@@ -103,7 +103,7 @@
 
     /* Dark mode shadows */
     --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
-    --shadow-lg: 0 1px 3px 0 rgba(0, 0, 0, 0.6), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.6), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.7), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.8), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
     --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.9), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
@@ -112,12 +112,12 @@
 
   /* Light theme forced */
   html.light {
-    --background: #0a0a0f;
-    --foreground: #FAFAFA;
-    --border: #262626;
-    --input: #1a1a1a;
-    --muted-bg: #161616;
-    --subtle: #888;
+    --background: #FFFFFF;
+    --foreground: #0F172A;
+    --border: #E2E8F0;
+    --input: #F8FAFC;
+    --muted-bg: #F1F5F9;
+    --subtle: #CBD5E1;
   }
 
   * {
@@ -142,15 +142,19 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Dark background gradient */
-body {
+/* Light theme backgrounds and gradients */
+body:not(.dark) {
   background-image:
-    radial-gradient(900px 600px at 12% 18%, rgba(139, 92, 246, 0.18), transparent 60%),
-    radial-gradient(700px 500px at 88% 78%, rgba(16, 185, 129, 0.14), transparent 55%),
-    radial-gradient(1000px 700px at 50% 120%, rgba(245, 158, 11, 0.12), transparent 60%);
+    radial-gradient(600px 400px at 10% 20%, rgba(20, 184, 166, 0.08), transparent 60%),
+    radial-gradient(500px 450px at 90% 80%, rgba(15, 118, 110, 0.06), transparent 55%);
 }
 
-
+/* Dark theme backgrounds and gradients */
+html.dark body {
+  background-image:
+    radial-gradient(600px 500px at 15% 30%, rgba(45, 212, 191, 0.12), transparent 60%),
+    radial-gradient(700px 600px at 85% 75%, rgba(20, 184, 166, 0.08), transparent 55%);
+}
 
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -171,7 +175,7 @@ h6 { @apply text-base; }
 code {
   font-family: 'Geist Mono', monospace;
   font-size: 0.875em;
-  @apply bg-[#1a1a1a] px-1.5 py-0.5 rounded text-[#C7C7C7];
+  @apply bg-slate-50 px-1.5 py-0.5 rounded text-slate-700;
 }
 
 /* Scrollbar */
@@ -219,7 +223,7 @@ a {
 
 /* Input styles */
 input, textarea, select {
-  @apply bg-[#161616] text-[#FAFAFA] placeholder:text-[#666];
+  @apply bg-white text-slate-900 placeholder:text-slate-400;
   transition: all 200ms ease;
 }
 
@@ -237,7 +241,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 .status-pending {
-  @apply text-[#888];
+  @apply text-slate-500;
 }
 
 .status-failed {
@@ -255,7 +259,7 @@ input:focus, textarea:focus, select:focus {
 
 /* Modern card effect */
 .glass {
-  @apply bg-[#161616] border border-[#262626] shadow-lg;
+  @apply bg-white border border-slate-200 shadow-sm;
 }
 
 .glass-card {
@@ -437,8 +441,8 @@ input:focus, textarea:focus, select:focus {
   box-shadow: var(--shadow-xs);
 }
 
-.shadow-lg {
-  box-shadow: var(--shadow-lg);
+.shadow-sm {
+  box-shadow: var(--shadow-sm);
 }
 
 .shadow-md {
@@ -476,7 +480,7 @@ input:focus, textarea:focus, select:focus {
     @apply px-4 py-2.5 rounded-lg font-medium text-sm transition-smooth;
     background: var(--gradient-primary);
     color: white;
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-sm);
   }
 
   .btn-primary:hover {
@@ -493,7 +497,7 @@ input:focus, textarea:focus, select:focus {
 
   .btn-secondary:hover {
     border-color: var(--primary-light);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-sm);
   }
 
   .btn-ghost {
@@ -509,7 +513,7 @@ input:focus, textarea:focus, select:focus {
     background-color: var(--background);
     border: 1px solid var(--border);
     @apply rounded-12 p-6 transition-smooth;
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-sm);
   }
 
   .card:hover {
@@ -527,7 +531,7 @@ input:focus, textarea:focus, select:focus {
 
   .card-sm:hover {
     border-color: var(--primary-light);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-sm);
   }
 
   .badge {
