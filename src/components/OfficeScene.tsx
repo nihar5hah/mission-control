@@ -122,8 +122,8 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
 
       <div className="relative px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 flex items-center justify-between">
         <div>
-          <h3 className="text-base sm:text-lg font-semibold text-white">Office Playground</h3>
-          <p className="text-[11px] sm:text-xs text-[#888]">Live office scene with agent animations</p>
+          <h3 className="text-base sm:text-lg font-semibold text-white tracking-tight">Office Playground</h3>
+          <p className="text-[11px] sm:text-xs text-[#999]">Live office scene with agent animations</p>
         </div>
         <div className="flex items-center gap-2 text-xs text-[#888]">
           <span className="inline-flex items-center gap-1 rounded-full border border-[#2B2B2B] bg-[#121212] px-2 py-1">

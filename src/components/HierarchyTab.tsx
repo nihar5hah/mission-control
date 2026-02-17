@@ -23,10 +23,10 @@ function HierarchyAvatar({ agentId, color, name, role }: { agentId: AgentId; col
     >
       {/* Avatar */}
       <motion.div
-        className="w-20 h-20 rounded-2xl flex items-center justify-center relative overflow-hidden shadow-lg"
+        className="w-20 h-20 rounded-2xl flex items-center justify-center relative overflow-hidden shadow-lg glass-card"
         style={{ 
-          backgroundColor: `${color}20`, 
-          border: `2px solid ${color}40`,
+          backgroundColor: `${color}12`, 
+          border: `1px solid ${color}40`,
           boxShadow: `0 0 30px ${color}30`
         }}
         whileHover={{ scale: 1.05, rotate: [0, -5, 5, 0] }}

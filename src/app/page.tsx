@@ -1067,7 +1067,7 @@ export default function MissionControl() {
 
   /* ============ MAIN RENDER ============ */
   return (
-    <div className="flex h-screen bg-[#0a0a0f]">
+    <div className="flex h-screen bg-[#0a0a0f] relative overflow-hidden">
       {/* Agents Sidebar */}
       <AgentsSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 

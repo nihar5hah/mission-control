@@ -189,10 +189,10 @@ function AgentCard({
             <AgentAvatar agentId={agent.id} color={config.color} />
             {/* Online indicator */}
             <motion.div
-              className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#161616] ${
-                isOnline ? 'bg-[#10B981]' : 'bg-[#666]'
+              className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#0a0a0f] ${
+                isOnline ? 'bg-[#10B981] glow-green' : 'bg-[#666]'
               }`}
-              animate={isOnline ? { scale: [1, 1.2, 1] } : {}}
+              animate={isOnline ? { scale: [1, 1.3, 1] } : {}}
               transition={{ duration: 2, repeat: Infinity }}
             />
           </div>
@@ -368,7 +368,7 @@ export function AgentsSidebar({ isOpen = false, onClose }: { isOpen?: boolean; o
 
   return (
     <>
-      <div className="hidden md:flex w-80 bg-white/[0.02] border-r border-white/10 backdrop-blur-2xl flex-col h-full">
+      <div className="hidden md:flex w-80 bg-white/[0.02] border-r border-white/10 backdrop-blur-2xl flex-col h-full ambient-light">
         {sidebarContent}
       </div>
 
