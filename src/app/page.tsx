@@ -586,119 +586,81 @@ export default function MissionControl() {
     );
   };
 
-  /* ============ RENDER: ACTIVITY FEED ============ */
-  const renderActivityFeed = () => (
-    <motion.div key="activity" variants={tabVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.3 }}>
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold text-white mb-1">Activity Log</h2>
-          <p className="text-sm text-[#888]">{filteredActivities.length} actions logged</p>
-        </div>
+    /* ============ RENDER: ACTIVITY FEED ============ */
+  const renderActivityFeed = () => {
+    const agentIds: AgentId[] = ['begubot', 'coder', 'researcher'];
 
-        <div className="flex gap-2">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setShowLogModal(true)}
-            className="px-4 py-2 rounded-lg bg-[#5E6AD2] text-white text-sm font-medium hover:bg-[#4A55BF] transition-all flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Log Activity
-          </motion.button>
+    const ActivityColumn = ({ agentId }: { agentId: AgentId }) => {
+      const config = AGENT_CONFIG[agentId];
+      const { activities, loading } = useAgentActivities(agentId, 12);
 
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setFilterType(filterType ? null : 'agent-complete')}
-            className="px-3 py-2 rounded-lg bg-[#161616] border border-[#262626] text-sm text-[#888] hover:text-white hover:border-[#333] transition-all flex items-center gap-2"
-          >
-            <Filter className="w-4 h-4" />
-            Filters
-          </motion.button>
-        </div>
-      </div>
+      return (
+        <div className="bg-[#161616] border border-[#262626] rounded-lg p-4 flex flex-col min-h-[320px]">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">{config.emoji}</span>
+              <div>
+                <h3 className="text-sm font-semibold text-white">{config.name}</h3>
+                <p className="text-[11px] text-[#888]">{config.role}</p>
+              </div>
+            </div>
+            <span className="text-[10px] px-2 py-1 rounded-full" style={{ backgroundColor: `${config.color}22`, color: config.color }}>
+              Live
+            </span>
+          </div>
 
-      {activitiesLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
-            <Zap className="w-6 h-6 text-[#5E6AD2]" />
-          </motion.div>
-          <span className="ml-2 text-[#888]">Loading activity log...</span>
-        </div>
-      ) : (
-        <motion.div variants={container} initial="hidden" animate="show" className="space-y-2">
-          {filteredActivities.map((activity) => {
-            const config = getActivityConfig(activity.type);
-            const Icon = config.icon;
-            const isExpanded = expandedActivity === activity.id;
-            const isDeleting = deletingIds.has(activity.id);
-
-            return (
-              <motion.div key={activity.id} variants={item} onClick={() => !isDeleting && setExpandedActivity(isExpanded ? null : activity.id)} className="group cursor-pointer">
-                <motion.div
-                  layout
-                  className={`bg-[#161616] border border-[#262626] rounded-lg overflow-hidden hover:border-[#333] hover:bg-[#1A1A1A] transition-all ${isDeleting ? 'opacity-50' : ''}`}
-                  whileHover={!isDeleting ? { x: 2 } : {}}
-                >
-                  <div className="p-4 flex items-start gap-3">
-                    <motion.div className={`flex-shrink-0 p-2 rounded-md ${config.bg} border ${config.border}`} whileHover={!isDeleting ? { scale: 1.1 } : {}}>
-                      <Icon className={`w-4 h-4 ${config.color}`} />
-                    </motion.div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-sm font-semibold ${config.color}`}>{config.label}</span>
-                        <span className="text-xs text-[#666]">•</span>
-                        <span className="text-xs text-[#666]">{formatTime(activity.timestamp)}</span>
-                      </div>
-                      <p className="text-sm text-[#888] line-clamp-1">{activity.description}</p>
-                    </div>
-
-                    <motion.div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <motion.div animate={{ rotate: isExpanded ? 90 : 0 }} transition={{ duration: 0.2 }}>
-                        <ChevronRight className="w-5 h-5 text-[#666]" />
-                      </motion.div>
-                    </motion.div>
-                  </div>
-
-                  <AnimatePresence>
-                    {isExpanded && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="border-t border-[#262626] bg-[#0F0F0F]/50 px-4 py-3"
-                      >
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                          <div>
-                            <p className="text-[#666] mb-1">Time</p>
-                            <p className="text-white font-mono text-[11px]">{formatDateTime(activity.timestamp)}</p>
-                          </div>
-                          <div>
-                            <p className="text-[#666] mb-1">Agent</p>
-                            <p className="text-white">{activity.agent}</p>
-                          </div>
-                          <div>
-                            <p className="text-[#666] mb-1">Status</p>
-                            <span className={`inline-block px-2 py-1 rounded text-[10px] font-medium ${config.bg} ${config.color} border ${config.border}`}>
-                              {activity.status}
-                            </span>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
+          {loading ? (
+            <div className="flex items-center justify-center py-6 text-xs text-[#888]">
+              <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
+                <Zap className="w-4 h-4 text-[#5E6AD2]" />
               </motion.div>
-            );
-          })}
-        </motion.div>
-      )}
-    </motion.div>
-  );
+              <span className="ml-2">Syncing...</span>
+            </div>
+          ) : activities.length === 0 ? (
+            <p className="text-xs text-[#888]">No activity yet</p>
+          ) : (
+            <div className="space-y-2">
+              {activities.map((activity) => {
+                const configActivity = getActivityConfig(activity.action.toLowerCase().replace(/\s+/g, '-'));
+                const Icon = configActivity.icon;
+                return (
+                  <div key={activity.id} className="flex items-start gap-2 p-2 rounded-md bg-[#0F0F0F] border border-[#232323]">
+                    <div className={`p-1.5 rounded ${configActivity.bg} border ${configActivity.border}`}>
+                      <Icon className={`w-3.5 h-3.5 ${configActivity.color}`} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs text-white line-clamp-1">{activity.description}</p>
+                      <div className="flex items-center gap-2 text-[10px] text-[#666] mt-1">
+                        <span>{activity.action}</span>
+                        <span>•</span>
+                        <span>{formatTime(activity.timestamp)}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      );
+    };
 
-    /* ============ RENDER: CALENDAR VIEW ============ */
+    return (
+      <motion.div key="activity" variants={tabVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.3 }}>
+        <div className="mb-6">
+          <h2 className="text-2xl font-semibold text-white mb-1">Live Agent Activity</h2>
+          <p className="text-sm text-[#888]">Three real-time streams, one per agent</p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {agentIds.map((agentId) => (
+            <ActivityColumn key={agentId} agentId={agentId} />
+          ))}
+        </div>
+      </motion.div>
+    );
+  };
+/* ============ RENDER: CALENDAR VIEW ============ */
   const renderCalendar = () => {
     const allTaskDays = getAllTaskDays();
     const scheduleItems = scheduleAgentFilter === 'all'

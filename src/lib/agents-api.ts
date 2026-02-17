@@ -302,6 +302,24 @@ export const agentStatsApi = {
   },
 
   /**
+   * Upsert stats row
+   */
+  async upsert(agentId: AgentId, stats: Partial<AgentStatsInsert>): Promise<AgentStats> {
+    const { data, error } = await supabase
+      .from('agent_stats')
+      .upsert({
+        agent_id: agentId,
+        ...stats,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'agent_id' })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  /**
    * Increment a stat
    */
   async increment(agentId: AgentId, field: keyof AgentStats, amount: number = 1): Promise<void> {
