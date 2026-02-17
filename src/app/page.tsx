@@ -59,6 +59,7 @@ import {
 
 import { FileTree } from '@/components/FileTree';
 import { MarkdownViewer } from '@/components/MarkdownViewer';
+import type { FileNode } from '@/hooks/useWorkspaceFiles';
 import { AgentStatus } from '@/components/AgentStatus';
 import { AgentsSidebar } from '@/components/AgentsSidebar';
 import { HierarchyTab } from '@/components/HierarchyTab';
@@ -133,7 +134,7 @@ export default function MissionControl() {
   const [scheduleAgentFilter, setScheduleAgentFilter] = useState<AgentId | 'all'>('all');
   const [docsAgentFilter, setDocsAgentFilter] = useState<AgentId | 'all'>('all');
   const [docsQuery, setDocsQuery] = useState('');
-  const [expandedDocId, setExpandedDocId] = useState<number | null>(null);
+  const [selectedDoc, setSelectedDoc] = useState<{ file: FileNode; content: string } | null>(null);
 
   // Log Activity Modal State
   const [showLogModal, setShowLogModal] = useState(false);
@@ -587,16 +588,33 @@ export default function MissionControl() {
     );
   };
 
-    /* ============ RENDER: ACTIVITY FEED ============ */
+      /* ============ RENDER: ACTIVITY FEED ============ */
   const renderActivityFeed = () => {
     const agentIds: AgentId[] = ['begubot', 'coder', 'researcher'];
 
+    const statusStyles: Record<string, string> = {
+      running: 'bg-[#10B981]/15 text-[#10B981] border-[#10B981]/30',
+      completed: 'bg-[#3B82F6]/15 text-[#3B82F6] border-[#3B82F6]/30',
+      failed: 'bg-[#EF4444]/15 text-[#EF4444] border-[#EF4444]/30',
+      idle: 'bg-[#666]/15 text-[#999] border-[#666]/30',
+      pending: 'bg-[#F59E0B]/15 text-[#F59E0B] border-[#F59E0B]/30',
+    };
+
+    const actionCategory = (action: string) => {
+      const normalized = action.toLowerCase();
+      if (['build', 'building', 'implementing', 'coding'].some((k) => normalized.includes(k))) return { label: 'Building', icon: Hammer };
+      if (['research', 'researching', 'analysis', 'analyzing', 'docs'].some((k) => normalized.includes(k))) return { label: 'Researching', icon: Microscope };
+      if (['coordinating', 'meeting', 'sync', 'syncing', 'delegat'].some((k) => normalized.includes(k))) return { label: 'Coordinating', icon: Users };
+      if (['fix', 'bug', 'patch', 'debug'].some((k) => normalized.includes(k))) return { label: 'Fixing', icon: Bug };
+      return { label: 'Running', icon: Circle };
+    };
+
     const ActivityColumn = ({ agentId }: { agentId: AgentId }) => {
       const config = AGENT_CONFIG[agentId];
-      const { activities, loading } = useAgentActivities(agentId, 12);
+      const { activities, loading } = useAgentActivities(agentId, 50);
 
       return (
-        <div className="bg-[#161616] border border-[#262626] rounded-lg p-4 flex flex-col min-h-[320px]">
+        <div className="bg-[#161616] border border-[#262626] rounded-lg p-4 flex flex-col">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <span className="text-lg">{config.emoji}</span>
@@ -620,21 +638,25 @@ export default function MissionControl() {
           ) : activities.length === 0 ? (
             <p className="text-xs text-[#888]">No activity yet</p>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-2 max-h-[520px] overflow-y-auto pr-1">
               {activities.map((activity) => {
-                const configActivity = getActivityConfig(activity.action.toLowerCase().replace(/\s+/g, '-'));
-                const Icon = configActivity.icon;
+                const category = actionCategory(activity.action);
+                const StatusClass = statusStyles[activity.status] || statusStyles.pending;
+                const CategoryIcon = category.icon;
                 return (
                   <div key={activity.id} className="flex items-start gap-2 p-2 rounded-md bg-[#0F0F0F] border border-[#232323]">
-                    <div className={`p-1.5 rounded ${configActivity.bg} border ${configActivity.border}`}>
-                      <Icon className={`w-3.5 h-3.5 ${configActivity.color}`} />
+                    <div className="p-1.5 rounded bg-[#1E1E1E] border border-[#2B2B2B]">
+                      <CategoryIcon className="w-3.5 h-3.5 text-[#C7C7C7]" />
                     </div>
                     <div className="flex-1">
                       <p className="text-xs text-white line-clamp-1">{activity.description}</p>
-                      <div className="flex items-center gap-2 text-[10px] text-[#666] mt-1">
-                        <span>{activity.action}</span>
+                      <div className="flex flex-wrap items-center gap-2 text-[10px] text-[#666] mt-1">
+                        <span>{category.label}</span>
                         <span>•</span>
                         <span>{formatTime(activity.timestamp)}</span>
+                        <span className={`px-2 py-0.5 rounded-full border ${StatusClass}`}>
+                          {activity.status}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -650,7 +672,7 @@ export default function MissionControl() {
       <motion.div key="activity" variants={tabVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.3 }}>
         <div className="mb-6">
           <h2 className="text-2xl font-semibold text-white mb-1">Live Agent Activity</h2>
-          <p className="text-sm text-[#888]">Three real-time streams, one per agent</p>
+          <p className="text-sm text-[#888]">Newest on top • Last 50 per agent</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -794,13 +816,13 @@ export default function MissionControl() {
     );
   };
 
-    /* ============ RENDER: DOCUMENTATION ============ */
+      /* ============ RENDER: DOCUMENTATION ============ */
   const renderDocumentation = () => (
     <motion.div key="documentation" variants={tabVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.3 }}>
       <div className="mb-6 flex flex-col gap-4">
         <div>
           <h2 className="text-2xl font-semibold text-white mb-1">Documentation</h2>
-          <p className="text-sm text-[#888]">Per-agent guides, configs, and memory synced live</p>
+          <p className="text-sm text-[#888]">Real-time agent documentation (workspace + memory)</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -869,69 +891,71 @@ export default function MissionControl() {
           );
         }
 
+        const buildAgentTree = (agentId: AgentId): FileNode => {
+          const config = AGENT_CONFIG[agentId];
+          const docs = filteredDocs.filter((doc) => doc.agent_id === agentId);
+          const memoryDocs = docs.filter((doc) => doc.source_file?.includes('/memory/'));
+          const rootDocs = docs.filter((doc) => !doc.source_file?.includes('/memory/'));
+
+          const toFileNode = (doc: typeof docs[number]): FileNode => ({
+            name: doc.title,
+            path: doc.source_file || `${doc.agent_id}-${doc.id}`,
+            type: 'file',
+            isPriority: ['IDENTITY.md', 'MEMORY.md', 'SOUL.md'].includes(doc.title),
+            content: doc.content,
+          });
+
+          const children: FileNode[] = [];
+          if (rootDocs.length > 0) {
+            children.push(...rootDocs.map(toFileNode));
+          }
+          if (memoryDocs.length > 0) {
+            children.push({
+              name: 'memory',
+              path: `${agentId}-memory`,
+              type: 'directory',
+              children: memoryDocs
+                .sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''))
+                .map(toFileNode),
+            });
+          }
+
+          return {
+            name: `${config.emoji} ${config.name}`,
+            path: agentId,
+            type: 'directory',
+            children,
+          };
+        };
+
+        const tree: FileNode[] = ['begubot', 'coder', 'researcher']
+          .filter((agentId) => docsAgentFilter === 'all' || agentId === docsAgentFilter)
+          .map((agentId) => buildAgentTree(agentId as AgentId));
+
         return (
-          <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {filteredDocs.map((doc) => {
-              const config = AGENT_CONFIG[doc.agent_id];
-              const isExpanded = expandedDocId === doc.id;
-              return (
-                <motion.div
-                  key={doc.id}
-                  variants={item}
-                  className="bg-[#161616] border border-[#262626] rounded-lg p-4 hover:border-[#333] hover:bg-[#1A1A1A] transition-all"
-                >
-                  <button
-                    onClick={() => setExpandedDocId(isExpanded ? null : doc.id)}
-                    className="w-full text-left"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h3 className="font-semibold text-white">{doc.title}</h3>
-                        <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px]">
-                          <span className="px-2 py-0.5 rounded-full" style={{ backgroundColor: `${config.color}22`, color: config.color }}>
-                            {config.emoji} {config.name}
-                          </span>
-                          {doc.category && (
-                            <span className="px-2 py-0.5 rounded-full bg-[#5E6AD2]/15 text-[#5E6AD2]">{doc.category}</span>
-                          )}
-                          {doc.updated_at && (
-                            <span className="text-[10px] text-[#666]">Updated {formatTime(doc.updated_at)}</span>
-                          )}
-                        </div>
-                      </div>
-                      <ChevronRight className={`w-4 h-4 text-[#666] transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
-                    </div>
-                  </button>
+          <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4">
+            <div className="bg-[#161616] border border-[#262626] rounded-lg p-3 max-h-[600px] overflow-y-auto">
+              <FileTree
+                files={tree}
+                selectedFile={selectedDoc?.file || null}
+                onSelectFile={(file) => setSelectedDoc({ file, content: file.content || '' })}
+              />
+            </div>
 
-                  <AnimatePresence>
-                    {isExpanded ? (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="mt-3 text-xs text-[#C7C7C7] whitespace-pre-wrap"
-                      >
-                        {doc.content}
-                      </motion.div>
-                    ) : (
-                      <p className="mt-3 text-xs text-[#888] line-clamp-3">{doc.content}</p>
-                    )}
-                  </AnimatePresence>
-
-                  {doc.source_file && (
-                    <p className="mt-3 text-[10px] text-[#666]">{doc.source_file}</p>
-                  )}
-                </motion.div>
-              );
-            })}
-          </motion.div>
+            <div className="bg-[#161616] border border-[#262626] rounded-lg p-4 min-h-[360px]">
+              <MarkdownViewer
+                content={selectedDoc?.content || ''}
+                fileName={selectedDoc?.file.name || 'Select a document'}
+              />
+            </div>
+          </div>
         );
       })()}
     </motion.div>
   );
 
   /* ============ RENDER: OFFICE SCENE ============ */
+/* ============ RENDER: OFFICE SCENE ============ */
   const renderOffice = () => (
     <motion.div key="office" variants={tabVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.3 }}>
       <div className="mb-6 flex items-center justify-between">

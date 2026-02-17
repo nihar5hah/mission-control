@@ -22,6 +22,32 @@ const FILE_CATEGORIES: Record<string, string> = {
 
 const DEFAULT_FILES = ['IDENTITY.md', 'MEMORY.md', 'SOUL.md', 'USER.md', 'AGENTS.md', 'HEARTBEAT.md', 'TOOLS.md'];
 
+async function getRecentMemoryFiles(workspace: string, limit: number = 7) {
+  const memoryDir = path.join(workspace, 'memory');
+  try {
+    const entries = await fs.readdir(memoryDir, { withFileTypes: true });
+    const mdFiles = await Promise.all(entries
+      .filter((entry) => entry.isFile() && entry.name.endsWith('.md'))
+      .map(async (entry) => {
+        const filePath = path.join(memoryDir, entry.name);
+        const stat = await fs.stat(filePath);
+        const dateFromName = entry.name.replace('.md', '');
+        const parsedDate = new Date(dateFromName);
+        return {
+          name: entry.name,
+          path: filePath,
+          mtime: stat.mtime.getTime(),
+          parsed: isNaN(parsedDate.getTime()) ? 0 : parsedDate.getTime(),
+        };
+      }));
+
+    const sorted = mdFiles.sort((a, b) => (b.parsed || b.mtime) - (a.parsed || a.mtime));
+    return sorted.slice(0, limit);
+  } catch (err) {
+    return [] as Array<{ name: string; path: string }>;
+  }
+}
+
 async function syncAgentDocuments(agentId: AgentId, files: string[]) {
   const workspace = AGENT_WORKSPACES[agentId];
   const results: Array<{ source_file: string; status: 'synced' | 'missing' | 'error' }> = [];
@@ -50,6 +76,31 @@ async function syncAgentDocuments(agentId: AgentId, files: string[]) {
       }
     } catch (err) {
       results.push({ source_file: file, status: 'missing' });
+    }
+  }
+
+  const memoryFiles = await getRecentMemoryFiles(workspace, 7);
+  for (const memoryFile of memoryFiles) {
+    try {
+      const content = await fs.readFile(memoryFile.path, 'utf8');
+      const { error } = await supabase
+        .from('agent_documents')
+        .upsert({
+          agent_id: agentId,
+          title: memoryFile.name,
+          content,
+          category: 'memory',
+          source_file: memoryFile.path,
+          metadata: { synced_at: new Date().toISOString() },
+        }, { onConflict: 'agent_id,source_file' });
+
+      if (error) {
+        results.push({ source_file: memoryFile.name, status: 'error' });
+      } else {
+        results.push({ source_file: memoryFile.name, status: 'synced' });
+      }
+    } catch (err) {
+      results.push({ source_file: memoryFile.name, status: 'missing' });
     }
   }
 
