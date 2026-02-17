@@ -53,17 +53,17 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
 
 // Action config with proper typing
 const ACTION_CONFIG: Record<string, { label: string; icon: string; color: string; bg: string; border: string }> = {
-  building: { label: 'Building', icon: 'Hammer', color: 'text-[#F59E0B]', bg: 'bg-[#F59E0B]/10', border: 'border-[#F59E0B]/30' },
-  researching: { label: 'Researching', icon: 'Microscope', color: 'text-[#8B5CF6]', bg: 'bg-[#8B5CF6]/10', border: 'border-[#8B5CF6]/30' },
-  syncing: { label: 'Syncing', icon: 'RefreshCw', color: 'text-[#06B6D4]', bg: 'bg-[#06B6D4]/10', border: 'border-[#06B6D4]/30' },
-  fixing: { label: 'Fixing Bug', icon: 'Wrench', color: 'text-[#EF4444]', bg: 'bg-[#EF4444]/10', border: 'border-[#EF4444]/30' },
-  deploying: { label: 'Deploying', icon: 'Rocket', color: 'text-[#10B981]', bg: 'bg-[#10B981]/10', border: 'border-[#10B981]/30' },
-  testing: { label: 'Testing', icon: 'TestTube', color: 'text-[#3B82F6]', bg: 'bg-[#3B82F6]/10', border: 'border-[#3B82F6]/30' },
-  coordinating: { label: 'Coordinating', icon: 'Users', color: 'text-[#8B5CF6]', bg: 'bg-[#8B5CF6]/10', border: 'border-[#8B5CF6]/30' },
-  meeting: { label: 'In Meeting', icon: 'Calendar', color: 'text-[#EC4899]', bg: 'bg-[#EC4899]/10', border: 'border-[#EC4899]/30' },
-  documenting: { label: 'Documenting', icon: 'FileText', color: 'text-[#6366F1]', bg: 'bg-[#6366F1]/10', border: 'border-[#6366F1]/30' },
-  idle: { label: 'Idle', icon: 'Clock', color: 'text-[#888]', bg: 'bg-[#888]/10', border: 'border-[#888]/30' },
-  water_cooler: { label: 'Water Cooler', icon: 'Coffee', color: 'text-[#14B8A6]', bg: 'bg-[#14B8A6]/10', border: 'border-[#14B8A6]/30' },
+  building: { label: 'Building', icon: 'Hammer', color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200' },
+  researching: { label: 'Researching', icon: 'Microscope', color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200' },
+  syncing: { label: 'Syncing', icon: 'RefreshCw', color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-200' },
+  fixing: { label: 'Fixing Bug', icon: 'Wrench', color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200' },
+  deploying: { label: 'Deploying', icon: 'Rocket', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
+  testing: { label: 'Testing', icon: 'TestTube', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' },
+  coordinating: { label: 'Coordinating', icon: 'Users', color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200' },
+  meeting: { label: 'In Meeting', icon: 'Calendar', color: 'text-pink-600', bg: 'bg-pink-50', border: 'border-pink-200' },
+  documenting: { label: 'Documenting', icon: 'FileText', color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-200' },
+  idle: { label: 'Idle', icon: 'Clock', color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-200' },
+  water_cooler: { label: 'Water Cooler', icon: 'Coffee', color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-200' },
 };
 
 // Get action config with fallback
@@ -71,9 +71,9 @@ function getActionConfig(action: string) {
   return ACTION_CONFIG[action] || {
     label: action.charAt(0).toUpperCase() + action.slice(1),
     icon: 'Circle',
-    color: 'text-[#888]',
-    bg: 'bg-[#888]/10',
-    border: 'border-[#888]/30',
+    color: 'text-slate-600',
+    bg: 'bg-slate-50',
+    border: 'border-slate-200',
   };
 }
 
@@ -105,16 +105,16 @@ function StatusIndicator({ isOnline, status }: { isOnline: boolean; status?: str
   if (!isOnline) {
     return (
       <div className="flex items-center gap-1.5">
-        <div className="w-2 h-2 rounded-full bg-[#666]" />
-        <span className="text-xs text-[#666]">Offline</span>
+        <div className="w-2 h-2 rounded-full bg-slate-400" />
+        <span className="text-xs text-slate-500">Offline</span>
       </div>
     );
   }
 
   const statusColors: Record<string, string> = {
-    active: 'bg-[#10B981]',
-    idle: 'bg-[#F59E0B]',
-    offline: 'bg-[#666]',
+    active: 'bg-emerald-500',
+    idle: 'bg-amber-500',
+    offline: 'bg-slate-400',
   };
 
   return (
@@ -124,7 +124,7 @@ function StatusIndicator({ isOnline, status }: { isOnline: boolean; status?: str
         animate={{ scale: [1, 1.2, 1] }}
         transition={{ duration: 2, repeat: Infinity }}
       />
-      <span className="text-xs text-[#888] capitalize">{status || 'Active'}</span>
+      <span className="text-xs text-slate-600 capitalize">{status || 'Active'}</span>
     </div>
   );
 }
@@ -175,7 +175,7 @@ function AgentCard({
 
   return (
     <motion.div
-      className="glass-card liquid-border overflow-hidden"
+      className="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.01, y: -2 }}
@@ -189,8 +189,8 @@ function AgentCard({
             <AgentAvatar agentId={agent.id} color={config.color} />
             {/* Online indicator */}
             <motion.div
-              className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#0a0a0f] ${
-                isOnline ? 'bg-[#10B981] glow-green' : 'bg-[#666]'
+              className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ${
+                isOnline ? 'bg-emerald-500 shadow-lg shadow-emerald-500/30' : 'bg-slate-400'
               }`}
               animate={isOnline ? { scale: [1, 1.3, 1] } : {}}
               transition={{ duration: 2, repeat: Infinity }}
@@ -200,20 +200,20 @@ function AgentCard({
           {/* Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-white text-sm">{config.name}</h3>
-              <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: `${config.color}20`, color: config.color }}>
+              <h3 className="font-semibold text-slate-900 text-sm">{config.name}</h3>
+              <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: `${config.color}15`, color: config.color }}>
                 {config.role}
               </span>
             </div>
-            <p className="text-xs text-[#888] mt-0.5 line-clamp-1">{config.description}</p>
+            <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{config.description}</p>
 
             {/* Current activity */}
             {latestActivity && (
               <div className={`flex items-center gap-1.5 mt-2 px-2 py-1 rounded ${actionConfig?.bg} border ${actionConfig?.border}`}>
                 <ActionIcon className={`w-3.5 h-3.5 ${actionConfig?.color}`} />
                 <span className={`text-xs font-medium ${actionConfig?.color}`}>{actionConfig?.label}</span>
-                <span className="text-xs text-[#666]">•</span>
-                <span className="text-xs text-[#666]">{formatTimeAgo(latestActivity.timestamp)}</span>
+                <span className="text-xs text-slate-500">•</span>
+                <span className="text-xs text-slate-500">{formatTimeAgo(latestActivity.timestamp)}</span>
               </div>
             )}
           </div>
@@ -222,7 +222,7 @@ function AgentCard({
           <div className="flex flex-col items-end gap-1">
             <StatusIndicator isOnline={isOnline} status={session?.status} />
             {stats && (
-              <div className="text-xs text-[#888]">
+              <div className="text-xs text-slate-600">
                 {stats.daily_tasks_completed} tasks today
               </div>
             )}
@@ -238,30 +238,30 @@ function AgentCard({
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="border-t border-[#262626]"
+            className="border-t border-slate-200"
           >
             <div className="p-4 space-y-4">
               {/* Stats grid */}
               {stats && (
                 <div className="grid grid-cols-3 gap-2">
-                  <div className="bg-[#0F0F0F] rounded p-2 text-center">
-                    <p className="text-xs text-[#666]">Tokens Today</p>
-                    <p className="text-sm font-semibold text-white">{stats.daily_tokens_used.toLocaleString()}</p>
+                  <div className="bg-slate-50 rounded p-2 text-center">
+                    <p className="text-xs text-slate-500">Tokens Today</p>
+                    <p className="text-sm font-semibold text-slate-900">{stats.daily_tokens_used.toLocaleString()}</p>
                   </div>
-                  <div className="bg-[#0F0F0F] rounded p-2 text-center">
-                    <p className="text-xs text-[#666]">Tasks Done</p>
-                    <p className="text-sm font-semibold text-white">{stats.daily_tasks_completed}</p>
+                  <div className="bg-slate-50 rounded p-2 text-center">
+                    <p className="text-xs text-slate-500">Tasks Done</p>
+                    <p className="text-sm font-semibold text-slate-900">{stats.daily_tasks_completed}</p>
                   </div>
-                  <div className="bg-[#0F0F0F] rounded p-2 text-center">
-                    <p className="text-xs text-[#666]">Active Time</p>
-                    <p className="text-sm font-semibold text-white">{formatDuration(stats.daily_active_seconds)}</p>
+                  <div className="bg-slate-50 rounded p-2 text-center">
+                    <p className="text-xs text-slate-500">Active Time</p>
+                    <p className="text-sm font-semibold text-slate-900">{formatDuration(stats.daily_active_seconds)}</p>
                   </div>
                 </div>
               )}
 
               {/* Recent activities */}
               <div>
-                <h4 className="text-xs font-semibold text-[#888] mb-2 flex items-center gap-1.5">
+                <h4 className="text-xs font-semibold text-slate-600 mb-2 flex items-center gap-1.5">
                   <Activity className="w-3.5 h-3.5" />
                   Recent Activity
                 </h4>
@@ -272,13 +272,13 @@ function AgentCard({
                     return (
                       <motion.div
                         key={activity.id}
-                        className="flex items-center gap-2 p-2 bg-[#0F0F0F] rounded"
+                        className="flex items-center gap-2 p-2 bg-slate-50 rounded"
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                       >
                         <AcIcon className={`w-3.5 h-3.5 ${ac.color}`} />
-                        <span className="text-xs text-[#888] flex-1 line-clamp-1">{activity.description}</span>
-                        <span className="text-xs text-[#666]">{formatTimeAgo(activity.timestamp)}</span>
+                        <span className="text-xs text-slate-600 flex-1 line-clamp-1">{activity.description}</span>
+                        <span className="text-xs text-slate-500">{formatTimeAgo(activity.timestamp)}</span>
                       </motion.div>
                     );
                   })}
@@ -287,7 +287,7 @@ function AgentCard({
 
               {/* Session info */}
               {session && (
-                <div className="text-xs text-[#666] flex items-center gap-2">
+                <div className="text-xs text-slate-500 flex items-center gap-2">
                   <Clock className="w-3.5 h-3.5" />
                   Session started {formatTimeAgo(session.started_at)}
                   {session.current_action && (
@@ -317,23 +317,23 @@ export function AgentsSidebar({ isOpen = false, onClose }: { isOpen?: boolean; o
   const sidebarContent = loading ? (
     <div className="flex items-center justify-center py-12">
       <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
-        <Zap className="w-6 h-6 text-[#5E6AD2]" />
+        <Zap className="w-6 h-6 text-teal-600" />
       </motion.div>
     </div>
   ) : error ? (
     <div className="text-center py-12">
-      <AlertCircle className="w-8 h-8 text-[#E55454] mx-auto mb-2" />
-      <p className="text-sm text-[#E55454]">{error}</p>
+      <AlertCircle className="w-8 h-8 text-red-600 mx-auto mb-2" />
+      <p className="text-sm text-red-600">{error}</p>
     </div>
   ) : (
     <>
       {/* Header */}
-      <div className="p-4 border-b border-[#262626]">
-        <h2 className="font-semibold text-white flex items-center gap-2 text-sm">
-          <Users className="w-5 h-5 text-[#5E6AD2]" />
+      <div className="p-4 border-b border-slate-200">
+        <h2 className="font-semibold text-slate-900 flex items-center gap-2 text-sm">
+          <Users className="w-5 h-5 text-teal-600" />
           The Begu Company
         </h2>
-        <p className="text-xs text-[#888] mt-1">3 AI agents • {agentStates.filter(s => s.isOnline).length} online</p>
+        <p className="text-xs text-slate-500 mt-1">3 AI agents • {agentStates.filter(s => s.isOnline).length} online</p>
       </div>
 
       {/* Agent list */}
@@ -350,15 +350,15 @@ export function AgentsSidebar({ isOpen = false, onClose }: { isOpen?: boolean; o
       </div>
 
       {/* Footer */}
-      <div className="p-3 border-t border-[#262626]">
-        <div className="flex items-center justify-between text-xs text-[#666]">
+      <div className="p-3 border-t border-slate-200">
+        <div className="flex items-center justify-between text-xs text-slate-500">
           <span>Real-time sync active</span>
           <motion.div
             className="flex items-center gap-1"
             animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            <div className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
             <span>Live</span>
           </motion.div>
         </div>
@@ -368,7 +368,7 @@ export function AgentsSidebar({ isOpen = false, onClose }: { isOpen?: boolean; o
 
   return (
     <>
-      <div className="hidden md:flex w-80 bg-white/[0.02] border-r border-white/10 backdrop-blur-2xl flex-col h-full ambient-light">
+      <div className="hidden md:flex w-80 bg-white border-r border-slate-200 flex-col h-full shadow-sm">
         {sidebarContent}
       </div>
 
@@ -382,7 +382,7 @@ export function AgentsSidebar({ isOpen = false, onClose }: { isOpen?: boolean; o
           >
             <div className="absolute inset-0 bg-black/60" onClick={onClose} />
             <motion.div
-              className="absolute left-0 top-0 h-full w-72 bg-[#0F0F0F] border-r border-[#262626] flex flex-col"
+              className="absolute left-0 top-0 h-full w-72 bg-white border-r border-slate-200 flex flex-col shadow-lg"
               initial={{ x: -320 }}
               animate={{ x: 0 }}
               exit={{ x: -320 }}

@@ -117,38 +117,38 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
   }, [phase]);
 
   return (
-    <div className="relative w-full overflow-hidden glass-card liquid-border ambient-light">
-      <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, #5E6AD233 0%, transparent 45%), radial-gradient(circle at 80% 10%, #10B98122 0%, transparent 40%)' }} />
+    <div className="relative w-full overflow-hidden bg-white border border-slate-200 rounded-lg shadow-sm">
+      <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, #14B8A60A 0%, transparent 45%), radial-gradient(circle at 80% 10%, #0F766E08 0%, transparent 40%)' }} />
 
       <div className="relative px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 flex items-center justify-between">
         <div>
-          <h3 className="text-base sm:text-lg font-semibold text-white tracking-tight">Office Playground</h3>
-          <p className="text-[11px] sm:text-xs text-[#999]">Live office scene with agent animations</p>
+          <h3 className="text-base sm:text-lg font-semibold text-slate-900 tracking-tight">Office Playground</h3>
+          <p className="text-[11px] sm:text-xs text-slate-500">Live office scene with agent animations</p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-[#888]">
-          <span className="inline-flex items-center gap-1 rounded-full border border-[#2B2B2B] bg-[#121212] px-2 py-1">
-            <span className="h-2 w-2 rounded-full bg-[#10B981] animate-pulse" /> Live Sync
+        <div className="flex items-center gap-2 text-xs text-slate-600">
+          <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2 py-1">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" /> Live Sync
           </span>
         </div>
       </div>
 
       <div className="relative h-[340px] sm:h-[420px] px-4 sm:px-6 pb-4 sm:pb-6">
         {/* Floor */}
-        <div className="absolute inset-4 sm:inset-6 rounded-2xl bg-gradient-to-br from-[#141414] via-[#151515] to-[#1C1C1C] border border-[#242424]" />
+        <div className="absolute inset-4 sm:inset-6 rounded-2xl bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100 border border-slate-300" />
 
         {/* Meeting room */}
-        <div className="absolute top-8 sm:top-10 left-1/2 -translate-x-1/2 w-[70%] sm:w-[55%] h-[90px] sm:h-[120px] rounded-2xl border border-[#2B2B2B] bg-[#111111]/80 backdrop-blur">
-          <div className="absolute inset-x-4 top-4 flex items-center gap-2 text-xs text-[#777]">
+        <div className="absolute top-8 sm:top-10 left-1/2 -translate-x-1/2 w-[70%] sm:w-[55%] h-[90px] sm:h-[120px] rounded-2xl border border-slate-300 bg-white/40 backdrop-blur">
+          <div className="absolute inset-x-4 top-4 flex items-center gap-2 text-xs text-slate-600">
             <Users className="w-3 h-3" />
             <span>Meeting Room</span>
           </div>
-          <div className="absolute inset-x-10 bottom-4 h-2 rounded-full bg-[#1F1F1F] border border-[#2C2C2C]" />
+          <div className="absolute inset-x-10 bottom-4 h-2 rounded-full bg-slate-200 border border-slate-300" />
         </div>
 
         {/* Water cooler */}
-        <div className="absolute right-6 sm:right-10 bottom-6 sm:bottom-10 w-24 sm:w-28 h-16 sm:h-20 rounded-2xl border border-[#2B2B2B] bg-[#121212] flex flex-col items-center justify-center gap-1 sm:gap-2">
-          <Coffee className="w-5 h-5 text-[#5E6AD2]" />
-          <span className="text-[10px] text-[#777]">Water Cooler</span>
+        <div className="absolute right-6 sm:right-10 bottom-6 sm:bottom-10 w-24 sm:w-28 h-16 sm:h-20 rounded-2xl border border-slate-300 bg-white flex flex-col items-center justify-center gap-1 sm:gap-2">
+          <Coffee className="w-5 h-5 text-teal-600" />
+          <span className="text-[10px] text-slate-600">Water Cooler</span>
         </div>
 
         {/* Desks */}
@@ -158,14 +158,14 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
           return (
             <div
               key={`desk-${agentId}`}
-              className="absolute w-24 h-14 sm:w-28 sm:h-16 rounded-xl border border-[#242424] bg-[#121212]/80"
+              className="absolute w-24 h-14 sm:w-28 sm:h-16 rounded-xl border border-slate-300 bg-white/60"
               style={{ left: `${desk.x}%`, top: `${desk.y}%` }}
             >
-              <div className="absolute -top-3 left-4 px-2 py-0.5 rounded-full text-[10px] font-medium" style={{ backgroundColor: `${config.color}22`, color: config.color }}>
+              <div className="absolute -top-3 left-4 px-2 py-0.5 rounded-full text-[10px] font-medium" style={{ backgroundColor: `${config.color}12`, color: config.color }}>
                 {config.emoji} {config.name}
               </div>
-              <div className="absolute bottom-3 left-4 h-1.5 w-12 rounded-full bg-[#1F1F1F]" />
-              <div className="absolute bottom-3 right-4 h-1.5 w-6 rounded-full bg-[#1F1F1F]" />
+              <div className="absolute bottom-3 left-4 h-1.5 w-12 rounded-full bg-slate-200" />
+              <div className="absolute bottom-3 right-4 h-1.5 w-6 rounded-full bg-slate-200" />
             </div>
           );
         })}
@@ -191,16 +191,16 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
                 transition={{ duration: isWorking ? 1.2 : 2.4, repeat: Infinity, ease: 'easeInOut' }}
               >
                 <div
-                  className="absolute inset-0 rounded-2xl border border-[#2B2B2B] shadow-lg"
-                  style={{ backgroundColor: `${config.color}22` }}
+                  className="absolute inset-0 rounded-2xl border border-slate-300 shadow-md"
+                  style={{ backgroundColor: `${config.color}12` }}
                 />
                 <div
                   className="absolute top-1.5 sm:top-2 left-1.5 sm:left-2 w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-base sm:text-lg"
-                  style={{ backgroundColor: `${config.color}30`, color: config.color }}
+                  style={{ backgroundColor: `${config.color}20`, color: config.color }}
                 >
                   {config.emoji}
                 </div>
-                <div className="absolute bottom-2 left-2 text-[10px] text-[#BFBFBF]">
+                <div className="absolute bottom-2 left-2 text-[10px] text-slate-600">
                   {action}
                 </div>
 
@@ -225,10 +225,10 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
                     initial={{ opacity: 0, y: 8, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                    className="absolute -top-12 left-0 px-3 py-1.5 rounded-full border border-[#2B2B2B] bg-[#0F0F0F] text-[10px] text-white shadow-xl"
+                    className="absolute -top-12 left-0 px-3 py-1.5 rounded-full border border-slate-300 bg-white text-[10px] text-slate-900 shadow-lg"
                   >
                     {speech.text}
-                    <span className="absolute -bottom-1 left-3 w-2 h-2 bg-[#0F0F0F] border-l border-b border-[#2B2B2B] rotate-45" />
+                    <span className="absolute -bottom-1 left-3 w-2 h-2 bg-white border-l border-b border-slate-300 rotate-45" />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -238,7 +238,7 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
 
         {/* Ambient sparkles */}
         <motion.div
-          className="absolute left-10 bottom-16 text-[#5E6AD2]/60"
+          className="absolute left-10 bottom-16 text-teal-500/40"
           animate={{ opacity: [0.2, 0.8, 0.2], y: [0, -6, 0] }}
           transition={{ duration: 3, repeat: Infinity }}
         >
