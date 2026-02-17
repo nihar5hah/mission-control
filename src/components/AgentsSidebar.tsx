@@ -26,6 +26,7 @@ import {
   Coffee,
   Hammer,
   Circle,
+  X,
 } from 'lucide-react';
 import { useAgentState, useAgentActivities } from '@/hooks/useAgents';
 import type { AgentId, AgentState, AgentActivity, AGENT_ACTION_CONFIG } from '@/types/agents';
@@ -305,41 +306,29 @@ function AgentCard({
 }
 
 // Main sidebar component
-export function AgentsSidebar() {
+export function AgentsSidebar({ isOpen = false, onClose }: { isOpen?: boolean; onClose?: () => void }) {
   const { agentStates, loading, error } = useAgentState();
   const [expandedAgent, setExpandedAgent] = useState<AgentId | null>(null);
 
   // Get activities for expanded agent
   const { activities: expandedActivities } = useAgentActivities(expandedAgent || undefined, 10);
 
-  if (loading) {
-    return (
-      <div className="w-80 bg-[#0F0F0F] border-r border-[#262626] p-4">
-        <div className="flex items-center justify-center py-12">
-          <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
-            <Zap className="w-6 h-6 text-[#5E6AD2]" />
-          </motion.div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="w-80 bg-[#0F0F0F] border-r border-[#262626] p-4">
-        <div className="text-center py-12">
-          <AlertCircle className="w-8 h-8 text-[#E55454] mx-auto mb-2" />
-          <p className="text-sm text-[#E55454]">{error}</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="w-80 bg-[#0F0F0F] border-r border-[#262626] flex flex-col h-full">
+  const sidebarContent = loading ? (
+    <div className="flex items-center justify-center py-12">
+      <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
+        <Zap className="w-6 h-6 text-[#5E6AD2]" />
+      </motion.div>
+    </div>
+  ) : error ? (
+    <div className="text-center py-12">
+      <AlertCircle className="w-8 h-8 text-[#E55454] mx-auto mb-2" />
+      <p className="text-sm text-[#E55454]">{error}</p>
+    </div>
+  ) : (
+    <>
       {/* Header */}
       <div className="p-4 border-b border-[#262626]">
-        <h2 className="font-semibold text-white flex items-center gap-2">
+        <h2 className="font-semibold text-white flex items-center gap-2 text-sm">
           <Users className="w-5 h-5 text-[#5E6AD2]" />
           The Begu Company
         </h2>
@@ -373,7 +362,47 @@ export function AgentsSidebar() {
           </motion.div>
         </div>
       </div>
-    </div>
+    </>
+  );
+
+  return (
+    <>
+      <div className="hidden md:flex w-80 bg-[#0F0F0F] border-r border-[#262626] flex-col h-full">
+        {sidebarContent}
+      </div>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            className="fixed inset-0 z-50 md:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+            <motion.div
+              className="absolute left-0 top-0 h-full w-72 bg-[#0F0F0F] border-r border-[#262626] flex flex-col"
+              initial={{ x: -320 }}
+              animate={{ x: 0 }}
+              exit={{ x: -320 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+            >
+              <div className="p-4 border-b border-[#262626] flex items-center justify-between">
+                <h2 className="font-semibold text-white text-sm">Agents</h2>
+                <button
+                  onClick={onClose}
+                  className="w-9 h-9 rounded-lg border border-[#262626] bg-[#161616] flex items-center justify-center text-[#888]"
+                  aria-label="Close sidebar"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              {sidebarContent}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 

@@ -54,6 +54,7 @@ import {
   Building,
   Coffee,
   Circle,
+  Menu,
 } from 'lucide-react';
 
 import { FileTree } from '@/components/FileTree';
@@ -128,6 +129,7 @@ export default function MissionControl() {
   const [newTaskForm, setNewTaskForm] = useState({ title: '', scheduled_for: '', day: '', type: 'one-time' as 'daily' | 'one-time' });
   const [statusDropdown, setStatusDropdown] = useState<{ type: 'activity' | 'task'; id: number } | null>(null);
   const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [scheduleAgentFilter, setScheduleAgentFilter] = useState<AgentId | 'all'>('all');
   const [docsAgentFilter, setDocsAgentFilter] = useState<AgentId | 'all'>('all');
   const [docsQuery, setDocsQuery] = useState('');
@@ -385,16 +387,23 @@ export default function MissionControl() {
       transition={{ duration: 0.4 }}
       className="sticky top-0 z-40 border-b border-[#262626] bg-gradient-to-r from-[#0F0F0F] via-[#0F0F0F] to-[#1A1A1A]/50 backdrop-blur-xl"
     >
-      <div className="px-6 py-4 flex items-center justify-between">
+      <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
         <motion.div className="flex items-center gap-3" whileHover={{ scale: 1.02 }}>
-          <div className="relative w-10 h-10 rounded-lg bg-gradient-to-br from-[#8B5CF6] to-[#6D28D9] flex items-center justify-center overflow-hidden shadow-lg shadow-[#8B5CF6]/20">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="md:hidden w-11 h-11 rounded-lg border border-[#262626] bg-[#161616] flex items-center justify-center text-[#888]"
+            aria-label="Open sidebar"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+          <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-[#8B5CF6] to-[#6D28D9] flex items-center justify-center overflow-hidden shadow-lg shadow-[#8B5CF6]/20">
             <motion.div animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}>
-              <Building className="w-6 h-6 text-white" />
+              <Building className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </motion.div>
           </div>
           <div>
-            <h1 className="text-lg font-semibold text-white">The Begu Company</h1>
-            <p className="text-xs text-[#888]">Mission Control</p>
+            <h1 className="text-base sm:text-lg font-semibold text-white">The Begu Company</h1>
+            <p className="text-[11px] sm:text-xs text-[#888]">Mission Control</p>
           </div>
         </motion.div>
 
@@ -416,7 +425,7 @@ export default function MissionControl() {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.1 }}
-      className="flex gap-1 mb-8 bg-[#161616] rounded-lg p-1 border border-[#262626] w-fit"
+      className="flex gap-1 mb-6 sm:mb-8 bg-[#161616] rounded-lg p-1 border border-[#262626] w-full md:w-fit overflow-x-auto"
     >
       {tabs.map((tab) => {
         const Icon = tab.icon;
@@ -424,7 +433,7 @@ export default function MissionControl() {
           <motion.button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
-            className="relative px-4 py-2.5 rounded-md text-sm font-medium transition-colors flex items-center gap-2"
+            className="relative px-3 sm:px-4 py-2.5 rounded-md text-xs sm:text-sm font-medium transition-colors flex items-center gap-2 min-h-[44px] whitespace-nowrap"
             whileHover={{ y: -1 }}
             whileTap={{ y: 0 }}
           >
@@ -474,7 +483,7 @@ export default function MissionControl() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 sm:mb-8">
           <motion.div variants={item} className="bg-[#161616] border border-[#262626] rounded-lg p-4">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-md bg-[#8B5CF6]/10 border border-[#8B5CF6]/30">
@@ -1048,13 +1057,13 @@ export default function MissionControl() {
   return (
     <div className="flex h-screen bg-[#0F0F0F]">
       {/* Agents Sidebar */}
-      <AgentsSidebar />
+      <AgentsSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {renderHeader()}
 
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
           {renderTabs()}
 
           <AnimatePresence mode="wait">
