@@ -42,12 +42,24 @@ function FileTreeItem({ file, level, selectedFile, onSelectFile, defaultExpanded
     <div>
       <motion.button
         onClick={handleClick}
-        className={`w-full flex items-center gap-1.5 px-2 py-1.5 rounded text-sm transition-all ${
-          isSelected 
-            ? 'bg-[#5E6AD2]/20 text-[#5E6AD2]' 
-            : 'text-[#888] hover:bg-[#262626] hover:text-white'
-        }`}
-        style={{ paddingLeft: `${level * 12 + 8}px` }}
+        className="w-full flex items-center gap-1.5 px-2 py-1.5 rounded text-sm transition-all"
+        style={{
+          paddingLeft: `${level * 12 + 8}px`,
+          backgroundColor: isSelected ? 'rgba(94, 106, 210, 0.1)' : 'transparent',
+          color: isSelected ? '#5E6AD2' : 'var(--subtle)',
+        }}
+        onMouseEnter={(e) => {
+          if (!isSelected) {
+            e.currentTarget.style.backgroundColor = 'var(--border)';
+            e.currentTarget.style.color = 'var(--foreground)';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isSelected) {
+            e.currentTarget.style.backgroundColor = 'transparent';
+            e.currentTarget.style.color = 'var(--subtle)';
+          }
+        }}
         whileHover={{ x: 2 }}
         whileTap={{ scale: 0.98 }}
       >
@@ -60,16 +72,16 @@ function FileTreeItem({ file, level, selectedFile, onSelectFile, defaultExpanded
             <ChevronRight className="w-3.5 h-3.5 flex-shrink-0" />
           </motion.div>
         )}
-        
+
         {!isDirectory && <div className="w-3.5" />}
 
-        <FileIcon className={`w-4 h-4 flex-shrink-0 ${isSelected ? 'text-[#5E6AD2]' : ''}`} />
-        
+        <FileIcon className="w-4 h-4 flex-shrink-0" style={{ color: isSelected ? '#5E6AD2' : 'inherit' }} />
+
         <span className="truncate flex-1 text-left">{file.name}</span>
-        
+
         {/* Priority star */}
         {showPriority && (
-          <Star className="w-3 h-3 text-[#F59E0B] fill-[#F59E0B]" />
+          <Star className="w-3 h-3" style={{ color: '#F59E0B', fill: '#F59E0B' }} />
         )}
       </motion.button>
 
