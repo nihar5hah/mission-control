@@ -39,14 +39,51 @@
     --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
   }
 
+  /* Dark theme - both .dark class and dark media query */
+  @media (prefers-color-scheme: dark) {
+    :root:not(.light) {
+      /* Dark theme - black/grey palette */
+      --background: #000000;
+      --foreground: #FFFFFF;
+      --border: #333333;
+      --input: #1A1A1A;
+      --muted-bg: #242424;
+      --subtle: #666666;
+      --primary: #14B8A6;
+      --primary-light: #2DD4BF;
+      --primary-dark: #0D9488;
+      --success: #10B981;
+      --success-light: #6EE7B7;
+      --danger: #EF4444;
+      --danger-light: #FCA5A5;
+      --warning: #F97316;
+      --info: #0EA5E9;
+      --running: #0EA5E9;
+
+      /* Dark mode gradients */
+      --gradient-primary: linear-gradient(135deg, #2DD4BF 0%, #14B8A6 100%);
+      --gradient-warm: linear-gradient(135deg, #FB923C 0%, #F97316 100%);
+      --gradient-cool: linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%);
+      --gradient-success: linear-gradient(135deg, #6EE7B7 0%, #10B981 100%);
+
+      /* Dark mode shadows */
+      --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+      --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.6), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.7), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.8), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.9), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+      --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.95);
+    }
+  }
+
   html.dark {
-    /* Dark theme */
-    --background: #0A0E27;
-    --foreground: #F8FAFC;
-    --border: #1E293B;
-    --input: #0F172A;
-    --muted-bg: #1A1F3A;
-    --subtle: #334155;
+    /* Dark theme - black/grey palette (explicit dark class) */
+    --background: #000000;
+    --foreground: #FFFFFF;
+    --border: #333333;
+    --input: #1A1A1A;
+    --muted-bg: #242424;
+    --subtle: #666666;
     --primary: #14B8A6;
     --primary-light: #2DD4BF;
     --primary-dark: #0D9488;
@@ -64,13 +101,23 @@
     --gradient-cool: linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%);
     --gradient-success: linear-gradient(135deg, #6EE7B7 0%, #10B981 100%);
 
-    /* Dark mode shadows - deeper and warmer */
-    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.2);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.7), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+    /* Dark mode shadows */
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.6), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.7), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.8), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.9), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.95);
+  }
+
+  /* Light theme forced */
+  html.light {
+    --background: #FFFFFF;
+    --foreground: #0F172A;
+    --border: #E2E8F0;
+    --input: #F8FAFC;
+    --muted-bg: #F1F5F9;
+    --subtle: #CBD5E1;
   }
 
   * {
