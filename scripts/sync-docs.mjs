@@ -63,7 +63,7 @@ async function syncDocuments() {
               category: file.category,
               source_file: filePath,
               tags: [file.category, agentId],
-              updated_at: stats.mtime.toISOString()
+              updated_at: new Date().toISOString()
             });
           
           if (error) {
@@ -97,7 +97,7 @@ async function syncDocuments() {
                 category: 'memory',
                 source_file: memoryFile,
                 tags: ['daily', 'memory', day, agentId],
-                updated_at: stats.mtime.toISOString()
+                updated_at: new Date().toISOString()
               });
             
             if (error) {

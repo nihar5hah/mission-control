@@ -101,12 +101,12 @@ export function useAgentActivities(agentId?: AgentId, limit: number = 20) {
         const data = agentId
           ? await agentActivitiesApi.getByAgent(agentId, limit)
           : await agentActivitiesApi.getAll(limit);
-        setActivities(data.length > 0 ? data : DEFAULT_ACTIVITIES);
+        setActivities(data); // Show real data or empty array
         setLoading(false);
       } catch (err) {
-        // Use default activities if table doesn't exist
-        console.log('Using default activities (table may not exist yet)');
-        setActivities(DEFAULT_ACTIVITIES.filter(a => !agentId || a.agent_id === agentId));
+        // Show empty state if error
+        console.log('Could not fetch activities:', err);
+        setActivities([]);
         setLoading(false);
       }
     };
@@ -178,12 +178,12 @@ export function useAgentSessions() {
     const fetchSessions = async () => {
       try {
         const data = await agentSessionsApi.getActive();
-        setSessions(data.length > 0 ? data : DEFAULT_SESSIONS);
+        setSessions(data); // Show real data only
         setLoading(false);
       } catch (err) {
-        // Use default sessions if table doesn't exist
-        console.log('Using default sessions (table may not exist yet)');
-        setSessions(DEFAULT_SESSIONS);
+        // Show empty array instead of fake data
+        console.log('No sessions found:', err instanceof Error ? err.message : 'Unknown error');
+        setSessions([]);
         setLoading(false);
       }
     };
@@ -237,12 +237,12 @@ export function useAgentStats(agentId?: AgentId) {
     const fetchStats = async () => {
       try {
         const data = await agentStatsApi.getAll();
-        setStats(data.length > 0 ? data : DEFAULT_STATS);
+        setStats(data); // Show real data only
         setLoading(false);
       } catch (err) {
-        // Use default stats if table doesn't exist
-        console.log('Using default stats (table may not exist yet)');
-        setStats(DEFAULT_STATS);
+        // Show empty array instead of fake data
+        console.log('No stats found:', err instanceof Error ? err.message : 'Unknown error');
+        setStats([]);
         setLoading(false);
       }
     };
@@ -404,26 +404,7 @@ export function useAgentDocuments(agentId?: AgentId) {
   return { documents, loading, error };
 }
 
-// Default stats for fallback
-const DEFAULT_STATS: AgentStats[] = [
-  { id: 1, agent_id: 'begubot', total_tokens_used: 125000, total_tasks_completed: 47, total_tasks_failed: 2, total_uptime_seconds: 86400, last_reset: new Date().toISOString(), updated_at: new Date().toISOString(), daily_tokens_used: 15000, daily_tasks_completed: 8, daily_active_seconds: 28800, daily_date: new Date().toISOString().split('T')[0] },
-  { id: 2, agent_id: 'coder', total_tokens_used: 89000, total_tasks_completed: 32, total_tasks_failed: 1, total_uptime_seconds: 72000, last_reset: new Date().toISOString(), updated_at: new Date().toISOString(), daily_tokens_used: 12000, daily_tasks_completed: 5, daily_active_seconds: 21600, daily_date: new Date().toISOString().split('T')[0] },
-  { id: 3, agent_id: 'researcher', total_tokens_used: 67000, total_tasks_completed: 28, total_tasks_failed: 0, total_uptime_seconds: 57600, last_reset: new Date().toISOString(), updated_at: new Date().toISOString(), daily_tokens_used: 8500, daily_tasks_completed: 4, daily_active_seconds: 18000, daily_date: new Date().toISOString().split('T')[0] },
-];
-
-// Default activities for fallback
-const DEFAULT_ACTIVITIES: AgentActivity[] = [
-  { id: 1, agent_id: 'begubot', action: 'coordinating', description: 'Managing daily operations and task assignments', status: 'running', metadata: {}, timestamp: new Date().toISOString(), created_at: new Date().toISOString() },
-  { id: 2, agent_id: 'coder', action: 'building', description: 'Implementing new Mission Control features', status: 'running', metadata: {}, timestamp: new Date(Date.now() - 600000).toISOString(), created_at: new Date(Date.now() - 600000).toISOString() },
-  { id: 3, agent_id: 'researcher', action: 'researching', description: 'Analyzing best practices for agent architecture', status: 'running', metadata: {}, timestamp: new Date(Date.now() - 300000).toISOString(), created_at: new Date(Date.now() - 300000).toISOString() },
-];
-
-// Default sessions for fallback
-const DEFAULT_SESSIONS: AgentSession[] = [
-  { id: 1, agent_id: 'begubot', session_key: 'begubot-main-session', status: 'active', current_action: 'coordinating', started_at: new Date(Date.now() - 28800000).toISOString(), last_active: new Date().toISOString(), metadata: {} },
-  { id: 2, agent_id: 'coder', session_key: 'coder-main-session', status: 'active', current_action: 'building', started_at: new Date(Date.now() - 14400000).toISOString(), last_active: new Date(Date.now() - 120000).toISOString(), metadata: {} },
-  { id: 3, agent_id: 'researcher', session_key: 'researcher-main-session', status: 'active', current_action: 'researching', started_at: new Date(Date.now() - 21600000).toISOString(), last_active: new Date(Date.now() - 300000).toISOString(), metadata: {} },
-];
+// No default/fallback data - show real data or empty state
 
 // =====================================================
 // USE AGENT STATE HOOK
@@ -451,19 +432,19 @@ export function useAgentState(): {
         agentActivitiesApi.getAll(3),
       ]);
 
-      // Use fallback data if any request failed
+      // Use real data or empty arrays - no fallback
       const agents = agentsResult.status === 'fulfilled' && agentsResult.value.length > 0 
         ? agentsResult.value 
-        : DEFAULT_AGENTS;
+        : DEFAULT_AGENTS; // Keep DEFAULT_AGENTS only as actual agents must exist
       const sessions = sessionsResult.status === 'fulfilled' 
         ? sessionsResult.value 
-        : DEFAULT_SESSIONS;
-      const stats = statsResult.status === 'fulfilled' && statsResult.value.length > 0
+        : []; // Empty instead of DEFAULT_SESSIONS
+      const stats = statsResult.status === 'fulfilled'
         ? statsResult.value 
-        : DEFAULT_STATS;
+        : []; // Empty instead of DEFAULT_STATS
       const activities = activitiesResult.status === 'fulfilled' 
         ? activitiesResult.value 
-        : DEFAULT_ACTIVITIES;
+        : []; // Empty instead of DEFAULT_ACTIVITIES
 
       // Build combined state
       const states: AgentState[] = agents.map((agent) => {
@@ -483,14 +464,14 @@ export function useAgentState(): {
       setAgentStates(states);
       setLoading(false);
     } catch (err) {
-      // Use default data on error
-      console.log('Using default agent states (tables may not exist yet)');
-      const states: AgentState[] = DEFAULT_AGENTS.map((agent, idx) => ({
+      // Use default agents only - don't provide fake data
+      console.log('Using default agent states');
+      const states: AgentState[] = DEFAULT_AGENTS.map((agent) => ({
         agent,
-        session: DEFAULT_SESSIONS[idx],
-        stats: DEFAULT_STATS[idx],
-        latestActivity: DEFAULT_ACTIVITIES[idx],
-        isOnline: true,
+        session: undefined,
+        stats: undefined,
+        latestActivity: undefined,
+        isOnline: false,
       }));
       setAgentStates(states);
       setLoading(false);
