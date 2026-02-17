@@ -23,10 +23,11 @@ function HierarchyAvatar({ agentId, color, name, role }: { agentId: AgentId; col
     >
       {/* Avatar */}
       <motion.div
-        className="w-20 h-20 rounded-2xl flex items-center justify-center relative overflow-hidden shadow-md bg-white border border-slate-200"
+        className="w-20 h-20 rounded-2xl flex items-center justify-center relative overflow-hidden shadow-md transition-all duration-300"
         style={{
           backgroundColor: `${color}08`,
-          borderColor: `${color}40`
+          borderColor: `${color}40`,
+          border: `1px solid ${color}40`
         }}
         whileHover={{ scale: 1.05, rotate: [0, -5, 5, 0] }}
         transition={{ duration: 0.3 }}
@@ -44,8 +45,8 @@ function HierarchyAvatar({ agentId, color, name, role }: { agentId: AgentId; col
 
       {/* Name and role */}
       <div className="mt-3 text-center">
-        <h3 className="font-semibold text-slate-900">{name}</h3>
-        <p className="text-xs text-slate-500">{role}</p>
+        <h3 className="font-semibold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{name}</h3>
+        <p className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{role}</p>
       </div>
     </motion.div>
   );
@@ -90,9 +91,9 @@ export function HierarchyTab() {
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
           <Building className="w-6 h-6 text-teal-600" />
-          <h2 className="text-2xl font-semibold text-slate-900">Company Hierarchy</h2>
+          <h2 className="text-2xl font-semibold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>Company Hierarchy</h2>
         </div>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm transition-colors duration-300" style={{ color: 'var(--subtle)' }}>
           The Begu Company • Organizational structure
         </p>
       </div>
@@ -154,49 +155,52 @@ export function HierarchyTab() {
       {/* Info cards */}
       <div className="grid grid-cols-3 gap-4 mt-8">
         <motion.div
-          className="bg-white border border-slate-200 rounded-lg shadow-sm p-4"
+          className="rounded-lg shadow-sm p-4 transition-all duration-300"
+          style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
         >
           <div className="flex items-center gap-2 mb-2">
             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: begubot.color }} />
-            <h4 className="font-semibold text-slate-900 text-sm">{begubot.name}</h4>
+            <h4 className="font-semibold text-sm transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{begubot.name}</h4>
           </div>
-          <p className="text-xs text-slate-600">{begubot.description}</p>
-          <div className="mt-2 text-xs text-slate-500">
-            Reports to: <span className="text-slate-600">N/A (Top Level)</span>
+          <p className="text-xs transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{begubot.description}</p>
+          <div className="mt-2 text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>
+            Reports to: <span style={{ color: 'var(--foreground)' }}>N/A (Top Level)</span>
           </div>
         </motion.div>
 
         <motion.div
-          className="bg-white border border-slate-200 rounded-lg shadow-sm p-4"
+          className="rounded-lg shadow-sm p-4 transition-all duration-300"
+          style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
         >
           <div className="flex items-center gap-2 mb-2">
             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: coder.color }} />
-            <h4 className="font-semibold text-slate-900 text-sm">{coder.name}</h4>
+            <h4 className="font-semibold text-sm transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{coder.name}</h4>
           </div>
-          <p className="text-xs text-slate-600">{coder.description}</p>
-          <div className="mt-2 text-xs text-slate-500">
+          <p className="text-xs transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{coder.description}</p>
+          <div className="mt-2 text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>
             Reports to: <span style={{ color: coder.color }}>{begubot.name}</span>
           </div>
         </motion.div>
 
         <motion.div
-          className="bg-white border border-slate-200 rounded-lg shadow-sm p-4"
+          className="rounded-lg shadow-sm p-4 transition-all duration-300"
+          style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
         >
           <div className="flex items-center gap-2 mb-2">
             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: researcher.color }} />
-            <h4 className="font-semibold text-slate-900 text-sm">{researcher.name}</h4>
+            <h4 className="font-semibold text-sm transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{researcher.name}</h4>
           </div>
-          <p className="text-xs text-slate-600">{researcher.description}</p>
-          <div className="mt-2 text-xs text-slate-500">
+          <p className="text-xs transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{researcher.description}</p>
+          <div className="mt-2 text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>
             Reports to: <span style={{ color: researcher.color }}>{begubot.name}</span>
           </div>
         </motion.div>

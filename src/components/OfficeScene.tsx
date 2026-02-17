@@ -117,16 +117,16 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
   }, [phase]);
 
   return (
-    <div className="relative w-full overflow-hidden bg-white border border-slate-200 rounded-lg shadow-sm">
+    <div className="relative w-full overflow-hidden rounded-lg shadow-sm transition-all duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
       <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, #14B8A60A 0%, transparent 45%), radial-gradient(circle at 80% 10%, #0F766E08 0%, transparent 40%)' }} />
 
       <div className="relative px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 flex items-center justify-between">
         <div>
-          <h3 className="text-base sm:text-lg font-semibold text-slate-900 tracking-tight">Office Playground</h3>
-          <p className="text-[11px] sm:text-xs text-slate-500">Live office scene with agent animations</p>
+          <h3 className="text-base sm:text-lg font-semibold tracking-tight transition-colors duration-300" style={{ color: 'var(--foreground)' }}>Office Playground</h3>
+          <p className="text-[11px] sm:text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Live office scene with agent animations</p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-slate-600">
-          <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2 py-1">
+        <div className="flex items-center gap-2 text-xs transition-colors duration-300" style={{ color: 'var(--foreground)' }}>
+          <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 transition-all duration-300" style={{ border: '1px solid var(--border)', backgroundColor: 'var(--muted-bg)' }}>
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" /> Live Sync
           </span>
         </div>
@@ -134,21 +134,24 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
 
       <div className="relative h-[340px] sm:h-[420px] px-4 sm:px-6 pb-4 sm:pb-6">
         {/* Floor */}
-        <div className="absolute inset-4 sm:inset-6 rounded-2xl bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100 border border-slate-300" />
+        <div className="absolute inset-4 sm:inset-6 rounded-2xl bg-gradient-to-br transition-all duration-300" style={{
+          backgroundImage: 'linear-gradient(to bottom right, var(--muted-bg), var(--input), var(--muted-bg))',
+          border: '1px solid var(--border)'
+        }} />
 
         {/* Meeting room */}
-        <div className="absolute top-8 sm:top-10 left-1/2 -translate-x-1/2 w-[70%] sm:w-[55%] h-[90px] sm:h-[120px] rounded-2xl border border-slate-300 bg-white/40 backdrop-blur">
-          <div className="absolute inset-x-4 top-4 flex items-center gap-2 text-xs text-slate-600">
+        <div className="absolute top-8 sm:top-10 left-1/2 -translate-x-1/2 w-[70%] sm:w-[55%] h-[90px] sm:h-[120px] rounded-2xl backdrop-blur transition-all duration-300" style={{ border: '1px solid var(--border)', backgroundColor: 'var(--background)', opacity: 0.6 }}>
+          <div className="absolute inset-x-4 top-4 flex items-center gap-2 text-xs transition-colors duration-300" style={{ color: 'var(--foreground)' }}>
             <Users className="w-3 h-3" />
             <span>Meeting Room</span>
           </div>
-          <div className="absolute inset-x-10 bottom-4 h-2 rounded-full bg-slate-200 border border-slate-300" />
+          <div className="absolute inset-x-10 bottom-4 h-2 rounded-full transition-all duration-300" style={{ backgroundColor: 'var(--muted-bg)', border: '1px solid var(--border)' }} />
         </div>
 
         {/* Water cooler */}
-        <div className="absolute right-6 sm:right-10 bottom-6 sm:bottom-10 w-24 sm:w-28 h-16 sm:h-20 rounded-2xl border border-slate-300 bg-white flex flex-col items-center justify-center gap-1 sm:gap-2">
+        <div className="absolute right-6 sm:right-10 bottom-6 sm:bottom-10 w-24 sm:w-28 h-16 sm:h-20 rounded-2xl flex flex-col items-center justify-center gap-1 sm:gap-2 transition-all duration-300" style={{ border: '1px solid var(--border)', backgroundColor: 'var(--background)' }}>
           <Coffee className="w-5 h-5 text-teal-600" />
-          <span className="text-[10px] text-slate-600">Water Cooler</span>
+          <span className="text-[10px] transition-colors duration-300" style={{ color: 'var(--foreground)' }}>Water Cooler</span>
         </div>
 
         {/* Desks */}
@@ -158,14 +161,20 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
           return (
             <div
               key={`desk-${agentId}`}
-              className="absolute w-24 h-14 sm:w-28 sm:h-16 rounded-xl border border-slate-300 bg-white/60"
-              style={{ left: `${desk.x}%`, top: `${desk.y}%` }}
+              className="absolute w-24 h-14 sm:w-28 sm:h-16 rounded-xl transition-all duration-300"
+              style={{
+                left: `${desk.x}%`,
+                top: `${desk.y}%`,
+                border: '1px solid var(--border)',
+                backgroundColor: 'var(--background)',
+                opacity: 0.8
+              }}
             >
               <div className="absolute -top-3 left-4 px-2 py-0.5 rounded-full text-[10px] font-medium" style={{ backgroundColor: `${config.color}12`, color: config.color }}>
                 {config.emoji} {config.name}
               </div>
-              <div className="absolute bottom-3 left-4 h-1.5 w-12 rounded-full bg-slate-200" />
-              <div className="absolute bottom-3 right-4 h-1.5 w-6 rounded-full bg-slate-200" />
+              <div className="absolute bottom-3 left-4 h-1.5 w-12 rounded-full transition-all duration-300" style={{ backgroundColor: 'var(--muted-bg)' }} />
+              <div className="absolute bottom-3 right-4 h-1.5 w-6 rounded-full transition-all duration-300" style={{ backgroundColor: 'var(--muted-bg)' }} />
             </div>
           );
         })}
@@ -191,8 +200,11 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
                 transition={{ duration: isWorking ? 1.2 : 2.4, repeat: Infinity, ease: 'easeInOut' }}
               >
                 <div
-                  className="absolute inset-0 rounded-2xl border border-slate-300 shadow-md"
-                  style={{ backgroundColor: `${config.color}12` }}
+                  className="absolute inset-0 rounded-2xl shadow-md transition-all duration-300"
+                  style={{
+                    backgroundColor: `${config.color}12`,
+                    border: '1px solid var(--border)'
+                  }}
                 />
                 <div
                   className="absolute top-1.5 sm:top-2 left-1.5 sm:left-2 w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-base sm:text-lg"
@@ -200,7 +212,7 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
                 >
                   {config.emoji}
                 </div>
-                <div className="absolute bottom-2 left-2 text-[10px] text-slate-600">
+                <div className="absolute bottom-2 left-2 text-[10px] transition-colors duration-300" style={{ color: 'var(--foreground)' }}>
                   {action}
                 </div>
 
@@ -225,10 +237,15 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
                     initial={{ opacity: 0, y: 8, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                    className="absolute -top-12 left-0 px-3 py-1.5 rounded-full border border-slate-300 bg-white text-[10px] text-slate-900 shadow-lg"
+                    className="absolute -top-12 left-0 px-3 py-1.5 rounded-full text-[10px] shadow-lg transition-all duration-300"
+                    style={{
+                      border: '1px solid var(--border)',
+                      backgroundColor: 'var(--background)',
+                      color: 'var(--foreground)'
+                    }}
                   >
                     {speech.text}
-                    <span className="absolute -bottom-1 left-3 w-2 h-2 bg-white border-l border-b border-slate-300 rotate-45" />
+                    <span className="absolute -bottom-1 left-3 w-2 h-2 rotate-45 transition-all duration-300" style={{ backgroundColor: 'var(--background)', borderLeft: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }} />
                   </motion.div>
                 )}
               </AnimatePresence>

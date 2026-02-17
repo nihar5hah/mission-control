@@ -142,15 +142,15 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Light theme backgrounds and gradients */
-body:not(.dark) {
+/* Body background transitions */
+body {
   background-image:
     radial-gradient(600px 400px at 10% 20%, rgba(20, 184, 166, 0.08), transparent 60%),
     radial-gradient(500px 450px at 90% 80%, rgba(15, 118, 110, 0.06), transparent 55%);
 }
 
-/* Dark theme backgrounds and gradients */
 html.dark body {
+  background-color: var(--background);
   background-image:
     radial-gradient(600px 500px at 15% 30%, rgba(45, 212, 191, 0.12), transparent 60%),
     radial-gradient(700px 600px at 85% 75%, rgba(20, 184, 166, 0.08), transparent 55%);
@@ -175,7 +175,10 @@ h6 { @apply text-base; }
 code {
   font-family: 'Geist Mono', monospace;
   font-size: 0.875em;
-  @apply bg-slate-50 px-1.5 py-0.5 rounded text-slate-700;
+  background-color: var(--muted-bg);
+  color: var(--foreground);
+  @apply px-1.5 py-0.5 rounded;
+  transition: all 0.3s ease;
 }
 
 /* Scrollbar */
@@ -223,12 +226,22 @@ a {
 
 /* Input styles */
 input, textarea, select {
-  @apply bg-white text-slate-900 placeholder:text-slate-400;
+  background-color: var(--input);
+  color: var(--foreground);
+  border: 1px solid var(--border);
   transition: all 200ms ease;
 }
 
+input::placeholder, textarea::placeholder, select::placeholder {
+  color: var(--subtle);
+  opacity: 0.7;
+}
+
 input:focus, textarea:focus, select:focus {
-  @apply outline-none ring-2 ring-teal-500 ring-offset-0;
+  @apply outline-none ring-2 ring-offset-0;
+  border-color: var(--primary);
+  --tw-ring-color: var(--primary);
+  --tw-ring-opacity: 0.3;
 }
 
 /* Status utilities */
