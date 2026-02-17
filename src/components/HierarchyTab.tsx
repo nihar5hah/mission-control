@@ -155,7 +155,7 @@ export function HierarchyTab() {
       {/* Info cards */}
       <div className="grid grid-cols-3 gap-4 mt-8">
         <motion.div
-          className="bg-[#161616] border border-[#262626] rounded-lg p-4"
+          className="glass-card liquid-border p-4 ambient-light"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
@@ -171,7 +171,7 @@ export function HierarchyTab() {
         </motion.div>
 
         <motion.div
-          className="bg-[#161616] border border-[#262626] rounded-lg p-4"
+          className="glass-card liquid-border p-4 ambient-light"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
@@ -187,7 +187,7 @@ export function HierarchyTab() {
         </motion.div>
 
         <motion.div
-          className="bg-[#161616] border border-[#262626] rounded-lg p-4"
+          className="glass-card liquid-border p-4 ambient-light"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}

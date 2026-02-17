@@ -387,7 +387,7 @@ export default function MissionControl() {
       animate="show"
       variants={headerVariants}
       transition={{ duration: 0.4 }}
-      className="sticky top-0 z-40 border-b border-[#262626] bg-gradient-to-r from-[#0F0F0F] via-[#0F0F0F] to-[#1A1A1A]/50 backdrop-blur-xl"
+      className="sticky top-0 z-40 border-b border-white/10 bg-white/[0.02] backdrop-blur-2xl"
     >
       <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
         <motion.div className="flex items-center gap-3" whileHover={{ scale: 1.02 }}>
@@ -427,7 +427,7 @@ export default function MissionControl() {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.1 }}
-      className="flex gap-1 mb-6 sm:mb-8 bg-[#161616] rounded-lg p-1 border border-[#262626] w-full md:w-fit overflow-x-auto"
+      className="flex gap-1 mb-6 sm:mb-8 glass-card liquid-border p-1 w-full md:w-fit overflow-x-auto"
     >
       {tabs.map((tab) => {
         const Icon = tab.icon;
@@ -486,7 +486,7 @@ export default function MissionControl() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 sm:mb-8">
-          <motion.div variants={item} className="bg-[#161616] border border-[#262626] rounded-lg p-4">
+          <motion.div variants={item} className="glass-card liquid-border p-4 ambient-light">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-md bg-[#8B5CF6]/10 border border-[#8B5CF6]/30">
                 <Users className="w-4 h-4 text-[#8B5CF6]" />
@@ -496,7 +496,7 @@ export default function MissionControl() {
             <p className="text-2xl font-semibold text-white">{agentStates.filter(s => s.isOnline).length}/3</p>
           </motion.div>
 
-          <motion.div variants={item} className="bg-[#161616] border border-[#262626] rounded-lg p-4">
+          <motion.div variants={item} className="glass-card liquid-border p-4 ambient-light">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-md bg-[#5E6AD2]/10 border border-[#5E6AD2]/30">
                 <Zap className="w-4 h-4 text-[#5E6AD2]" />
@@ -506,7 +506,7 @@ export default function MissionControl() {
             <p className="text-2xl font-semibold text-white">{totalTokens.toLocaleString()}</p>
           </motion.div>
 
-          <motion.div variants={item} className="bg-[#161616] border border-[#262626] rounded-lg p-4">
+          <motion.div variants={item} className="glass-card liquid-border p-4 ambient-light">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-md bg-[#10B981]/10 border border-[#10B981]/30">
                 <CheckCircle2 className="w-4 h-4 text-[#10B981]" />
@@ -516,7 +516,7 @@ export default function MissionControl() {
             <p className="text-2xl font-semibold text-white">{totalTasks}</p>
           </motion.div>
 
-          <motion.div variants={item} className="bg-[#161616] border border-[#262626] rounded-lg p-4">
+          <motion.div variants={item} className="glass-card liquid-border p-4 ambient-light">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-md bg-[#F59E0B]/10 border border-[#F59E0B]/30">
                 <Clock className="w-4 h-4 text-[#F59E0B]" />
@@ -1067,7 +1067,7 @@ export default function MissionControl() {
 
   /* ============ MAIN RENDER ============ */
   return (
-    <div className="flex h-screen bg-[#0F0F0F]">
+    <div className="flex h-screen bg-[#0a0a0f]">
       {/* Agents Sidebar */}
       <AgentsSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 

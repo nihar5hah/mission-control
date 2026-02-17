@@ -117,7 +117,7 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
   }, [phase]);
 
   return (
-    <div className="relative w-full overflow-hidden rounded-2xl border border-[#262626] bg-gradient-to-br from-[#0F0F0F] via-[#111111] to-[#191919]">
+    <div className="relative w-full overflow-hidden glass-card liquid-border ambient-light">
       <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, #5E6AD233 0%, transparent 45%), radial-gradient(circle at 80% 10%, #10B98122 0%, transparent 40%)' }} />
 
       <div className="relative px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 flex items-center justify-between">

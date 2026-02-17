@@ -175,10 +175,11 @@ function AgentCard({
 
   return (
     <motion.div
-      className="bg-[#161616] border border-[#262626] rounded-lg overflow-hidden"
+      className="glass-card liquid-border overflow-hidden"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ borderColor: '#333' }}
+      whileHover={{ scale: 1.01, y: -2 }}
+      transition={{ type: 'spring', stiffness: 260, damping: 22 }}
     >
       {/* Main card */}
       <div className="p-4 cursor-pointer" onClick={onToggle}>
@@ -367,7 +368,7 @@ export function AgentsSidebar({ isOpen = false, onClose }: { isOpen?: boolean; o
 
   return (
     <>
-      <div className="hidden md:flex w-80 bg-[#0F0F0F] border-r border-[#262626] flex-col h-full">
+      <div className="hidden md:flex w-80 bg-white/[0.02] border-r border-white/10 backdrop-blur-2xl flex-col h-full">
         {sidebarContent}
       </div>
 
