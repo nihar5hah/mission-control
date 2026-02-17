@@ -12,6 +12,7 @@ export async function POST(request: NextRequest) {
       action,
       description,
       status = 'running',
+      tokens_used,
       metadata = {},
       session_status = 'active',
       session_key,
@@ -26,6 +27,10 @@ export async function POST(request: NextRequest) {
     }
 
     const timestamp = new Date().toISOString();
+    const enrichedMetadata = {
+      ...metadata,
+      ...(typeof tokens_used === 'number' ? { tokens_used } : {}),
+    };
 
     const { data: activity, error: activityError } = await supabase
       .from('agent_activities')
@@ -34,7 +39,7 @@ export async function POST(request: NextRequest) {
         action,
         description: description || '',
         status: status as ActivityStatus,
-        metadata,
+        metadata: enrichedMetadata,
         timestamp,
       })
       .select()
@@ -52,7 +57,7 @@ export async function POST(request: NextRequest) {
       current_action: action,
       started_at: timestamp,
       last_active: timestamp,
-      metadata,
+      metadata: enrichedMetadata,
     };
 
     const { error: sessionError } = await supabase
