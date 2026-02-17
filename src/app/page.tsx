@@ -642,7 +642,7 @@ export default function MissionControl() {
       const { activities, loading } = useAgentActivities(agentId, 50);
 
       return (
-        <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-4 flex flex-col">
+        <div className="rounded-lg shadow-sm p-4 flex flex-col transition-all duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <span className="text-lg">{config.emoji}</span>
@@ -756,7 +756,8 @@ export default function MissionControl() {
               whileHover={{ y: -1 }}
               whileTap={{ y: 0 }}
               onClick={() => setScheduleAgentFilter('all')}
-              className={`px-3 py-1.5 rounded-full text-xs border transition-all ${scheduleAgentFilter === 'all' ? 'border-teal-600 text-teal-700 bg-teal-50' : 'border-slate-200 text-slate-600 bg-white'}`}
+              className={`px-3 py-1.5 rounded-full text-xs border transition-all ${scheduleAgentFilter === 'all' ? 'border-teal-600 text-teal-700 bg-teal-50' : ''}`}
+              style={scheduleAgentFilter !== 'all' ? { border: '1px solid var(--border)', color: 'var(--foreground)', backgroundColor: 'var(--background)' } : {}}
             >
               All Agents
             </motion.button>
@@ -804,9 +805,10 @@ export default function MissionControl() {
                 <motion.div
                   key={idx}
                   variants={item}
-                  className={`rounded-lg border overflow-hidden hover:shadow-md transition-all ${isToday ? 'border-teal-600 bg-teal-50' : 'border-slate-200 bg-white'}`}
+                  className={`rounded-lg border overflow-hidden hover:shadow-md transition-all ${isToday ? 'border-teal-600 bg-teal-50' : ''}`}
+                  style={!isToday ? { backgroundColor: 'var(--background)', border: '1px solid var(--border)' } : {}}
                 >
-                  <div className={`p-3 border-b ${isToday ? 'border-teal-200 bg-teal-50' : 'border-slate-200 bg-white'}`}>
+                  <div className={`p-3 border-b ${isToday ? 'border-teal-200 bg-teal-50' : ''}`} style={!isToday ? { borderBottom: '1px solid var(--border)', backgroundColor: 'var(--background)' } : {}}>
                     <p className="text-xs font-medium text-slate-500 uppercase">{date.toLocaleDateString('en-US', { weekday: 'short', month: 'short' })}</p>
                     <p className={`text-2xl font-semibold ${isToday ? 'text-teal-700' : 'text-slate-900'}`}>{date.getDate()}</p>
                   </div>
@@ -861,7 +863,8 @@ export default function MissionControl() {
               placeholder="Search agent docs..."
               value={docsQuery}
               onChange={(e) => setDocsQuery(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-lg pl-9 pr-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 transition-all"
+              className="w-full rounded-lg pl-9 pr-4 py-2 text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 transition-all"
+              style={{ backgroundColor: 'var(--input)', border: '1px solid var(--border)', color: 'var(--foreground)' }}
             />
           </motion.div>
 
@@ -870,7 +873,8 @@ export default function MissionControl() {
               whileHover={{ y: -1 }}
               whileTap={{ y: 0 }}
               onClick={() => setDocsAgentFilter('all')}
-              className={`px-3 py-1.5 rounded-full text-xs border transition-all ${docsAgentFilter === 'all' ? 'border-teal-600 text-teal-700 bg-teal-50' : 'border-slate-200 text-slate-600 bg-white'}`}
+              className={`px-3 py-1.5 rounded-full text-xs border transition-all ${docsAgentFilter === 'all' ? 'border-teal-600 text-teal-700 bg-teal-50' : ''}`}
+              style={docsAgentFilter !== 'all' ? { border: '1px solid var(--border)', color: 'var(--foreground)', backgroundColor: 'var(--background)' } : {}}
             >
               All Agents
             </motion.button>
@@ -962,7 +966,7 @@ export default function MissionControl() {
 
         return (
           <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4">
-            <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-3 max-h-[600px] overflow-y-auto">
+            <div className="rounded-lg shadow-sm p-3 max-h-[600px] overflow-y-auto transition-all duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
               <FileTree
                 files={tree}
                 selectedFile={selectedDoc?.file || null}
@@ -970,7 +974,7 @@ export default function MissionControl() {
               />
             </div>
 
-            <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-4 min-h-[360px]">
+            <div className="rounded-lg shadow-sm p-4 min-h-[360px] transition-all duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
               <MarkdownViewer
                 content={selectedDoc?.content || ''}
                 fileName={selectedDoc?.file.name || 'Select a document'}
@@ -996,10 +1000,10 @@ export default function MissionControl() {
       <div className="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-4">
         <OfficeScene agentStates={agentStates} />
 
-        <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-4">
+        <div className="rounded-lg shadow-sm p-4 transition-all duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-slate-900">Live Agent Activity</h3>
-            <span className="text-xs text-slate-500">Real-time sync</span>
+            <h3 className="text-sm font-semibold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>Live Agent Activity</h3>
+            <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Real-time sync</span>
           </div>
 
           {agentActivitiesLoading ? (
@@ -1049,7 +1053,8 @@ export default function MissionControl() {
             placeholder="Search activities, documents, tasks, memories..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white border border-slate-200 rounded-lg pl-12 pr-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 transition-all"
+            className="w-full rounded-lg pl-12 pr-4 py-3 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 transition-all"
+            style={{ backgroundColor: 'var(--input)', border: '1px solid var(--border)', color: 'var(--foreground)' }}
           />
         </motion.div>
       </div>
@@ -1075,17 +1080,17 @@ export default function MissionControl() {
       ) : (
         <motion.div variants={container} initial="hidden" animate="show" className="space-y-3">
           {documents.map((doc) => (
-            <motion.div key={doc.id} variants={item} className="bg-white border border-slate-200 rounded-lg shadow-sm p-4 hover:border-slate-300 hover:shadow-md transition-all group" whileHover={{ x: 2 }}>
+            <motion.div key={doc.id} variants={item} className="rounded-lg shadow-sm p-4 hover:shadow-md transition-all group" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }} whileHover={{ x: 2 }}>
               <div className="flex items-start justify-between gap-3 mb-2">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-slate-900 group-hover:text-teal-700 transition-colors">{doc.title}</h3>
+                  <h3 className="font-semibold group-hover:text-teal-700 transition-colors" style={{ color: 'var(--foreground)' }}>{doc.title}</h3>
                   {doc.category && <span className="inline-block mt-1 px-2 py-1 rounded-sm bg-teal-50 text-teal-700 text-xs font-medium">{doc.category}</span>}
                 </div>
                 <motion.div className="opacity-0 group-hover:opacity-100 transition-opacity" whileHover={{ x: 4 }}>
                   <ArrowUpRight className="w-5 h-5 text-teal-600" />
                 </motion.div>
               </div>
-              <p className="text-sm text-slate-600 line-clamp-2 mb-2">{doc.content.substring(0, 150)}...</p>
+              <p className="text-sm line-clamp-2 mb-2 transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{doc.content.substring(0, 150)}...</p>
             </motion.div>
           ))}
         </motion.div>
