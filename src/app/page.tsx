@@ -124,7 +124,10 @@ const actionTypeConfig: Record<string, { label: string; icon: React.ComponentTyp
 
 /* ============ MAIN COMPONENT ============ */
 export default function MissionControl() {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'activity' | 'calendar' | 'office' | 'search' | 'documentation' | 'hierarchy'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'activity' | 'calendar' | 'office' | 'search' | 'documentation' | 'hierarchy'>(() => {
+    if (typeof window === 'undefined') return 'dashboard';
+    return (localStorage.getItem('mc_activeTab') as any) || 'dashboard';
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedActivity, setExpandedActivity] = useState<number | null>(null);
   const [filterType, setFilterType] = useState<string | null>(null);
@@ -135,8 +138,14 @@ export default function MissionControl() {
   const [statusDropdown, setStatusDropdown] = useState<{ type: 'activity' | 'task'; id: number } | null>(null);
   const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [scheduleAgentFilter, setScheduleAgentFilter] = useState<AgentId | 'all'>('all');
-  const [docsAgentFilter, setDocsAgentFilter] = useState<AgentId | 'all'>('all');
+  const [scheduleAgentFilter, setScheduleAgentFilter] = useState<AgentId | 'all'>(() => {
+    if (typeof window === 'undefined') return 'all';
+    return (localStorage.getItem('mc_scheduleFilter') as any) || 'all';
+  });
+  const [docsAgentFilter, setDocsAgentFilter] = useState<AgentId | 'all'>(() => {
+    if (typeof window === 'undefined') return 'all';
+    return (localStorage.getItem('mc_docsFilter') as any) || 'all';
+  });
   const [docsQuery, setDocsQuery] = useState('');
   const [selectedDoc, setSelectedDoc] = useState<{ file: FileNode; content: string } | null>(null);
 
