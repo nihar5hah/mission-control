@@ -90,12 +90,15 @@ export function useAgents() {
 // USE AGENT ACTIVITIES HOOK
 // Get activities with real-time updates
 // =====================================================
-export function useAgentActivities(agentId?: AgentId, limit: number = 20) {
+export function useAgentActivities(agentId?: AgentId, limit: number = 20, enabled: boolean = true) {
   const [activities, setActivities] = useState<AgentActivity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Skip if not enabled
+    if (!enabled || !agentId) return;
+
     const fetchActivities = async () => {
       try {
         const data = agentId
@@ -143,7 +146,7 @@ export function useAgentActivities(agentId?: AgentId, limit: number = 20) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [agentId, limit]);
+  }, [agentId, limit, enabled]);
 
   const logActivity = useCallback(
     async (

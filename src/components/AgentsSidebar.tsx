@@ -146,8 +146,9 @@ export function AgentsSidebar({ isOpen = false, onClose }: { isOpen?: boolean; o
   // Get activities for modal (only when an agent is selected)
   const shouldFetchActivities = selectedAgent !== null;
   const { activities: modalActivities } = useAgentActivities(
-    shouldFetchActivities ? selectedAgent.agent.id : undefined,
-    shouldFetchActivities ? 10 : 0
+    selectedAgent?.agent.id,
+    10,
+    shouldFetchActivities  // Pass the enabled flag as 3rd parameter
   );
 
   const handleSelectAgent = (agent: AgentState) => {
