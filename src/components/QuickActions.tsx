@@ -98,12 +98,12 @@ export function QuickActions() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="glass-card liquid-border p-5 ambient-light"
+      className="glass-card liquid-border p-5"
     >
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-white">Quick Actions</h3>
-          <p className="text-xs text-[#888]">Trigger key workflows instantly</p>
+          <h3 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>Quick Actions</h3>
+          <p className="text-xs" style={{ color: 'var(--subtle)' }}>Trigger key workflows instantly</p>
         </div>
         <FileText className="w-5 h-5 text-[#8B5CF6]" />
       </div>
@@ -127,8 +127,8 @@ export function QuickActions() {
                   <Icon className="w-4 h-4 text-[#8B5CF6]" />
                 )}
                 <span>
-                  <span className="text-sm font-medium text-white block">{action.label}</span>
-                  <span className="text-[11px] text-[#888]">{action.description}</span>
+                  <span className="text-sm font-medium block" style={{ color: 'var(--foreground)' }}>{action.label}</span>
+                  <span className="text-[11px]" style={{ color: 'var(--subtle)' }}>{action.description}</span>
                 </span>
               </span>
             </Button>
@@ -144,8 +144,8 @@ export function QuickActions() {
               <span className="flex items-center gap-3">
                 <Trash2 className="w-4 h-4" />
                 <span>
-                  <span className="text-sm font-medium text-white block">Clear Old Activities</span>
-                  <span className="text-[11px] text-[#FCA5A5]">Delete 7+ day entries</span>
+                  <span className="text-sm font-medium block" style={{ color: 'var(--foreground)' }}>Clear Old Activities</span>
+                  <span className="text-[11px]" style={{ color: 'var(--danger-light)' }}>Delete 7+ day entries</span>
                 </span>
               </span>
             </Button>
