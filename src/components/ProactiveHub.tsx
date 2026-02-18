@@ -277,23 +277,16 @@ function StatsCards({ stats }: { stats: any }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.1 }}
-            className="rounded-lg p-4 transition-all"
-            style={{
-              backgroundColor: 'var(--background)',
-              border: '1px solid var(--border)',
-              borderColor: 'var(--border)',
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--subtle)')}
-            onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
+            className="apple-card p-4"
           >
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs uppercase tracking-wide transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{card.label}</span>
+              <span className="text-xs uppercase tracking-wide transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{card.label}</span>
               <div className="p-2 rounded-md" style={{ backgroundColor: card.bg }}>
                 <Icon className="w-4 h-4" style={{ color: card.color }} />
               </div>
             </div>
-            <p className="text-2xl font-bold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{card.value}</p>
-            <p className="text-xs mt-1 transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{card.subValue}</p>
+            <p className="text-2xl font-bold transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>{card.value}</p>
+            <p className="text-xs mt-1 transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{card.subValue}</p>
           </motion.div>
         );
       })}
@@ -325,13 +318,7 @@ function ActionCard({ action, onDismiss }: { action: ProactiveAction; onDismiss:
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
-      className="rounded-lg p-4 transition-all group"
-      style={{
-        backgroundColor: 'var(--background)',
-        border: '1px solid var(--border)',
-      }}
-      onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--subtle)')}
-      onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
+      className="apple-card p-4 group"
     >
       <div className="flex items-start gap-3">
         <div className="p-2 rounded-md" style={{ backgroundColor: configColor.rgba, border: `1px solid ${configColor.hex}33` }}>
@@ -341,12 +328,12 @@ function ActionCard({ action, onDismiss }: { action: ProactiveAction; onDismiss:
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-xs font-semibold" style={{ color: configColor.hex }}>{config.label}</span>
-            <span className="text-xs" style={{ color: 'var(--subtle)' }}>•</span>
+            <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>•</span>
             <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: statusColor.rgba, color: statusColor.hex }}>
               {status.label}
             </span>
           </div>
-          <p className="text-sm line-clamp-2" style={{ color: 'var(--subtle)' }}>{action.description}</p>
+          <p className="text-sm line-clamp-2" style={{ color: 'var(--text-tertiary)' }}>{action.description}</p>
 
           {action.confidence_score && (
             <div className="mt-2 flex items-center gap-2">
@@ -357,7 +344,7 @@ function ActionCard({ action, onDismiss }: { action: ProactiveAction; onDismiss:
                   style={{ backgroundColor: '#5E6AD2' }}
                 />
               </div>
-              <span className="text-xs" style={{ color: 'var(--subtle)' }}>{Math.round(action.confidence_score * 100)}%</span>
+              <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{Math.round(action.confidence_score * 100)}%</span>
             </div>
           )}
         </div>
@@ -368,7 +355,7 @@ function ActionCard({ action, onDismiss }: { action: ProactiveAction; onDismiss:
             whileTap={{ scale: 0.9 }}
             onClick={() => onDismiss(action.id)}
             className="opacity-0 group-hover:opacity-100 p-1.5 rounded transition-all"
-            style={{ color: 'var(--subtle)' }}
+            style={{ color: 'var(--text-tertiary)' }}
             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--border)')}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
           >
@@ -401,13 +388,7 @@ function PatternCard({ pattern }: { pattern: Pattern }) {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-lg p-4 transition-all"
-      style={{
-        backgroundColor: 'var(--background)',
-        border: '1px solid var(--border)',
-      }}
-      onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--subtle)')}
-      onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
+      className="apple-card p-4"
     >
       <div className="flex items-start gap-3">
         <div className="p-2 rounded-md" style={{ backgroundColor: configColor.rgba, border: `1px solid ${configColor.hex}33` }}>
@@ -416,9 +397,9 @@ function PatternCard({ pattern }: { pattern: Pattern }) {
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm font-semibold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{pattern.name}</span>
-            <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>•</span>
-            <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{pattern.frequency}</span>
+            <span className="text-sm font-semibold transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>{pattern.name}</span>
+            <span className="text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>•</span>
+            <span className="text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{pattern.frequency}</span>
           </div>
 
           <div className="flex items-center gap-3 mt-2">
@@ -430,7 +411,7 @@ function PatternCard({ pattern }: { pattern: Pattern }) {
                   style={{ backgroundColor: '#10B981' }}
                 />
               </div>
-              <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{Math.round(pattern.confidence * 100)}% conf</span>
+              <span className="text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{Math.round(pattern.confidence * 100)}% conf</span>
             </div>
             <div className="flex items-center gap-1">
               <div className="w-16 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--border)' }}>
@@ -440,7 +421,7 @@ function PatternCard({ pattern }: { pattern: Pattern }) {
                   style={{ backgroundColor: '#F59E0B' }}
                 />
               </div>
-              <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{Math.round(pattern.impact_score * 100)}% impact</span>
+              <span className="text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{Math.round(pattern.impact_score * 100)}% impact</span>
             </div>
           </div>
 
@@ -491,13 +472,7 @@ function OpportunityCard({ opportunity, onUpdate }: { opportunity: Opportunity; 
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-lg p-4 transition-all"
-      style={{
-        backgroundColor: 'var(--background)',
-        border: '1px solid var(--border)',
-      }}
-      onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--subtle)')}
-      onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border)')}
+      className="apple-card p-4"
     >
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-center gap-2">
@@ -506,32 +481,32 @@ function OpportunityCard({ opportunity, onUpdate }: { opportunity: Opportunity; 
           </div>
           <div>
             <span className="text-xs font-semibold" style={{ color: configColor.hex }}>{config.label}</span>
-            <span className="text-xs mx-1.5 transition-colors duration-300" style={{ color: 'var(--subtle)' }}>•</span>
+            <span className="text-xs mx-1.5 transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>•</span>
             <span className="text-xs" style={{ color: statusColor.hex }}>{status.label}</span>
           </div>
         </div>
       </div>
 
-      <h4 className="text-sm font-semibold mb-2 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{opportunity.title}</h4>
-      <p className="text-xs line-clamp-2 mb-3 transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{opportunity.description}</p>
+      <h4 className="text-sm font-semibold mb-2 transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>{opportunity.title}</h4>
+      <p className="text-xs line-clamp-2 mb-3 transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{opportunity.description}</p>
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div>
-            <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Value</span>
+            <span className="text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>Value</span>
             <p className="text-sm font-medium" style={{ color: valueColors[opportunity.potential_value as keyof typeof valueColors] || valueColors.medium }}>
               {opportunity.potential_value}
             </p>
           </div>
           <div>
-            <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Effort</span>
+            <span className="text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>Effort</span>
             <p className="text-sm font-medium" style={{ color: effortColors[opportunity.effort_estimate as keyof typeof effortColors] || effortColors.medium }}>
               {opportunity.effort_estimate}
             </p>
           </div>
           <div>
-            <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Score</span>
-            <p className="text-sm font-medium transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{Math.round((opportunity.priority_score || 0.5) * 100)}%</p>
+            <span className="text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>Score</span>
+            <p className="text-sm font-medium transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>{Math.round((opportunity.priority_score || 0.5) * 100)}%</p>
           </div>
         </div>
 
@@ -540,10 +515,7 @@ function OpportunityCard({ opportunity, onUpdate }: { opportunity: Opportunity; 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => onUpdate(opportunity.id, 'investigating')}
-            className="px-3 py-1.5 rounded text-white text-xs font-medium transition-all"
-            style={{ backgroundColor: '#5E6AD2' }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#4A55BF')}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#5E6AD2')}
+            className="px-3 py-1.5 rounded-xl text-white text-xs font-medium btn-apple-primary"
           >
             Investigate
           </motion.button>
@@ -553,10 +525,8 @@ function OpportunityCard({ opportunity, onUpdate }: { opportunity: Opportunity; 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => onUpdate(opportunity.id, 'implemented')}
-            className="px-3 py-1.5 rounded text-white text-xs font-medium transition-all"
-            style={{ backgroundColor: '#10B981' }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#059669')}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#10B981')}
+            className="px-3 py-1.5 rounded-xl text-white text-xs font-medium transition-all"
+            style={{ background: 'var(--color-green)', boxShadow: '0 2px 8px rgba(48,209,88,0.3)' }}
           >
             Implement
           </motion.button>
@@ -598,17 +568,14 @@ function EmptyState({ type, onAction }: { type: string; onAction?: () => void })
       <div className="inline-block p-3 rounded-full mb-4 transition-colors duration-300" style={{ backgroundColor: 'var(--muted-bg)', border: '1px solid var(--border)', color: 'var(--subtle)' }}>
         <Icon className="w-6 h-6" />
       </div>
-      <p className="text-sm font-medium mb-1 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{config.title}</p>
-      <p className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{config.description}</p>
+      <p className="text-sm font-medium mb-1 transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>{config.title}</p>
+      <p className="text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{config.description}</p>
       {onAction && config.actionLabel && (
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={onAction}
-          className="mt-4 px-4 py-2 rounded text-white text-sm font-medium transition-all"
-          style={{ backgroundColor: '#5E6AD2' }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#4A55BF')}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#5E6AD2')}
+          className="mt-4 px-4 py-2 rounded-xl text-white text-sm font-medium btn-apple-primary"
         >
           {config.actionLabel}
         </motion.button>
@@ -685,7 +652,7 @@ export default function ProactiveHub() {
         >
           <Zap className="w-8 h-8" style={{ color: '#5E6AD2' }} />
         </motion.div>
-        <span className="ml-3 transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Loading Proactive Intelligence...</span>
+        <span className="ml-3 transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>Loading Proactive Intelligence...</span>
       </div>
     );
   }
@@ -695,16 +662,13 @@ export default function ProactiveHub() {
     return (
       <div className="text-center py-20">
         <AlertTriangle className="w-8 h-8 mx-auto mb-4" style={{ color: '#EF4444' }} />
-        <p className="font-medium mb-2 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>Error loading data</p>
-        <p className="text-sm mb-4 transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{error}</p>
+        <p className="font-medium mb-2 transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>Error loading data</p>
+        <p className="text-sm mb-4 transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{error}</p>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={refresh}
-          className="px-4 py-2 rounded text-white text-sm font-medium transition-all"
-          style={{ backgroundColor: '#5E6AD2' }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#4A55BF')}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#5E6AD2')}
+          className="px-4 py-2 rounded-xl text-white text-sm font-medium btn-apple-primary"
         >
           Retry
         </motion.button>
@@ -721,11 +685,11 @@ export default function ProactiveHub() {
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold mb-1 flex items-center gap-2 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>
+          <h2 className="text-2xl font-semibold mb-1 flex items-center gap-2 transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>
             <Bot className="w-6 h-6" style={{ color: '#5E6AD2' }} />
             Proactive Intelligence
           </h2>
-          <p className="text-sm transition-colors duration-300" style={{ color: 'var(--subtle)' }}>
+          <p className="text-sm transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
             Begubot analyzes patterns and finds opportunities for you
           </p>
         </div>
@@ -736,20 +700,7 @@ export default function ProactiveHub() {
             whileTap={{ scale: 0.95 }}
             onClick={handleAnalyze}
             disabled={analyzing}
-            className="px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 disabled:opacity-50"
-            style={{
-              backgroundColor: 'var(--background)',
-              border: '1px solid var(--border)',
-              color: 'var(--subtle)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'var(--subtle)';
-              e.currentTarget.style.color = 'var(--foreground)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'var(--border)';
-              e.currentTarget.style.color = 'var(--subtle)';
-            }}
+            className="px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 disabled:opacity-50 btn-apple-secondary"
           >
             <motion.div
               animate={{ rotate: analyzing ? 360 : 0 }}
@@ -765,10 +716,7 @@ export default function ProactiveHub() {
             whileTap={{ scale: 0.95 }}
             onClick={handleFindOpportunities}
             disabled={findingOpp}
-            className="px-4 py-2 rounded-lg text-white text-sm font-medium transition-all flex items-center gap-2 disabled:opacity-50"
-            style={{ backgroundColor: '#5E6AD2' }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#4A55BF')}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#5E6AD2')}
+            className="px-4 py-2 rounded-xl text-white text-sm font-medium transition-all flex items-center gap-2 disabled:opacity-50 btn-apple-primary"
           >
             <motion.div
               animate={{ rotate: findingOpp ? 360 : 0 }}
@@ -783,20 +731,7 @@ export default function ProactiveHub() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={refresh}
-            className="p-2 rounded-lg transition-all"
-            style={{
-              backgroundColor: 'var(--background)',
-              border: '1px solid var(--border)',
-              color: 'var(--subtle)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'var(--subtle)';
-              e.currentTarget.style.color = 'var(--foreground)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'var(--border)';
-              e.currentTarget.style.color = 'var(--subtle)';
-            }}
+            className="p-2 rounded-xl transition-all btn-apple-secondary"
           >
             <RefreshCw className="w-4 h-4" />
           </motion.button>
@@ -804,35 +739,22 @@ export default function ProactiveHub() {
       </div>
 
       {/* Section Tabs */}
-      <div className="flex gap-1 mb-6 rounded-lg p-1 w-fit transition-colors duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
+      <div className="flex gap-1 mb-6 rounded-xl p-1 w-fit apple-tabs">
         {sections.map((section) => {
           const Icon = section.icon;
           return (
             <motion.button
               key={section.id}
               onClick={() => setActiveSection(section.id as any)}
-              className="relative px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2"
-              style={{
-                color: activeSection === section.id ? 'var(--foreground)' : 'var(--subtle)',
-              }}
-              whileHover={{ y: -1 }}
-              whileTap={{ y: 0 }}
-              onMouseEnter={(e) => {
-                if (activeSection !== section.id) {
-                  e.currentTarget.style.color = 'var(--foreground)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (activeSection !== section.id) {
-                  e.currentTarget.style.color = 'var(--subtle)';
-                }
-              }}
+              className="relative px-4 py-2 rounded-[9px] text-sm font-medium flex items-center gap-2 transition-colors"
+              style={{ color: activeSection === section.id ? '#ffffff' : 'var(--text-tertiary)' }}
+              whileTap={{ scale: 0.97 }}
             >
               {activeSection === section.id && (
                 <motion.div
                   layoutId="proactive-section"
                   className="absolute inset-0 rounded-md transition-colors duration-300"
-                  style={{ backgroundColor: 'var(--border)' }}
+                  style={{ background: 'var(--accent)' }}
                   transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                 />
               )}
@@ -860,18 +782,16 @@ export default function ProactiveHub() {
             {/* Quick View Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Recent Actions */}
-              <div className="rounded-lg p-4 transition-colors duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
+              <div className="apple-card p-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-semibold flex items-center gap-2 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>
+                  <h3 className="text-sm font-semibold flex items-center gap-2 transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>
                     <Zap className="w-4 h-4" style={{ color: '#F59E0B' }} />
                     Recent Actions
                   </h3>
                   <button
                     onClick={() => setActiveSection('actions')}
                     className="text-xs flex items-center gap-1 transition-colors duration-300"
-                    style={{ color: '#5E6AD2' }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = '#7B8AED')}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = '#5E6AD2')}
+                    style={{ color: 'var(--accent)' }}
                   >
                     View all <ArrowRight className="w-3 h-3" />
                   </button>
@@ -888,18 +808,16 @@ export default function ProactiveHub() {
               </div>
 
               {/* Top Patterns */}
-              <div className="rounded-lg p-4 transition-colors duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
+              <div className="apple-card p-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-semibold flex items-center gap-2 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>
+                  <h3 className="text-sm font-semibold flex items-center gap-2 transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>
                     <Brain className="w-4 h-4" style={{ color: '#8B5CF6' }} />
                     Detected Patterns
                   </h3>
                   <button
                     onClick={() => setActiveSection('patterns')}
                     className="text-xs flex items-center gap-1 transition-colors duration-300"
-                    style={{ color: '#5E6AD2' }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = '#7B8AED')}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = '#5E6AD2')}
+                    style={{ color: 'var(--accent)' }}
                   >
                     View all <ArrowRight className="w-3 h-3" />
                   </button>
@@ -916,18 +834,16 @@ export default function ProactiveHub() {
               </div>
 
               {/* Top Opportunities */}
-              <div className="rounded-lg p-4 lg:col-span-2 transition-colors duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
+              <div className="apple-card p-4 lg:col-span-2">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-semibold flex items-center gap-2 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>
+                  <h3 className="text-sm font-semibold flex items-center gap-2 transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>
                     <Lightbulb className="w-4 h-4" style={{ color: '#10B981' }} />
                     Top Opportunities
                   </h3>
                   <button
                     onClick={() => setActiveSection('opportunities')}
                     className="text-xs flex items-center gap-1 transition-colors duration-300"
-                    style={{ color: '#5E6AD2' }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = '#7B8AED')}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = '#5E6AD2')}
+                    style={{ color: 'var(--accent)' }}
                   >
                     View all <ArrowRight className="w-3 h-3" />
                   </button>
@@ -956,8 +872,8 @@ export default function ProactiveHub() {
             exit={{ opacity: 0, y: -10 }}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>Proactive Actions</h3>
-              <span className="text-sm transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{actions.length} total</span>
+              <h3 className="text-lg font-semibold transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>Proactive Actions</h3>
+              <span className="text-sm transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{actions.length} total</span>
             </div>
             <div className="space-y-2">
               {actions.length > 0 ? (
@@ -979,8 +895,8 @@ export default function ProactiveHub() {
             exit={{ opacity: 0, y: -10 }}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>Detected Patterns</h3>
-              <span className="text-sm transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{patterns.length} active</span>
+              <h3 className="text-lg font-semibold transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>Detected Patterns</h3>
+              <span className="text-sm transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{patterns.length} active</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {patterns.length > 0 ? (
@@ -1004,8 +920,8 @@ export default function ProactiveHub() {
             exit={{ opacity: 0, y: -10 }}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>Opportunities</h3>
-              <span className="text-sm transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{opportunities.length} found</span>
+              <h3 className="text-lg font-semibold transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>Opportunities</h3>
+              <span className="text-sm transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{opportunities.length} found</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {opportunities.length > 0 ? (
