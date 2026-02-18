@@ -36,7 +36,7 @@ const CHAT_SPOTS: Record<AgentId, { x: number; y: number }> = {
 const speechLines = [
   'Syncing status updates…',
   'Pushing a new build.',
-  'Let's align on priorities.',
+  'Let\'s align on priorities.',
   'I found a quicker path.',
   'Live agents look good.',
   'Water break?',
