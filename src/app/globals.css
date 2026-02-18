@@ -6,24 +6,24 @@
   :root {
     /* Apple system dark (default) */
     --bg-base: #000000;
-    --bg-card: #1c1c1e;
-    --bg-elevated: #2c2c2e;
-    --bg-overlay: #3a3a3c;
+    --bg-card: #0a0a0a;
+    --bg-elevated: #111111;
+    --bg-overlay: #1a1a1a;
     --bg-input: rgba(255,255,255,0.08);
-    --border: rgba(255,255,255,0.08);
-    --border-hover: rgba(255,255,255,0.14);
-    --border-focus: rgba(191,90,242,0.5);
+    --border: rgba(255,255,255,0.06);
+    --border-hover: rgba(255,255,255,0.1);
+    --border-focus: rgba(6, 64, 43, 0.5);
 
     /* Text */
     --text-primary: #ffffff;
     --text-secondary: #aeaeb2;
     --text-tertiary: #636366;
 
-    /* Accent — Apple Purple */
-    --accent: #BF5AF2;
-    --accent-hover: #D87EF5;
-    --accent-muted: rgba(191,90,242,0.15);
-    --accent-glow: rgba(191,90,242,0.3);
+    /* Accent — CCPL Teal */
+    --accent: #06402B;
+    --accent-hover: #087860;
+    --accent-muted: rgba(6, 64, 43, 0.15);
+    --accent-glow: rgba(6, 64, 43, 0.3);
 
     /* Apple system status colors */
     --color-green: #30D158;
@@ -36,8 +36,8 @@
     --color-blue-muted: rgba(10,132,255,0.15);
     --color-yellow: #FFD60A;
     --color-yellow-muted: rgba(255,214,10,0.15);
-    --color-purple: #BF5AF2;
-    --color-purple-muted: rgba(191,90,242,0.15);
+    --color-purple: #06402B;
+    --color-purple-muted: rgba(6, 64, 43, 0.15);
     --color-teal: #5AC8FA;
     --color-teal-muted: rgba(90,200,250,0.15);
 
@@ -48,7 +48,7 @@
     --shadow-xl: 0 16px 48px rgba(0,0,0,0.8);
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, #BF5AF2 0%, #9B42D4 100%);
+    --gradient-primary: linear-gradient(135deg, #06402B 0%, #04311f 100%);
 
     /* Legacy aliases (keep so nothing breaks) */
     --background: var(--bg-card);
@@ -58,7 +58,7 @@
     --subtle: var(--text-tertiary);
     --primary: var(--accent);
     --primary-light: var(--accent-hover);
-    --primary-dark: #9B42D4;
+    --primary-dark: #04311f;
     --success: var(--color-green);
     --success-light: var(--color-green);
     --danger: var(--color-red);
@@ -130,8 +130,8 @@ h1, h2, h3, h4, h5, h6 {
 html.dark body {
   background-color: #000000;
   background-image:
-    radial-gradient(ellipse 600px 400px at 20% 10%, rgba(191,90,242,0.06) 0%, transparent 60%),
-    radial-gradient(ellipse 500px 500px at 85% 80%, rgba(191,90,242,0.04) 0%, transparent 55%);
+    radial-gradient(ellipse 600px 400px at 20% 10%, rgba(6, 64, 43, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 500px 500px at 85% 80%, rgba(6, 64, 43, 0.04) 0%, transparent 55%);
 }
 
 html.light body {
@@ -210,7 +210,7 @@ code {
 
 /* ========== SELECTION ========== */
 ::selection {
-  background: rgba(191,90,242,0.35);
+  background: rgba(6, 64, 43, 0.35);
   color: white;
 }
 
@@ -224,7 +224,7 @@ code {
     transition: border-color 200ms ease, box-shadow 200ms ease;
   }
   .apple-card:hover {
-    border-color: rgba(191,90,242,0.3);
+    border-color: rgba(6, 64, 43, 0.3);
     box-shadow: var(--shadow-md);
   }
   html.light .apple-card {
@@ -233,7 +233,7 @@ code {
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   }
   html.light .apple-card:hover {
-    border-color: rgba(191,90,242,0.3);
+    border-color: rgba(6, 64, 43, 0.3);
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }
 
@@ -345,7 +345,7 @@ code {
 }
 
 /* ========== LEGACY DARK OVERRIDES ========== */
-html.dark .bg-purple-50  { background-color: rgba(191,90,242,0.12) !important; }
+html.dark .bg-purple-50  { background-color: rgba(6, 64, 43, 0.12) !important; }
 html.dark .bg-teal-50    { background-color: rgba(90,200,250,0.12) !important; }
 html.dark .bg-emerald-50 { background-color: rgba(48,209,88,0.12) !important; }
 html.dark .bg-amber-50   { background-color: rgba(255,159,10,0.12) !important; }
@@ -353,7 +353,7 @@ html.dark .bg-blue-50    { background-color: rgba(10,132,255,0.12) !important; }
 html.dark .bg-red-50     { background-color: rgba(255,69,58,0.12) !important; }
 html.dark .bg-slate-50   { background-color: rgba(255,255,255,0.04) !important; }
 
-html.dark .text-purple-600 { color: #BF5AF2 !important; }
+html.dark .text-purple-600 { color: #06402B !important; }
 html.dark .text-teal-600   { color: #5AC8FA !important; }
 html.dark .text-teal-700   { color: #5AC8FA !important; }
 html.dark .text-emerald-600 { color: #30D158 !important; }
