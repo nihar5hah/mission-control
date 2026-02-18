@@ -238,14 +238,14 @@ export const AGENT_CONFIG: Record<AgentId, {
   coder: {
     name: 'Coder',
     role: 'Employee',
-    color: 'var(--color-green)',
+    color: '#30D158',
     emoji: '💻',
     description: 'Builds and maintains code infrastructure',
   },
   researcher: {
     name: 'Researcher',
     role: 'Employee',
-    color: 'var(--color-orange)',
+    color: '#FF9F0A',
     emoji: '🔬',
     description: 'Conducts research and analysis',
   },
