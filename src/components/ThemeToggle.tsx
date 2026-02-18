@@ -20,8 +20,8 @@ export function ThemeToggle() {
     } else if (storedTheme === 'light') {
       shouldBeDark = false;
     } else {
-      // Check system preference
-      shouldBeDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      // No stored preference → default to dark
+      shouldBeDark = true;
     }
 
     setIsDark(shouldBeDark);
