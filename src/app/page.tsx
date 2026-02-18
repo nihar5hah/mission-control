@@ -102,7 +102,7 @@ const headerVariants = {
 /* ============ ACTION TYPE DEFINITIONS ============ */
 const actionTypeConfig: Record<string, { label: string; icon: React.ComponentType<{ className?: string }>; color: string; bg: string; border: string }> = {
   'build': { label: 'Building', icon: Hammer, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200' },
-  'research': { label: 'Researching', icon: Microscope, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200' },
+  'research': { label: 'Researching', icon: Microscope, color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-200' },
   'sync': { label: 'Syncing', icon: RefreshCw, color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-200' },
   'fix': { label: 'Fixing Bug', icon: Wrench, color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200' },
   'deploy': { label: 'Deploying', icon: Rocket, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
@@ -115,8 +115,8 @@ const actionTypeConfig: Record<string, { label: string; icon: React.ComponentTyp
   'file-delete': { label: 'File Deleted', icon: Trash2, color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200' },
   'api-call': { label: 'API Request', icon: Code, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200' },
   'db-query': { label: 'Database Query', icon: Database, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' },
-  'memory-save': { label: 'Memory Saved', icon: Brain, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200' },
-  'memory-recall': { label: 'Memory Retrieved', icon: Brain, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200' },
+  'memory-save': { label: 'Memory Saved', icon: Brain, color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-200' },
+  'memory-recall': { label: 'Memory Retrieved', icon: Brain, color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-200' },
   'git-commit': { label: 'Git Commit', icon: GitBranch, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-200' },
   'git-push': { label: 'Git Push', icon: ArrowUpRight, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-200' },
   'system-log': { label: 'System Log', icon: Terminal, color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-200' },

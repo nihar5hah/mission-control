@@ -1,6 +1,6 @@
 // =====================================================
 // HIERARCHY TAB COMPONENT
-// Visual org chart for The Begu Company
+// Visual org chart for CCPL
 // =====================================================
 
 'use client';
@@ -99,7 +99,7 @@ export function HierarchyTab() {
           <h2 className="text-2xl font-bold transition-colors duration-300" style={{ color: 'var(--text-primary)', letterSpacing: '-0.022em' }}>Company Hierarchy</h2>
         </div>
         <p className="text-sm transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
-          The Begu Company • Organizational structure
+          CCPL • Organizational structure
         </p>
       </div>
 
