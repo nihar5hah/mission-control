@@ -105,26 +105,17 @@ function StatusIndicator({ isOnline, status }: { isOnline: boolean; status?: str
   if (!isOnline) {
     return (
       <div className="flex items-center gap-1.5">
-        <div className="w-2 h-2 rounded-full bg-slate-400" />
-        <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Offline</span>
+        <div className="dot-offline" />
+        <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Offline</span>
       </div>
     );
   }
 
-  const statusColors: Record<string, string> = {
-    active: 'bg-emerald-500',
-    idle: 'bg-amber-500',
-    offline: 'bg-slate-400',
-  };
-
+  const dotClass = status === 'idle' ? 'dot-warning' : 'dot-online animate-pulse-dot';
   return (
     <div className="flex items-center gap-1.5">
-      <motion.div
-        className={`w-2 h-2 rounded-full ${statusColors[status || 'active']}`}
-        animate={{ scale: [1, 1.2, 1] }}
-        transition={{ duration: 2, repeat: Infinity }}
-      />
-      <span className="text-xs capitalize transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{status || 'Active'}</span>
+      <div className={dotClass} />
+      <span className="text-xs capitalize" style={{ color: 'var(--text-primary)' }}>{status || 'Active'}</span>
     </div>
   );
 }
@@ -148,7 +139,7 @@ function AgentAvatar({ agentId, color, size = 'md' }: { agentId: AgentId; color:
   return (
     <motion.div
       className={`${sizeClasses[size]} rounded-lg flex items-center justify-center relative overflow-hidden`}
-      style={{ backgroundColor: `${color}20`, border: `1px solid ${color}40` }}
+      style={{ backgroundColor: `${color}18`, border: `1px solid ${color}28` }}
       whileHover={{ scale: 1.05 }}
     >
       <Icon className={iconSizes[size]} style={{ color }} />
@@ -175,11 +166,8 @@ function AgentCard({
 
   return (
     <motion.div
-      className="rounded-lg shadow-sm overflow-hidden transition-all duration-300"
-      style={{
-        backgroundColor: 'var(--background)',
-        border: '1px solid var(--border)'
-      }}
+      className="rounded-[14px] overflow-hidden"
+      style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.01, y: -2 }}
@@ -193,10 +181,8 @@ function AgentCard({
             <AgentAvatar agentId={agent.id} color={config.color} />
             {/* Online indicator */}
             <motion.div
-              className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full ${
-                isOnline ? 'bg-emerald-500 shadow-lg shadow-emerald-500/30' : 'bg-slate-400'
-              }`}
-              style={{ border: '2px solid var(--background)' }}
+              className={isOnline ? 'dot-online animate-pulse-dot' : 'dot-offline'}
+              style={{ position: 'absolute', bottom: -2, right: -2, border: '2px solid #1c1c1e' }}
               animate={isOnline ? { scale: [1, 1.3, 1] } : {}}
               transition={{ duration: 2, repeat: Infinity }}
             />
@@ -205,20 +191,20 @@ function AgentCard({
           {/* Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-sm transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{config.name}</h3>
+              <h3 className="font-semibold text-sm transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>{config.name}</h3>
               <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: `${config.color}15`, color: config.color }}>
                 {config.role}
               </span>
             </div>
-            <p className="text-xs mt-0.5 line-clamp-1 transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{config.description}</p>
+            <p className="text-xs mt-0.5 line-clamp-1 transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{config.description}</p>
 
             {/* Current activity */}
             {latestActivity && (
-              <div className={`flex items-center gap-1.5 mt-2 px-2 py-1 rounded ${actionConfig?.bg} border ${actionConfig?.border}`}>
+              <div className="flex items-center gap-1.5 mt-2 px-2 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', display: 'inline-flex' }}>
                 <ActionIcon className={`w-3.5 h-3.5 ${actionConfig?.color}`} />
                 <span className={`text-xs font-medium ${actionConfig?.color}`}>{actionConfig?.label}</span>
-                <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>•</span>
-                <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{formatTimeAgo(latestActivity.timestamp)}</span>
+                <span className="text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>•</span>
+                <span className="text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{formatTimeAgo(latestActivity.timestamp)}</span>
               </div>
             )}
           </div>
@@ -227,7 +213,7 @@ function AgentCard({
           <div className="flex flex-col items-end gap-1">
             <StatusIndicator isOnline={isOnline} status={session?.status} />
             {stats && (
-              <div className="text-xs transition-colors duration-300" style={{ color: 'var(--foreground)' }}>
+              <div className="text-xs transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>
                 {stats.daily_tasks_completed} tasks today
               </div>
             )}
@@ -243,30 +229,30 @@ function AgentCard({
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            style={{ borderTop: '1px solid var(--border)' }}
+            style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
           >
             <div className="p-4 space-y-4">
               {/* Stats grid */}
               {stats && (
                 <div className="grid grid-cols-3 gap-2">
-                  <div className="rounded p-2 text-center transition-all duration-300" style={{ backgroundColor: 'var(--muted-bg)' }}>
-                    <p className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Tokens Today</p>
-                    <p className="text-sm font-semibold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{stats.daily_tokens_used.toLocaleString()}</p>
+                  <div className="rounded-xl p-2 text-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                    <p className="text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>Tokens Today</p>
+                    <p className="text-sm font-semibold transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>{stats.daily_tokens_used.toLocaleString()}</p>
                   </div>
-                  <div className="rounded p-2 text-center transition-all duration-300" style={{ backgroundColor: 'var(--muted-bg)' }}>
-                    <p className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Tasks Done</p>
-                    <p className="text-sm font-semibold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{stats.daily_tasks_completed}</p>
+                  <div className="rounded-xl p-2 text-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                    <p className="text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>Tasks Done</p>
+                    <p className="text-sm font-semibold transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>{stats.daily_tasks_completed}</p>
                   </div>
-                  <div className="rounded p-2 text-center transition-all duration-300" style={{ backgroundColor: 'var(--muted-bg)' }}>
-                    <p className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Active Time</p>
-                    <p className="text-sm font-semibold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{formatDuration(stats.daily_active_seconds)}</p>
+                  <div className="rounded-xl p-2 text-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                    <p className="text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>Active Time</p>
+                    <p className="text-sm font-semibold transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>{formatDuration(stats.daily_active_seconds)}</p>
                   </div>
                 </div>
               )}
 
               {/* Recent activities */}
               <div>
-                <h4 className="text-xs font-semibold mb-2 flex items-center gap-1.5 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>
+                <h4 className="text-xs font-semibold mb-2 flex items-center gap-1.5 transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>
                   <Activity className="w-3.5 h-3.5" />
                   Recent Activity
                 </h4>
@@ -277,14 +263,14 @@ function AgentCard({
                     return (
                       <motion.div
                         key={activity.id}
-                        className="flex items-center gap-2 p-2 rounded transition-all duration-300"
-                        style={{ backgroundColor: 'var(--muted-bg)' }}
+                        className="flex items-center gap-2 p-2 rounded-xl"
+                        style={{ background: 'rgba(255,255,255,0.04)' }}
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                       >
                         <AcIcon className={`w-3.5 h-3.5 ${ac.color}`} />
-                        <span className="text-xs flex-1 line-clamp-1 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{activity.description}</span>
-                        <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{formatTimeAgo(activity.timestamp)}</span>
+                        <span className="text-xs flex-1 line-clamp-1 transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>{activity.description}</span>
+                        <span className="text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{formatTimeAgo(activity.timestamp)}</span>
                       </motion.div>
                     );
                   })}
@@ -293,7 +279,7 @@ function AgentCard({
 
               {/* Session info */}
               {session && (
-                <div className="text-xs flex items-center gap-2 transition-colors duration-300" style={{ color: 'var(--subtle)' }}>
+                <div className="text-xs flex items-center gap-2 transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
                   <Clock className="w-3.5 h-3.5" />
                   Session started {formatTimeAgo(session.started_at)}
                   {session.current_action && (
@@ -334,12 +320,12 @@ export function AgentsSidebar({ isOpen = false, onClose }: { isOpen?: boolean; o
   ) : (
     <>
       {/* Header */}
-      <div className="p-4 transition-all duration-300" style={{ borderBottom: '1px solid var(--border)' }}>
-        <h2 className="font-semibold flex items-center gap-2 text-sm transition-colors duration-300" style={{ color: 'var(--foreground)' }}>
+      <div className="p-4 transition-all duration-300" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <h2 className="font-semibold flex items-center gap-2 text-sm transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>
           <Users className="w-5 h-5 text-teal-600" />
           The Begu Company
         </h2>
-        <p className="text-xs mt-1 transition-colors duration-300" style={{ color: 'var(--subtle)' }}>3 AI agents • {agentStates.filter(s => s.isOnline).length} online</p>
+        <p className="text-xs mt-1 transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>3 AI agents • {agentStates.filter(s => s.isOnline).length} online</p>
       </div>
 
       {/* Agent list */}
@@ -356,8 +342,8 @@ export function AgentsSidebar({ isOpen = false, onClose }: { isOpen?: boolean; o
       </div>
 
       {/* Footer */}
-      <div className="p-3 transition-all duration-300" style={{ borderTop: '1px solid var(--border)' }}>
-        <div className="flex items-center justify-between text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>
+      <div className="p-3 transition-all duration-300" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="flex items-center justify-between text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
           <span>Real-time sync active</span>
           <motion.div
             className="flex items-center gap-1"
@@ -380,8 +366,8 @@ export function AgentsSidebar({ isOpen = false, onClose }: { isOpen?: boolean; o
           <motion.div
             className="hidden md:flex flex-col h-full shadow-sm transition-all duration-300"
             style={{
-              backgroundColor: 'var(--background)',
-              borderRight: '1px solid var(--border)',
+              backgroundColor: '#1c1c1e',
+              borderRight: '1px solid rgba(255,255,255,0.06)',
               width: '320px'
             }}
             initial={{ x: -320, opacity: 0 }}
@@ -407,23 +393,23 @@ export function AgentsSidebar({ isOpen = false, onClose }: { isOpen?: boolean; o
             <motion.div
               className="absolute left-0 top-0 h-full w-72 flex flex-col shadow-lg transition-all duration-300"
               style={{
-                backgroundColor: 'var(--background)',
-                borderRight: '1px solid var(--border)'
+                backgroundColor: '#1c1c1e',
+                borderRight: '1px solid rgba(255,255,255,0.06)'
               }}
               initial={{ x: -320 }}
               animate={{ x: 0 }}
               exit={{ x: -320 }}
               transition={{ type: 'spring', stiffness: 260, damping: 28 }}
             >
-              <div className="p-4 flex items-center justify-between transition-all duration-300" style={{ borderBottom: '1px solid var(--border)' }}>
-                <h2 className="font-semibold text-sm transition-colors duration-300" style={{ color: 'var(--foreground)' }}>Agents</h2>
+              <div className="p-4 flex items-center justify-between transition-all duration-300" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                <h2 className="font-semibold text-sm transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>Agents</h2>
                 <button
                   onClick={onClose}
                   className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-105"
                   style={{
                     border: '1px solid var(--border)',
                     backgroundColor: 'var(--muted-bg)',
-                    color: 'var(--subtle)'
+                    color: 'var(--text-tertiary)'
                   }}
                   aria-label="Close sidebar"
                 >
