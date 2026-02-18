@@ -8,20 +8,18 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Bot,
-  Code,
-  Microscope,
   AlertCircle,
   Zap,
   Users,
   X,
 } from 'lucide-react';
 import { useAgentState, useAgentActivities } from '@/hooks/useAgents';
-import type { AgentId, AgentState, AgentActivity } from '@/types/agents';
+import type { AgentState, AgentActivity } from '@/types/agents';
 import { AGENT_CONFIG } from '@/types/agents';
 import { formatTimeAgo } from '@/lib/formatters';
 import { useState } from 'react';
 import AgentDetailsModal from './AgentDetailsModal';
+import { AgentAvatar } from './AgentAvatar';
 
 // Status indicator component (simplified for compact view)
 function StatusIndicator({ isOnline, status }: { isOnline: boolean; status?: string }) {
@@ -46,31 +44,6 @@ function StatusIndicator({ isOnline, status }: { isOnline: boolean; status?: str
         {config.label}
       </span>
     </div>
-  );
-}
-
-// Helper to get agent icon component
-function getAgentIcon(agentId: AgentId) {
-  if (agentId === 'begubot') return Bot;
-  if (agentId === 'coder') return Code;
-  if (agentId === 'researcher') return Microscope;
-  return Bot; // default
-}
-
-// Agent avatar component
-function AgentAvatar({ agentId, color, size = 'sm' }: { agentId: AgentId; color: string; size?: 'sm' | 'lg' }) {
-  const Icon = getAgentIcon(agentId);
-  const sizeClass = size === 'lg' ? 'w-20 h-20' : 'w-10 h-10';
-  const iconSize = size === 'lg' ? 'w-10 h-10' : 'w-5 h-5';
-
-  return (
-    <motion.div
-      className={`${sizeClass} rounded-lg flex items-center justify-center relative overflow-hidden flex-shrink-0`}
-      style={{ backgroundColor: `${color}18`, border: `1px solid ${color}28` }}
-      whileHover={{ scale: 1.05 }}
-    >
-      <Icon className={iconSize} style={{ color }} />
-    </motion.div>
   );
 }
 

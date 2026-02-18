@@ -10,15 +10,11 @@ import {
   X,
   Activity,
   Clock,
-  Zap,
-  Bot,
-  Code,
-  Microscope,
 } from 'lucide-react';
-import type { AgentState, AgentActivity, AgentId } from '@/types/agents';
+import type { AgentState, AgentActivity } from '@/types/agents';
 import { AGENT_CONFIG, AGENT_ACTION_CONFIG } from '@/types/agents';
 import { formatTimeAgo, formatDuration } from '@/lib/formatters';
-import { useState } from 'react';
+import { AgentAvatar } from './AgentAvatar';
 
 // Icon emoji mapping for activity actions
 const ICON_EMOJI_MAP: Record<string, string> = {
@@ -45,34 +41,6 @@ function getActionConfig(action: string) {
     bg: 'bg-slate-600/10',
     border: 'border-slate-600/30',
   };
-}
-
-// Helper to get agent icon component
-function getAgentIcon(agentId: AgentId) {
-  if (agentId === 'begubot') return Bot;
-  if (agentId === 'coder') return Code;
-  if (agentId === 'researcher') return Microscope;
-  return Bot; // default
-}
-
-// Agent avatar component (shared with sidebar)
-function AgentAvatar({ agentId, color, size = 'sm' }: { agentId: AgentId; color: string; size?: 'sm' | 'lg' }) {
-  const Icon = getAgentIcon(agentId);
-  const sizeClass = size === 'lg' ? 'w-20 h-20' : 'w-10 h-10';
-  const iconSize = size === 'lg' ? 'w-10 h-10' : 'w-5 h-5';
-
-  return (
-    <div
-      className={`relative ${sizeClass} rounded-lg overflow-hidden flex items-center justify-center`}
-      style={{
-        background: `${color}20`,
-        border: `1px solid ${color}`,
-        ...(size === 'lg' && { boxShadow: `0 0 20px ${color}40` }),
-      }}
-    >
-      <Icon className={iconSize} style={{ color }} />
-    </div>
-  );
 }
 
 interface AgentDetailsModalProps {
@@ -111,6 +79,7 @@ export function AgentDetailsModal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            onClick={onClose}
           >
             <motion.div
               className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden"
