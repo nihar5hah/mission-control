@@ -15,87 +15,62 @@ import {
   Code,
   Microscope,
 } from 'lucide-react';
-import type { AgentState, AgentActivity } from '@/types/agents';
-import { AGENT_CONFIG } from '@/types/agents';
+import type { AgentState, AgentActivity, AgentId } from '@/types/agents';
+import { AGENT_CONFIG, AGENT_ACTION_CONFIG } from '@/types/agents';
+import { formatTimeAgo, formatDuration } from '@/lib/formatters';
 import { useState } from 'react';
 
-// Icon mapping
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-  Hammer: () => <span className="text-amber-600">⚒️</span>,
-  Microscope: () => <span className="text-purple-600">🔬</span>,
-  RefreshCw: () => <span className="text-cyan-600">🔄</span>,
-  Wrench: () => <span className="text-red-600">🔧</span>,
-  Rocket: () => <span className="text-emerald-600">🚀</span>,
-  TestTube: () => <span className="text-blue-600">🧪</span>,
-  Users: () => <span className="text-purple-600">👥</span>,
-  Calendar: () => <span className="text-pink-600">📅</span>,
-  FileText: () => <span className="text-indigo-600">📄</span>,
-  Clock: () => <span className="text-slate-600">⏱️</span>,
-  Coffee: () => <span className="text-cyan-600">☕</span>,
-  Circle: () => <span className="text-slate-600">●</span>,
-};
-
-// Action config with proper typing
-const ACTION_CONFIG: Record<string, { label: string; icon: string; color: string }> = {
-  building: { label: 'Building', icon: 'Hammer', color: 'text-amber-600' },
-  researching: { label: 'Researching', icon: 'Microscope', color: 'text-purple-600' },
-  syncing: { label: 'Syncing', icon: 'RefreshCw', color: 'text-cyan-600' },
-  fixing: { label: 'Fixing Bug', icon: 'Wrench', color: 'text-red-600' },
-  deploying: { label: 'Deploying', icon: 'Rocket', color: 'text-emerald-600' },
-  testing: { label: 'Testing', icon: 'TestTube', color: 'text-blue-600' },
-  coordinating: { label: 'Coordinating', icon: 'Users', color: 'text-purple-600' },
-  meeting: { label: 'In Meeting', icon: 'Calendar', color: 'text-pink-600' },
-  documenting: { label: 'Documenting', icon: 'FileText', color: 'text-indigo-600' },
-  idle: { label: 'Idle', icon: 'Clock', color: 'text-slate-600' },
-  water_cooler: { label: 'Water Cooler', icon: 'Coffee', color: 'text-cyan-600' },
+// Icon emoji mapping for activity actions
+const ICON_EMOJI_MAP: Record<string, string> = {
+  Hammer: '⚒️',
+  Microscope: '🔬',
+  RefreshCw: '🔄',
+  Wrench: '🔧',
+  Rocket: '🚀',
+  TestTube: '🧪',
+  Users: '👥',
+  Calendar: '📅',
+  FileText: '📄',
+  Clock: '⏱️',
+  Coffee: '☕',
+  Circle: '●',
 };
 
 // Get action config with fallback
 function getActionConfig(action: string) {
-  return ACTION_CONFIG[action] || {
+  return AGENT_ACTION_CONFIG[action] || {
     label: action.charAt(0).toUpperCase() + action.slice(1),
     icon: 'Circle',
     color: 'text-slate-600',
+    bg: 'bg-slate-600/10',
+    border: 'border-slate-600/30',
   };
 }
 
-// Format time ago
-function formatTimeAgo(timestamp: string): string {
-  const date = new Date(timestamp);
-  const now = new Date();
-  const diff = now.getTime() - date.getTime();
-  const mins = Math.floor(diff / 60000);
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(diff / 86400000);
-
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  if (hours < 24) return `${hours}h ago`;
-  return `${days}d ago`;
+// Helper to get agent icon component
+function getAgentIcon(agentId: AgentId) {
+  if (agentId === 'begubot') return Bot;
+  if (agentId === 'coder') return Code;
+  if (agentId === 'researcher') return Microscope;
+  return Bot; // default
 }
 
-// Format duration
-function formatDuration(seconds: number): string {
-  const hours = Math.floor(seconds / 3600);
-  const mins = Math.floor((seconds % 3600) / 60);
-  if (hours > 0) return `${hours}h ${mins}m`;
-  return `${mins}m`;
-}
-
-// Agent avatar component
-function AgentAvatar({ agentId, color }: { agentId: string; color: string }) {
-  const Icon = agentId === 'begubot' ? Bot : agentId === 'coder' ? Code : Microscope;
+// Agent avatar component (shared with sidebar)
+function AgentAvatar({ agentId, color, size = 'sm' }: { agentId: AgentId; color: string; size?: 'sm' | 'lg' }) {
+  const Icon = getAgentIcon(agentId);
+  const sizeClass = size === 'lg' ? 'w-20 h-20' : 'w-10 h-10';
+  const iconSize = size === 'lg' ? 'w-10 h-10' : 'w-5 h-5';
 
   return (
     <div
-      className="relative w-20 h-20 rounded-lg overflow-hidden flex items-center justify-center"
+      className={`relative ${sizeClass} rounded-lg overflow-hidden flex items-center justify-center`}
       style={{
         background: `${color}20`,
         border: `1px solid ${color}`,
-        boxShadow: `0 0 20px ${color}40`,
+        ...(size === 'lg' && { boxShadow: `0 0 20px ${color}40` }),
       }}
     >
-      <Icon className="w-10 h-10" style={{ color }} />
+      <Icon className={iconSize} style={{ color }} />
     </div>
   );
 }
@@ -171,7 +146,7 @@ export function AgentDetailsModal({
               <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
                 {/* Agent Info */}
                 <div className="flex flex-col items-center gap-4">
-                  <AgentAvatar agentId={agent.agent.id} color={config.color} />
+                  <AgentAvatar agentId={agent.agent.id} color={config.color} size="lg" />
                   <div className="text-center">
                     <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
                       {config.name}
@@ -251,7 +226,7 @@ export function AgentDetailsModal({
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                           >
-                            <span className="text-sm mt-0.5">{ac.icon}</span>
+                            <span className="text-sm mt-0.5">{ICON_EMOJI_MAP[ac.icon] || ac.icon}</span>
                             <div className="flex-1 min-w-0">
                               <p
                                 className="text-xs font-medium line-clamp-1"

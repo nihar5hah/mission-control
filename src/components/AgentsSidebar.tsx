@@ -19,23 +19,9 @@ import {
 import { useAgentState, useAgentActivities } from '@/hooks/useAgents';
 import type { AgentId, AgentState, AgentActivity } from '@/types/agents';
 import { AGENT_CONFIG } from '@/types/agents';
+import { formatTimeAgo } from '@/lib/formatters';
 import { useState } from 'react';
 import AgentDetailsModal from './AgentDetailsModal';
-
-// Format time ago
-function formatTimeAgo(timestamp: string): string {
-  const date = new Date(timestamp);
-  const now = new Date();
-  const diff = now.getTime() - date.getTime();
-  const mins = Math.floor(diff / 60000);
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(diff / 86400000);
-
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  if (hours < 24) return `${hours}h ago`;
-  return `${days}d ago`;
-}
 
 // Status indicator component (simplified for compact view)
 function StatusIndicator({ isOnline, status }: { isOnline: boolean; status?: string }) {
@@ -57,23 +43,33 @@ function StatusIndicator({ isOnline, status }: { isOnline: boolean; status?: str
         style={{ backgroundColor: config.color }}
       />
       <span className="text-xs capitalize" style={{ color: 'var(--text-tertiary)' }}>
-        {isOnline ? (status || 'Online') : 'Offline'}
+        {config.label}
       </span>
     </div>
   );
 }
 
+// Helper to get agent icon component
+function getAgentIcon(agentId: AgentId) {
+  if (agentId === 'begubot') return Bot;
+  if (agentId === 'coder') return Code;
+  if (agentId === 'researcher') return Microscope;
+  return Bot; // default
+}
+
 // Agent avatar component
-function AgentAvatar({ agentId, color }: { agentId: AgentId; color: string }) {
-  const Icon = agentId === 'begubot' ? Bot : agentId === 'coder' ? Code : Microscope;
+function AgentAvatar({ agentId, color, size = 'sm' }: { agentId: AgentId; color: string; size?: 'sm' | 'lg' }) {
+  const Icon = getAgentIcon(agentId);
+  const sizeClass = size === 'lg' ? 'w-20 h-20' : 'w-10 h-10';
+  const iconSize = size === 'lg' ? 'w-10 h-10' : 'w-5 h-5';
 
   return (
     <motion.div
-      className="w-10 h-10 rounded-lg flex items-center justify-center relative overflow-hidden flex-shrink-0"
+      className={`${sizeClass} rounded-lg flex items-center justify-center relative overflow-hidden flex-shrink-0`}
       style={{ backgroundColor: `${color}18`, border: `1px solid ${color}28` }}
       whileHover={{ scale: 1.05 }}
     >
-      <Icon className="w-5 h-5" style={{ color }} />
+      <Icon className={iconSize} style={{ color }} />
     </motion.div>
   );
 }
@@ -147,10 +143,11 @@ export function AgentsSidebar({ isOpen = false, onClose }: { isOpen?: boolean; o
   const [selectedAgent, setSelectedAgent] = useState<AgentState | null>(null);
   const [showModal, setShowModal] = useState(false);
 
-  // Get activities for modal
+  // Get activities for modal (only when an agent is selected)
+  const shouldFetchActivities = selectedAgent !== null;
   const { activities: modalActivities } = useAgentActivities(
-    selectedAgent?.agent.id || undefined,
-    10
+    shouldFetchActivities ? selectedAgent.agent.id : undefined,
+    shouldFetchActivities ? 10 : 0
   );
 
   const handleSelectAgent = (agent: AgentState) => {
