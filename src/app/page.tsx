@@ -534,51 +534,35 @@ export default function MissionControl() {
         transition={{ duration: 0.3 }}
       >
         <div className="mb-8">
-          <h2 className="text-2xl font-semibold mb-1 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>Dashboard Overview</h2>
-          <p className="text-sm transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Real-time statistics for all agents</p>
+          <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)', letterSpacing: '-0.022em' }}>Dashboard</h2>
+          <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>Real-time statistics for all agents</p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 sm:mb-8">
-          <motion.div variants={item} className="rounded-lg shadow-sm p-4 hover:shadow-md transition-all duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-md" style={{ backgroundColor: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
-                <Users className="w-4 h-4" style={{ color: '#a855f7' }} />
-              </div>
-              <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Active Agents</span>
-            </div>
-            <p className="text-2xl font-semibold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{agentStates.filter(s => s.isOnline).length}/3</p>
-          </motion.div>
-
-          <motion.div variants={item} className="rounded-lg shadow-sm p-4 hover:shadow-md transition-all duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-md" style={{ backgroundColor: 'rgba(20, 184, 166, 0.1)', border: '1px solid rgba(20, 184, 166, 0.2)' }}>
-                <Zap className="w-4 h-4" style={{ color: '#14b8a6' }} />
-              </div>
-              <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Tokens Today</span>
-            </div>
-            <p className="text-2xl font-semibold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{totalTokens.toLocaleString()}</p>
-          </motion.div>
-
-          <motion.div variants={item} className="rounded-lg shadow-sm p-4 hover:shadow-md transition-all duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-md" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                <CheckCircle2 className="w-4 h-4" style={{ color: '#10b981' }} />
-              </div>
-              <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Tasks Completed</span>
-            </div>
-            <p className="text-2xl font-semibold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{totalTasks}</p>
-          </motion.div>
-
-          <motion.div variants={item} className="rounded-lg shadow-sm p-4 hover:shadow-md transition-all duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-md" style={{ backgroundColor: 'rgba(217, 119, 6, 0.1)', border: '1px solid rgba(217, 119, 6, 0.2)' }}>
-                <Clock className="w-4 h-4" style={{ color: '#d97706' }} />
-              </div>
-              <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Active Time</span>
-            </div>
-            <p className="text-2xl font-semibold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{formatDuration(totalActiveTime)}</p>
-          </motion.div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6 sm:mb-8">
+          {[
+            { label: 'Active Agents', value: `${agentStates.filter(s => s.isOnline).length}/3`, icon: Users, color: 'var(--color-purple)', muted: 'var(--color-purple-muted)' },
+            { label: 'Tokens Today', value: totalTokens.toLocaleString(), icon: Zap, color: 'var(--color-teal)', muted: 'var(--color-teal-muted)' },
+            { label: 'Tasks Done', value: totalTasks.toString(), icon: CheckCircle2, color: 'var(--color-green)', muted: 'var(--color-green-muted)' },
+            { label: 'Active Time', value: formatDuration(totalActiveTime), icon: Clock, color: 'var(--color-orange)', muted: 'var(--color-orange-muted)' },
+          ].map((stat) => {
+            const Icon = stat.icon;
+            return (
+              <motion.div
+                key={stat.label}
+                variants={item}
+                className="apple-card p-4"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--text-tertiary)' }}>{stat.label}</span>
+                  <div className="w-8 h-8 rounded-[10px] flex items-center justify-center" style={{ background: stat.muted }}>
+                    <Icon className="w-4 h-4" style={{ color: stat.color }} />
+                  </div>
+                </div>
+                <p className="text-3xl font-bold" style={{ color: 'var(--text-primary)', letterSpacing: '-0.022em' }}>{stat.value}</p>
+              </motion.div>
+            );
+          })}
         </div>
 
         <div className="mb-8">
@@ -586,21 +570,20 @@ export default function MissionControl() {
         </div>
 
         {/* Agent Status Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-6">
           {agentStates.map((state) => {
             const config = AGENT_CONFIG[state.agent.id];
             return (
               <motion.div
                 key={state.agent.id}
                 variants={item}
-                className="rounded-lg p-4 hover:shadow-md transition-all duration-300"
-                style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}
-                whileHover={{ y: -2, borderColor: 'var(--primary)' }}
+                className="apple-card p-4"
+                whileHover={{ y: -2 }}
               >
-                <div className="flex items-center gap-3 mb-3">
+                <div className="flex items-start gap-3 mb-3">
                   <div
-                    className="w-10 h-10 rounded-lg flex items-center justify-center"
-                    style={{ backgroundColor: `${config.color}15`, border: `1.5px solid ${config.color}30` }}
+                    className="w-11 h-11 rounded-[14px] flex items-center justify-center flex-shrink-0"
+                    style={{ background: `${config.color}18`, border: `1px solid ${config.color}30` }}
                   >
                     {state.agent.id === 'begubot' ? (
                       <Bot className="w-5 h-5" style={{ color: config.color }} />
@@ -610,33 +593,32 @@ export default function MissionControl() {
                       <Microscope className="w-5 h-5" style={{ color: config.color }} />
                     )}
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{config.name}</h3>
-                    <p className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{config.role}</p>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{config.name}</h3>
+                    <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{config.role}</p>
                   </div>
                   <motion.div
-                    className="w-2 h-2 rounded-full transition-colors duration-300"
-                    style={{ backgroundColor: state.isOnline ? '#10b981' : '#9ca3af' }}
+                    className={state.isOnline ? 'dot-online animate-pulse-dot' : 'dot-offline'}
                     animate={state.isOnline ? { scale: [1, 1.2, 1] } : {}}
                     transition={{ duration: 2, repeat: Infinity }}
                   />
                 </div>
 
                 {state.latestActivity && (
-                  <div className="text-xs rounded p-2 transition-all duration-300" style={{ color: 'var(--foreground)', backgroundColor: 'var(--muted-bg)' }}>
+                  <div className="text-xs rounded-xl px-3 py-2" style={{ background: 'rgba(255,255,255,0.04)', color: 'var(--text-secondary)' }}>
                     {state.latestActivity.description}
                   </div>
                 )}
 
                 {state.stats && (
-                  <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-                    <div className="text-center">
-                      <p className="transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Tokens</p>
-                      <p className="font-medium transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{state.stats.daily_tokens_used.toLocaleString()}</p>
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <div className="text-center rounded-xl py-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                      <p className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>Tokens</p>
+                      <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{state.stats.daily_tokens_used.toLocaleString()}</p>
                     </div>
-                    <div className="text-center">
-                      <p className="transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Tasks</p>
-                      <p className="font-medium transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{state.stats.daily_tasks_completed}</p>
+                    <div className="text-center rounded-xl py-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                      <p className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>Tasks</p>
+                      <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{state.stats.daily_tasks_completed}</p>
                     </div>
                   </div>
                 )}
