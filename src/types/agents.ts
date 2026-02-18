@@ -144,9 +144,9 @@ export const AGENT_ACTION_CONFIG: Record<string, AgentActionConfig> = {
   building: {
     label: 'Building',
     icon: 'Hammer',
-    color: 'text-[#F59E0B]',
-    bg: 'bg-[#F59E0B]/10',
-    border: 'border-[#F59E0B]/30',
+    color: 'text-[#FF9F0A]',
+    bg: 'bg-[#FF9F0A]/10',
+    border: 'border-[#FF9F0A]/30',
   },
   researching: {
     label: 'Researching',
@@ -172,9 +172,9 @@ export const AGENT_ACTION_CONFIG: Record<string, AgentActionConfig> = {
   deploying: {
     label: 'Deploying',
     icon: 'Rocket',
-    color: 'text-[#10B981]',
-    bg: 'bg-[#10B981]/10',
-    border: 'border-[#10B981]/30',
+    color: 'text-[#30D158]',
+    bg: 'bg-[#30D158]/10',
+    border: 'border-[#30D158]/30',
   },
   testing: {
     label: 'Testing',
@@ -238,14 +238,14 @@ export const AGENT_CONFIG: Record<AgentId, {
   coder: {
     name: 'Coder',
     role: 'Employee',
-    color: '#10B981',
+    color: 'var(--color-green)',
     emoji: '💻',
     description: 'Builds and maintains code infrastructure',
   },
   researcher: {
     name: 'Researcher',
     role: 'Employee',
-    color: '#F59E0B',
+    color: 'var(--color-orange)',
     emoji: '🔬',
     description: 'Conducts research and analysis',
   },

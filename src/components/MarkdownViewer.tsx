@@ -44,7 +44,7 @@ function parseMarkdown(md: string): string {
     .replace(/_(.*?)_/g, '<em style="color: var(--text-secondary)" class="italic">$1</em>')
 
     // Inline code
-    .replace(/`([^`]+)`/g, '<code style="background-color: var(--bg-elevated); color: #F59E0B" class="px-1.5 py-0.5 rounded text-sm font-mono">$1</code>')
+    .replace(/`([^`]+)`/g, '<code style="background-color: var(--bg-elevated); color: var(--color-orange)" class="px-1.5 py-0.5 rounded text-sm font-mono">$1</code>')
 
     // Links
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: #BF5AF2" class="hover:opacity-80 underline underline-offset-2" target="_blank" rel="noopener noreferrer">$1</a>')

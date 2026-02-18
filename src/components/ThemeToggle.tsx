@@ -53,7 +53,7 @@ export function ThemeToggle() {
 
   if (!isMounted) {
     return (
-      <div className="w-10 h-10 rounded-lg" style={{ backgroundColor: 'var(--muted-bg)' }} />
+      <div className="w-10 h-10 rounded-lg" style={{ backgroundColor: 'var(--bg-elevated)' }} />
     );
   }
 
@@ -62,8 +62,8 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       className="relative w-10 h-10 rounded-lg flex items-center justify-center transition-all"
       style={{
-        backgroundColor: 'var(--muted-bg)',
-        color: 'var(--foreground)',
+        backgroundColor: 'var(--bg-elevated)',
+        color: 'var(--text-primary)',
         border: '1px solid var(--border)',
       }}
       whileHover={{ scale: 1.08 }}

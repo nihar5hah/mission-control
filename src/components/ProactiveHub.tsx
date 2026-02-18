@@ -49,9 +49,9 @@ const actionTypeConfig = {
   task_create: {
     label: 'Task Created',
     icon: CheckCircle2,
-    color: 'text-[#5EAD5E]',
-    bg: 'bg-[#5EAD5E]/10',
-    border: 'border-[#5EAD5E]/30',
+    color: 'text-[#30D158]',
+    bg: 'bg-[#30D158]/10',
+    border: 'border-[#30D158]/30',
   },
   reminder: {
     label: 'Reminder',
@@ -63,9 +63,9 @@ const actionTypeConfig = {
   suggestion: {
     label: 'Suggestion',
     icon: LightbulbIcon,
-    color: 'text-[#F59E0B]',
-    bg: 'bg-[#F59E0B]/10',
-    border: 'border-[#F59E0B]/30',
+    color: 'text-[#FF9F0A]',
+    bg: 'bg-[#FF9F0A]/10',
+    border: 'border-[#FF9F0A]/30',
   },
   auto_fix: {
     label: 'Auto Fix',
@@ -84,9 +84,9 @@ const actionTypeConfig = {
   analysis: {
     label: 'Analysis',
     icon: Brain,
-    color: 'text-[#5E6AD2]',
-    bg: 'bg-[#5E6AD2]/10',
-    border: 'border-[#5E6AD2]/30',
+    color: 'text-[#BF5AF2]',
+    bg: 'bg-[#BF5AF2]/10',
+    border: 'border-[#BF5AF2]/30',
   },
 };
 
@@ -108,23 +108,23 @@ const patternCategoryConfig = {
   attention: {
     label: 'Attention',
     icon: Target,
-    color: 'text-[#F59E0B]',
-    bg: 'bg-[#F59E0B]/10',
-    border: 'border-[#F59E0B]/30',
+    color: 'text-[#FF9F0A]',
+    bg: 'bg-[#FF9F0A]/10',
+    border: 'border-[#FF9F0A]/30',
   },
   opportunity: {
     label: 'Opportunity',
     icon: TrendingUp,
-    color: 'text-[#10B981]',
-    bg: 'bg-[#10B981]/10',
-    border: 'border-[#10B981]/30',
+    color: 'text-[#30D158]',
+    bg: 'bg-[#30D158]/10',
+    border: 'border-[#30D158]/30',
   },
   learning: {
     label: 'Learning',
     icon: GraduationCap,
-    color: 'text-[#5E6AD2]',
-    bg: 'bg-[#5E6AD2]/10',
-    border: 'border-[#5E6AD2]/30',
+    color: 'text-[#BF5AF2]',
+    bg: 'bg-[#BF5AF2]/10',
+    border: 'border-[#BF5AF2]/30',
   },
   collaboration: {
     label: 'Collaboration',
@@ -139,16 +139,16 @@ const opportunityTypeConfig = {
   monetization: {
     label: 'Monetization',
     icon: DollarSign,
-    color: 'text-[#10B981]',
-    bg: 'bg-[#10B981]/10',
-    border: 'border-[#10B981]/30',
+    color: 'text-[#30D158]',
+    bg: 'bg-[#30D158]/10',
+    border: 'border-[#30D158]/30',
   },
   automation: {
     label: 'Automation',
     icon: Wrench,
-    color: 'text-[#F59E0B]',
-    bg: 'bg-[#F59E0B]/10',
-    border: 'border-[#F59E0B]/30',
+    color: 'text-[#FF9F0A]',
+    bg: 'bg-[#FF9F0A]/10',
+    border: 'border-[#FF9F0A]/30',
   },
   collaboration: {
     label: 'Collaboration',
@@ -160,9 +160,9 @@ const opportunityTypeConfig = {
   learning: {
     label: 'Learning',
     icon: GraduationCap,
-    color: 'text-[#5E6AD2]',
-    bg: 'bg-[#5E6AD2]/10',
-    border: 'border-[#5E6AD2]/30',
+    color: 'text-[#BF5AF2]',
+    bg: 'bg-[#BF5AF2]/10',
+    border: 'border-[#BF5AF2]/30',
   },
   efficiency: {
     label: 'Efficiency',
@@ -186,8 +186,8 @@ const statusConfig = {
   },
   completed: {
     label: 'Completed',
-    color: 'text-[#5EAD5E]',
-    bg: 'bg-[#5EAD5E]/10',
+    color: 'text-[#30D158]',
+    bg: 'bg-[#30D158]/10',
   },
   failed: {
     label: 'Failed',
@@ -216,8 +216,8 @@ const statusConfig = {
   },
   implemented: {
     label: 'Implemented',
-    color: 'text-[#5EAD5E]',
-    bg: 'bg-[#5EAD5E]/10',
+    color: 'text-[#30D158]',
+    bg: 'bg-[#30D158]/10',
   },
 };
 
@@ -236,7 +236,7 @@ function StatsCards({ stats }: { stats: any }) {
       value: stats?.total_actions_today || 0,
       subValue: `${stats?.completed_actions_today || 0} completed`,
       icon: Zap,
-      color: '#F59E0B',
+      color: 'var(--color-orange)',
       bg: 'rgba(245, 158, 11, 0.1)',
     },
     {
@@ -244,7 +244,7 @@ function StatsCards({ stats }: { stats: any }) {
       value: stats?.opportunities_found || 0,
       subValue: `${stats?.opportunities_implemented || 0} implemented`,
       icon: Lightbulb,
-      color: '#10B981',
+      color: 'var(--color-green)',
       bg: 'rgba(16, 185, 129, 0.1)',
     },
     {
@@ -341,7 +341,7 @@ function ActionCard({ action, onDismiss }: { action: ProactiveAction; onDismiss:
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${action.confidence_score * 100}%` }}
-                  style={{ backgroundColor: '#5E6AD2' }}
+                  style={{ backgroundColor: 'var(--accent)' }}
                 />
               </div>
               <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{Math.round(action.confidence_score * 100)}%</span>
@@ -408,7 +408,7 @@ function PatternCard({ pattern }: { pattern: Pattern }) {
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${pattern.confidence * 100}%` }}
-                  style={{ backgroundColor: '#10B981' }}
+                  style={{ backgroundColor: 'var(--color-green)' }}
                 />
               </div>
               <span className="text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{Math.round(pattern.confidence * 100)}% conf</span>
@@ -418,7 +418,7 @@ function PatternCard({ pattern }: { pattern: Pattern }) {
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${pattern.impact_score * 100}%` }}
-                  style={{ backgroundColor: '#F59E0B' }}
+                  style={{ backgroundColor: 'var(--color-orange)' }}
                 />
               </div>
               <span className="text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{Math.round(pattern.impact_score * 100)}% impact</span>
@@ -426,7 +426,7 @@ function PatternCard({ pattern }: { pattern: Pattern }) {
           </div>
 
           {pattern.suggested_action && (
-            <p className="text-xs mt-3 rounded px-2 py-1.5 transition-colors duration-300" style={{ color: '#5E6AD2', backgroundColor: 'rgba(94, 106, 210, 0.05)', border: '1px solid rgba(94, 106, 210, 0.2)' }}>
+            <p className="text-xs mt-3 rounded px-2 py-1.5 transition-colors duration-300" style={{ color: 'var(--accent)', backgroundColor: 'rgba(191, 90, 242, 0.05)', border: '1px solid rgba(191, 90, 242, 0.2)' }}>
               💡 {pattern.suggested_action}
             </p>
           )}
@@ -445,12 +445,12 @@ function OpportunityCard({ opportunity, onUpdate }: { opportunity: Opportunity; 
   const valueColors = {
     low: '#999',
     medium: '#FBBF24',
-    high: '#F59E0B',
-    transformative: '#10B981',
+    high: '#FF9F0A',
+    transformative: '#30D158',
   };
 
   const effortColors = {
-    low: '#10B981',
+    low: '#30D158',
     medium: '#FBBF24',
     high: '#EF4444',
   };
@@ -565,7 +565,7 @@ function EmptyState({ type, onAction }: { type: string; onAction?: () => void })
       animate={{ opacity: 1 }}
       className="text-center py-8"
     >
-      <div className="inline-block p-3 rounded-full mb-4 transition-colors duration-300" style={{ backgroundColor: 'var(--muted-bg)', border: '1px solid var(--border)', color: 'var(--subtle)' }}>
+      <div className="inline-block p-3 rounded-full mb-4 transition-colors duration-300" style={{ backgroundColor: 'var(--bg-elevated)', border: '1px solid var(--border)', color: 'var(--text-tertiary)' }}>
         <Icon className="w-6 h-6" />
       </div>
       <p className="text-sm font-medium mb-1 transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>{config.title}</p>
@@ -650,7 +650,7 @@ export default function ProactiveHub() {
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
         >
-          <Zap className="w-8 h-8" style={{ color: '#5E6AD2' }} />
+          <Zap className="w-8 h-8" style={{ color: 'var(--accent)' }} />
         </motion.div>
         <span className="ml-3 transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>Loading Proactive Intelligence...</span>
       </div>
@@ -686,7 +686,7 @@ export default function ProactiveHub() {
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-semibold mb-1 flex items-center gap-2 transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>
-            <Bot className="w-6 h-6" style={{ color: '#5E6AD2' }} />
+            <Bot className="w-6 h-6" style={{ color: 'var(--accent)' }} />
             Proactive Intelligence
           </h2>
           <p className="text-sm transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
@@ -785,7 +785,7 @@ export default function ProactiveHub() {
               <div className="apple-card p-4">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-semibold flex items-center gap-2 transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>
-                    <Zap className="w-4 h-4" style={{ color: '#F59E0B' }} />
+                    <Zap className="w-4 h-4" style={{ color: 'var(--color-orange)' }} />
                     Recent Actions
                   </h3>
                   <button
@@ -837,7 +837,7 @@ export default function ProactiveHub() {
               <div className="apple-card p-4 lg:col-span-2">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-semibold flex items-center gap-2 transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>
-                    <Lightbulb className="w-4 h-4" style={{ color: '#10B981' }} />
+                    <Lightbulb className="w-4 h-4" style={{ color: 'var(--color-green)' }} />
                     Top Opportunities
                   </h3>
                   <button

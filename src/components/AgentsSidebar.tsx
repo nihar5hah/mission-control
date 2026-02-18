@@ -55,7 +55,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
 const ACTION_CONFIG: Record<string, { label: string; icon: string; color: string; bg: string; border: string }> = {
   building: { label: 'Building', icon: 'Hammer', color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200' },
   researching: { label: 'Researching', icon: 'Microscope', color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200' },
-  syncing: { label: 'Syncing', icon: 'RefreshCw', color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-200' },
+  syncing: { label: 'Syncing', icon: 'RefreshCw', color: 'text-cyan-600', bg: 'bg-cyan-50', border: 'border-cyan-200' },
   fixing: { label: 'Fixing Bug', icon: 'Wrench', color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200' },
   deploying: { label: 'Deploying', icon: 'Rocket', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
   testing: { label: 'Testing', icon: 'TestTube', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' },
@@ -63,7 +63,7 @@ const ACTION_CONFIG: Record<string, { label: string; icon: string; color: string
   meeting: { label: 'In Meeting', icon: 'Calendar', color: 'text-pink-600', bg: 'bg-pink-50', border: 'border-pink-200' },
   documenting: { label: 'Documenting', icon: 'FileText', color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-200' },
   idle: { label: 'Idle', icon: 'Clock', color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-200' },
-  water_cooler: { label: 'Water Cooler', icon: 'Coffee', color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-200' },
+  water_cooler: { label: 'Water Cooler', icon: 'Coffee', color: 'text-cyan-600', bg: 'bg-cyan-50', border: 'border-cyan-200' },
 };
 
 // Get action config with fallback
@@ -408,8 +408,7 @@ export function AgentsSidebar({ isOpen = false, onClose }: { isOpen?: boolean; o
                   className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-105"
                   style={{
                     border: '1px solid var(--border)',
-                    backgroundColor: 'var(--muted-bg)',
-                    color: 'var(--text-tertiary)'
+                    backgroundColor: 'var(--bg-elevated)', color: 'var(--text-tertiary)'
                   }}
                   aria-label="Close sidebar"
                 >
