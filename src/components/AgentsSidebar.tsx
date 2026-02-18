@@ -1,6 +1,7 @@
 // =====================================================
-// THREE AGENTS SIDEBAR COMPONENT
+// THREE AGENTS SIDEBAR COMPONENT - COMPACT VIEW
 // Shows Begubot, Coder, and Researcher with live status
+// Modal opens on click for full agent details
 // =====================================================
 
 'use client';
@@ -10,72 +11,16 @@ import {
   Bot,
   Code,
   Microscope,
-  Activity,
-  Clock,
-  CheckCircle2,
   AlertCircle,
   Zap,
-  ChevronRight,
   Users,
-  Calendar,
-  FileText,
-  TestTube,
-  Wrench,
-  Rocket,
-  RefreshCw,
-  Coffee,
-  Hammer,
-  Circle,
   X,
 } from 'lucide-react';
 import { useAgentState, useAgentActivities } from '@/hooks/useAgents';
-import type { AgentId, AgentState, AgentActivity, AGENT_ACTION_CONFIG } from '@/types/agents';
+import type { AgentId, AgentState, AgentActivity } from '@/types/agents';
 import { AGENT_CONFIG } from '@/types/agents';
 import { useState } from 'react';
-
-// Icon mapping
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-  Hammer,
-  Microscope,
-  RefreshCw,
-  Wrench,
-  Rocket,
-  TestTube,
-  Users,
-  Calendar,
-  FileText,
-  Clock,
-  Coffee,
-  Bot,
-  Code,
-  Circle,
-};
-
-// Action config with proper typing
-const ACTION_CONFIG: Record<string, { label: string; icon: string; color: string; bg: string; border: string }> = {
-  building: { label: 'Building', icon: 'Hammer', color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200' },
-  researching: { label: 'Researching', icon: 'Microscope', color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200' },
-  syncing: { label: 'Syncing', icon: 'RefreshCw', color: 'text-cyan-600', bg: 'bg-cyan-50', border: 'border-cyan-200' },
-  fixing: { label: 'Fixing Bug', icon: 'Wrench', color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200' },
-  deploying: { label: 'Deploying', icon: 'Rocket', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
-  testing: { label: 'Testing', icon: 'TestTube', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' },
-  coordinating: { label: 'Coordinating', icon: 'Users', color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200' },
-  meeting: { label: 'In Meeting', icon: 'Calendar', color: 'text-pink-600', bg: 'bg-pink-50', border: 'border-pink-200' },
-  documenting: { label: 'Documenting', icon: 'FileText', color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-200' },
-  idle: { label: 'Idle', icon: 'Clock', color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-200' },
-  water_cooler: { label: 'Water Cooler', icon: 'Coffee', color: 'text-cyan-600', bg: 'bg-cyan-50', border: 'border-cyan-200' },
-};
-
-// Get action config with fallback
-function getActionConfig(action: string) {
-  return ACTION_CONFIG[action] || {
-    label: action.charAt(0).toUpperCase() + action.slice(1),
-    icon: 'Circle',
-    color: 'text-slate-600',
-    bg: 'bg-slate-50',
-    border: 'border-slate-200',
-  };
-}
+import AgentDetailsModal from './AgentDetailsModal';
 
 // Format time ago
 function formatTimeAgo(timestamp: string): string {
@@ -92,15 +37,7 @@ function formatTimeAgo(timestamp: string): string {
   return `${days}d ago`;
 }
 
-// Format duration
-function formatDuration(seconds: number): string {
-  const hours = Math.floor(seconds / 3600);
-  const mins = Math.floor((seconds % 3600) / 60);
-  if (hours > 0) return `${hours}h ${mins}m`;
-  return `${mins}m`;
-}
-
-// Status indicator component
+// Status indicator component (simplified for compact view)
 function StatusIndicator({ isOnline, status }: { isOnline: boolean; status?: string }) {
   if (!isOnline) {
     return (
@@ -115,185 +52,84 @@ function StatusIndicator({ isOnline, status }: { isOnline: boolean; status?: str
   return (
     <div className="flex items-center gap-1.5">
       <div className={dotClass} />
-      <span className="text-xs capitalize" style={{ color: 'var(--text-primary)' }}>{status || 'Active'}</span>
+      <span className="text-xs capitalize" style={{ color: 'var(--text-primary)' }}>{status || 'Online'}</span>
     </div>
   );
 }
 
 // Agent avatar component
-function AgentAvatar({ agentId, color, size = 'md' }: { agentId: AgentId; color: string; size?: 'sm' | 'md' | 'lg' }) {
-  const sizeClasses = {
-    sm: 'w-8 h-8',
-    md: 'w-10 h-10',
-    lg: 'w-14 h-14',
-  };
-
-  const iconSizes = {
-    sm: 'w-4 h-4',
-    md: 'w-5 h-5',
-    lg: 'w-7 h-7',
-  };
-
+function AgentAvatar({ agentId, color }: { agentId: AgentId; color: string }) {
   const Icon = agentId === 'begubot' ? Bot : agentId === 'coder' ? Code : Microscope;
 
   return (
     <motion.div
-      className={`${sizeClasses[size]} rounded-lg flex items-center justify-center relative overflow-hidden`}
+      className="w-10 h-10 rounded-lg flex items-center justify-center relative overflow-hidden flex-shrink-0"
       style={{ backgroundColor: `${color}18`, border: `1px solid ${color}28` }}
       whileHover={{ scale: 1.05 }}
     >
-      <Icon className={iconSizes[size]} style={{ color }} />
+      <Icon className="w-5 h-5" style={{ color }} />
     </motion.div>
   );
 }
 
-// Single agent card component
-function AgentCard({
+// Compact agent row component
+function CompactAgentRow({
   state,
-  isExpanded,
-  onToggle,
-  activities,
+  onSelect,
 }: {
   state: AgentState;
-  isExpanded: boolean;
-  onToggle: () => void;
-  activities: AgentActivity[];
+  onSelect: () => void;
 }) {
-  const { agent, session, stats, latestActivity, isOnline } = state;
+  const { agent, session, stats, isOnline } = state;
   const config = AGENT_CONFIG[agent.id];
-  const actionConfig = latestActivity ? getActionConfig(latestActivity.action) : null;
-  const ActionIcon = actionConfig ? ICON_MAP[actionConfig.icon] || Circle : Circle;
 
   return (
     <motion.div
-      className="rounded-[14px] overflow-hidden"
-      style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ scale: 1.01, y: -2 }}
-      transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+      onClick={onSelect}
+      className="cursor-pointer group transition-all duration-200"
+      style={{
+        padding: '12px',
+        backgroundColor: 'rgba(255,255,255,0.04)',
+        border: '1px solid rgba(255,255,255,0.06)',
+        borderRadius: '10px',
+      }}
+      whileHover={{
+        backgroundColor: 'rgba(255,255,255,0.06)',
+        borderColor: 'rgba(6, 64, 43, 0.3)',
+        y: -2,
+      }}
+      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
     >
-      {/* Main card */}
-      <div className="p-4 cursor-pointer" onClick={onToggle}>
-        <div className="flex items-start gap-3">
-          {/* Avatar */}
-          <div className="relative">
-            <AgentAvatar agentId={agent.id} color={config.color} />
-            {/* Online indicator */}
-            <motion.div
-              className={isOnline ? 'dot-online animate-pulse-dot' : 'dot-offline'}
-              style={{ position: 'absolute', bottom: -2, right: -2, border: '2px solid #1c1c1e' }}
-              animate={isOnline ? { scale: [1, 1.3, 1] } : {}}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-          </div>
+      <div className="flex items-center gap-2">
+        {/* Avatar */}
+        <AgentAvatar agentId={agent.id} color={config.color} />
 
-          {/* Info */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-sm transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>{config.name}</h3>
-              <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: `${config.color}15`, color: config.color }}>
-                {config.role}
-              </span>
-            </div>
-            <p className="text-xs mt-0.5 line-clamp-1 transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{config.description}</p>
-
-            {/* Current activity */}
-            {latestActivity && (
-              <div className="flex items-center gap-1.5 mt-2 px-2 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', display: 'inline-flex' }}>
-                <ActionIcon className={`w-3.5 h-3.5 ${actionConfig?.color}`} />
-                <span className={`text-xs font-medium ${actionConfig?.color}`}>{actionConfig?.label}</span>
-                <span className="text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>•</span>
-                <span className="text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{formatTimeAgo(latestActivity.timestamp)}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Stats summary */}
-          <div className="flex flex-col items-end gap-1">
-            <StatusIndicator isOnline={isOnline} status={session?.status} />
-            {stats && (
-              <div className="text-xs transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>
-                {stats.daily_tasks_completed} tasks today
-              </div>
-            )}
-          </div>
+        {/* Info - left aligned */}
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold leading-tight" style={{ color: 'var(--text-primary)' }}>
+            {config.name}
+          </p>
+          <p className="text-xs line-clamp-1" style={{ color: 'var(--text-tertiary)' }}>
+            {config.role}
+          </p>
         </div>
-      </div>
 
-      {/* Expanded details */}
-      <AnimatePresence>
-        {isExpanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
+        {/* Status indicator - right aligned */}
+        <StatusIndicator isOnline={isOnline} status={session?.status} />
+
+        {/* Quick stat badge */}
+        {stats && (
+          <div
+            className="px-2 py-1 rounded-lg text-xs font-medium flex-shrink-0"
+            style={{
+              backgroundColor: 'rgba(255,255,255,0.06)',
+              color: 'var(--text-tertiary)',
+            }}
           >
-            <div className="p-4 space-y-4">
-              {/* Stats grid */}
-              {stats && (
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="rounded-xl p-2 text-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                    <p className="text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>Tokens Today</p>
-                    <p className="text-sm font-semibold transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>{stats.daily_tokens_used.toLocaleString()}</p>
-                  </div>
-                  <div className="rounded-xl p-2 text-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                    <p className="text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>Tasks Done</p>
-                    <p className="text-sm font-semibold transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>{stats.daily_tasks_completed}</p>
-                  </div>
-                  <div className="rounded-xl p-2 text-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                    <p className="text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>Active Time</p>
-                    <p className="text-sm font-semibold transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>{formatDuration(stats.daily_active_seconds)}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Recent activities */}
-              <div>
-                <h4 className="text-xs font-semibold mb-2 flex items-center gap-1.5 transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>
-                  <Activity className="w-3.5 h-3.5" />
-                  Recent Activity
-                </h4>
-                <div className="space-y-2">
-                  {activities.slice(0, 5).map((activity) => {
-                    const ac = getActionConfig(activity.action);
-                    const AcIcon = ICON_MAP[ac.icon] || Circle;
-                    return (
-                      <motion.div
-                        key={activity.id}
-                        className="flex items-center gap-2 p-2 rounded-xl"
-                        style={{ background: 'rgba(255,255,255,0.04)' }}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                      >
-                        <AcIcon className={`w-3.5 h-3.5 ${ac.color}`} />
-                        <span className="text-xs flex-1 line-clamp-1 transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>{activity.description}</span>
-                        <span className="text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{formatTimeAgo(activity.timestamp)}</span>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Session info */}
-              {session && (
-                <div className="text-xs flex items-center gap-2 transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
-                  <Clock className="w-3.5 h-3.5" />
-                  Session started {formatTimeAgo(session.started_at)}
-                  {session.current_action && (
-                    <>
-                      <span>•</span>
-                      <span>Currently: {session.current_action}</span>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-          </motion.div>
+            {stats.daily_tasks_completed} tasks
+          </div>
         )}
-      </AnimatePresence>
+      </div>
     </motion.div>
   );
 }
@@ -301,10 +137,24 @@ function AgentCard({
 // Main sidebar component
 export function AgentsSidebar({ isOpen = false, onClose }: { isOpen?: boolean; onClose?: () => void }) {
   const { agentStates, loading, error } = useAgentState();
-  const [expandedAgent, setExpandedAgent] = useState<AgentId | null>(null);
+  const [selectedAgent, setSelectedAgent] = useState<AgentState | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
-  // Get activities for expanded agent
-  const { activities: expandedActivities } = useAgentActivities(expandedAgent || undefined, 10);
+  // Get activities for modal
+  const { activities: modalActivities } = useAgentActivities(
+    selectedAgent?.agent.id || undefined,
+    10
+  );
+
+  const handleSelectAgent = (agent: AgentState) => {
+    setSelectedAgent(agent);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    // Keep selectedAgent state for smooth transitions
+  };
 
   const sidebarContent = loading ? (
     <div className="flex items-center justify-center py-12">
@@ -319,24 +169,21 @@ export function AgentsSidebar({ isOpen = false, onClose }: { isOpen?: boolean; o
     </div>
   ) : (
     <>
-      {/* Header */}
-      <div className="p-4 transition-all duration-300" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      {/* Header - Compact */}
+      <div className="p-3 transition-all duration-300" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <h2 className="font-semibold flex items-center gap-2 text-sm transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>
-          <Users className="w-5 h-5 text-teal-600" />
-          The Begu Company
+          <Users className="w-4 h-4 text-teal-600" />
+          Agents
         </h2>
-        <p className="text-xs mt-1 transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>3 AI agents • {agentStates.filter(s => s.isOnline).length} online</p>
       </div>
 
-      {/* Agent list */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+      {/* Agent list - Compact rows */}
+      <div className="flex-1 overflow-y-auto p-3 space-y-2">
         {agentStates.map((state) => (
-          <AgentCard
+          <CompactAgentRow
             key={state.agent.id}
             state={state}
-            isExpanded={expandedAgent === state.agent.id}
-            onToggle={() => setExpandedAgent(expandedAgent === state.agent.id ? null : state.agent.id)}
-            activities={expandedAgent === state.agent.id ? expandedActivities : []}
+            onSelect={() => handleSelectAgent(state)}
           />
         ))}
       </div>
@@ -360,7 +207,7 @@ export function AgentsSidebar({ isOpen = false, onClose }: { isOpen?: boolean; o
 
   return (
     <>
-      {/* Desktop Sidebar - Now Collapsible */}
+      {/* Desktop Sidebar - Collapsible */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -420,6 +267,16 @@ export function AgentsSidebar({ isOpen = false, onClose }: { isOpen?: boolean; o
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Agent Details Modal */}
+      {selectedAgent && (
+        <AgentDetailsModal
+          agent={selectedAgent}
+          activities={modalActivities}
+          isOpen={showModal}
+          onClose={handleCloseModal}
+        />
+      )}
     </>
   );
 }
