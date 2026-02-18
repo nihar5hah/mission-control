@@ -64,6 +64,7 @@ import { AgentStatus } from '@/components/AgentStatus';
 import { AgentsSidebar } from '@/components/AgentsSidebar';
 import { HierarchyTab } from '@/components/HierarchyTab';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { QuickActions } from '@/components/QuickActions';
 import { AGENT_CONFIG } from '@/types/agents';
 import type { AgentId } from '@/types/agents';
 import { OfficeScene } from '@/components/OfficeScene';
@@ -612,6 +613,11 @@ export default function MissionControl() {
               </motion.div>
             );
           })}
+        </div>
+
+        {/* Quick Actions Panel */}
+        <div className="mt-6">
+          <QuickActions />
         </div>
       </motion.div>
     );
