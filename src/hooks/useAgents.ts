@@ -97,7 +97,7 @@ export function useAgentActivities(agentId?: AgentId, limit: number = 20, enable
 
   useEffect(() => {
     // Skip if not enabled
-    if (!enabled || !agentId) return;
+    if (!enabled) return;
 
     const fetchActivities = async () => {
       try {
