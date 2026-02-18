@@ -6,14 +6,13 @@ import { toast } from 'sonner';
 import {
   Sun,
   RefreshCw,
-  FileText,
-  Trash2,
+  Sparkles,
   Download,
   Bell,
-  Sparkles,
+  Trash2,
   Loader2,
+  Zap,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -47,7 +46,7 @@ const ACTIONS = [
     id: 'export-summary',
     label: "Export Today's Summary",
     icon: Download,
-    description: 'Download a JSON summary of today’s activity.',
+    description: 'Download a JSON summary of today\'s activity.',
   },
   {
     id: 'test-notification',
@@ -95,60 +94,80 @@ export function QuickActions() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="glass-card liquid-border p-5"
+      transition={{ duration: 0.2 }}
+      className="apple-card p-5"
     >
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>Quick Actions</h3>
-          <p className="text-xs" style={{ color: 'var(--subtle)' }}>Trigger key workflows instantly</p>
+          <h3 className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>Quick Actions</h3>
+          <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Trigger key workflows instantly</p>
         </div>
-        <FileText className="w-5 h-5 text-[#8B5CF6]" />
+        <div className="w-8 h-8 rounded-[10px] flex items-center justify-center" style={{ background: 'var(--accent-muted)' }}>
+          <Zap className="w-4 h-4" style={{ color: 'var(--accent)' }} />
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {ACTIONS.map((action) => {
           const Icon = action.icon;
           const isLoading = loadingAction === action.id;
           return (
-            <Button
+            <button
               key={action.id}
-              variant="glow"
               onClick={() => runAction(action.id)}
               disabled={isLoading}
-              className="justify-start h-auto py-3 px-4 text-left"
+              className="flex items-start gap-3 w-full p-3.5 rounded-xl text-left transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.06)',
+              }}
+              onMouseEnter={(e) => {
+                if (!isLoading) {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                  e.currentTarget.style.borderColor = 'rgba(191,90,242,0.25)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
+              }}
             >
-              <span className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-[10px] flex items-center justify-center flex-shrink-0" style={{ background: 'var(--accent-muted)' }}>
                 {isLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" style={{ color: 'var(--accent)' }} />
                 ) : (
-                  <Icon className="w-4 h-4 text-[#8B5CF6]" />
+                  <Icon className="w-4 h-4" style={{ color: 'var(--accent)' }} />
                 )}
-                <span>
-                  <span className="text-sm font-medium block" style={{ color: 'var(--foreground)' }}>{action.label}</span>
-                  <span className="text-[11px]" style={{ color: 'var(--subtle)' }}>{action.description}</span>
-                </span>
-              </span>
-            </Button>
+              </div>
+              <div>
+                <span className="text-sm font-medium block" style={{ color: 'var(--text-primary)' }}>{action.label}</span>
+                <span className="text-[11px]" style={{ color: 'var(--text-tertiary)' }}>{action.description}</span>
+              </div>
+            </button>
           );
         })}
 
         <Dialog>
           <DialogTrigger asChild>
-            <Button
-              variant="destructive"
-              className="justify-start h-auto py-3 px-4 text-left"
+            <button
+              className="flex items-start gap-3 w-full p-3.5 rounded-xl text-left transition-all"
+              style={{
+                background: 'var(--color-red-muted)',
+                border: '1px solid rgba(255,69,58,0.2)',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,69,58,0.22)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--color-red-muted)'; }}
             >
-              <span className="flex items-center gap-3">
-                <Trash2 className="w-4 h-4" />
-                <span>
-                  <span className="text-sm font-medium block" style={{ color: 'var(--foreground)' }}>Clear Old Activities</span>
-                  <span className="text-[11px]" style={{ color: 'var(--danger-light)' }}>Delete 7+ day entries</span>
-                </span>
-              </span>
-            </Button>
+              <div className="w-8 h-8 rounded-[10px] flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(255,69,58,0.2)' }}>
+                <Trash2 className="w-4 h-4" style={{ color: 'var(--color-red)' }} />
+              </div>
+              <div>
+                <span className="text-sm font-medium block" style={{ color: 'var(--color-red)' }}>Clear Old Activities</span>
+                <span className="text-[11px]" style={{ color: 'rgba(255,69,58,0.7)' }}>Delete 7+ day entries</span>
+              </div>
+            </button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -158,11 +177,16 @@ export function QuickActions() {
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button variant="ghost">Cancel</Button>
-              <Button
-                variant="destructive"
+              <button
+                className="px-4 py-2 rounded-xl text-sm font-medium btn-apple-secondary"
+              >
+                Cancel
+              </button>
+              <button
                 onClick={() => runAction('clear-activities')}
                 disabled={loadingAction === 'clear-activities'}
+                className="px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2 disabled:opacity-50"
+                style={{ background: 'var(--color-red)', color: 'white' }}
               >
                 {loadingAction === 'clear-activities' ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -170,7 +194,7 @@ export function QuickActions() {
                   <Trash2 className="w-4 h-4" />
                 )}
                 Confirm Delete
-              </Button>
+              </button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
