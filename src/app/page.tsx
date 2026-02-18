@@ -52,6 +52,7 @@ import {
   Users,
   Workflow,
   Building,
+  Command,
   Coffee,
   Circle,
   Menu,
@@ -418,18 +419,18 @@ export default function MissionControl() {
             <div
               className="w-8 h-8 rounded-xl flex items-center justify-center"
               style={{
-                background: 'linear-gradient(135deg, #BF5AF2 0%, #9B42D4 100%)',
-                boxShadow: '0 4px 12px rgba(191,90,242,0.4)',
+                background: 'linear-gradient(135deg, #06402B 0%, #04311f 100%)',
+                boxShadow: '0 4px 12px rgba(6, 64, 43, 0.4)',
               }}
             >
               <motion.div animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}>
-                <Building className="w-4 h-4 text-white" />
+                <Command className="w-4 h-4 text-white" />
               </motion.div>
             </div>
 
             <div>
               <h1 className="text-sm font-semibold leading-tight" style={{ color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
-                The Begu Company
+                CCPL
               </h1>
               <p className="text-[11px] leading-tight" style={{ color: 'var(--text-tertiary)' }}>
                 Mission Control
