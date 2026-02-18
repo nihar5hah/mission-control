@@ -11,6 +11,9 @@ import {
   Activity,
   Clock,
   Zap,
+  Bot,
+  Code,
+  Microscope,
 } from 'lucide-react';
 import type { AgentState, AgentActivity } from '@/types/agents';
 import { AGENT_CONFIG } from '@/types/agents';
@@ -81,20 +84,18 @@ function formatDuration(seconds: number): string {
 
 // Agent avatar component
 function AgentAvatar({ agentId, color }: { agentId: string; color: string }) {
-  const { Bot, Code, Microscope } = require('lucide-react');
   const Icon = agentId === 'begubot' ? Bot : agentId === 'coder' ? Code : Microscope;
 
   return (
     <div
-      className="w-16 h-16 rounded-lg flex items-center justify-center relative overflow-hidden"
-      style={{ backgroundColor: `${color}18`, border: `2px solid ${color}` }}
+      className="relative w-20 h-20 rounded-lg overflow-hidden flex items-center justify-center"
+      style={{
+        background: `${color}20`,
+        border: `1px solid ${color}`,
+        boxShadow: `0 0 20px ${color}40`,
+      }}
     >
-      <Icon className="w-8 h-8" style={{ color }} />
-      {/* Glow effect */}
-      <div
-        className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-20"
-        style={{ background: `radial-gradient(circle, ${color}, transparent)` }}
-      />
+      <Icon className="w-10 h-10" style={{ color }} />
     </div>
   );
 }

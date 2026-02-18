@@ -39,20 +39,26 @@ function formatTimeAgo(timestamp: string): string {
 
 // Status indicator component (simplified for compact view)
 function StatusIndicator({ isOnline, status }: { isOnline: boolean; status?: string }) {
-  if (!isOnline) {
-    return (
-      <div className="flex items-center gap-1.5">
-        <div className="dot-offline" />
-        <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Offline</span>
-      </div>
-    );
+  const statusConfig = {
+    online: { color: '#10b981', label: 'Online' },
+    offline: { color: '#ef4444', label: 'Offline' },
+    idle: { color: '#f59e0b', label: 'Idle' },
+  };
+
+  let config = statusConfig.offline;
+  if (isOnline) {
+    config = status === 'idle' ? statusConfig.idle : statusConfig.online;
   }
 
-  const dotClass = status === 'idle' ? 'dot-warning' : 'dot-online animate-pulse-dot';
   return (
     <div className="flex items-center gap-1.5">
-      <div className={dotClass} />
-      <span className="text-xs capitalize" style={{ color: 'var(--text-primary)' }}>{status || 'Online'}</span>
+      <div
+        className="w-2 h-2 rounded-full"
+        style={{ backgroundColor: config.color }}
+      />
+      <span className="text-xs capitalize" style={{ color: 'var(--text-tertiary)' }}>
+        {isOnline ? (status || 'Online') : 'Offline'}
+      </span>
     </div>
   );
 }
@@ -92,6 +98,7 @@ function CompactAgentRow({
         backgroundColor: 'rgba(255,255,255,0.04)',
         border: '1px solid rgba(255,255,255,0.06)',
         borderRadius: '10px',
+        minHeight: '64px',
       }}
       whileHover={{
         backgroundColor: 'rgba(255,255,255,0.06)',
