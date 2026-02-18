@@ -31,52 +31,52 @@ function parseMarkdown(md: string): string {
     .replace(/>/g, '&gt;')
 
     // Headers
-    .replace(/^### (.*$)/gim, '<h3 style="color: var(--foreground)" class="text-lg font-semibold mt-6 mb-3">$1</h3>')
-    .replace(/^## (.*$)/gim, '<h2 style="color: var(--foreground)" class="text-xl font-semibold mt-6 mb-3">$1</h2>')
-    .replace(/^# (.*$)/gim, '<h1 style="color: var(--foreground)" class="text-2xl font-bold mt-6 mb-4">$1</h1>')
+    .replace(/^### (.*$)/gim, '<h3 style="color: var(--text-primary)" class="text-lg font-semibold mt-6 mb-3">$1</h3>')
+    .replace(/^## (.*$)/gim, '<h2 style="color: var(--text-primary)" class="text-xl font-semibold mt-6 mb-3">$1</h2>')
+    .replace(/^# (.*$)/gim, '<h1 style="color: var(--text-primary)" class="text-2xl font-bold mt-6 mb-4">$1</h1>')
 
     // Bold and Italic
-    .replace(/\*\*\*(.*?)\*\*\*/g, '<strong style="color: var(--foreground)" class="font-bold"><em>$1</em></strong>')
-    .replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--foreground)" class="font-semibold">$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em style="color: var(--subtle)" class="italic">$1</em>')
-    .replace(/___(.*?)___/g, '<strong style="color: var(--foreground)" class="font-bold"><em>$1</em></strong>')
-    .replace(/__(.*?)__/g, '<strong style="color: var(--foreground)" class="font-semibold">$1</strong>')
-    .replace(/_(.*?)_/g, '<em style="color: var(--subtle)" class="italic">$1</em>')
+    .replace(/\*\*\*(.*?)\*\*\*/g, '<strong style="color: var(--text-primary)" class="font-bold"><em>$1</em></strong>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--text-primary)" class="font-semibold">$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em style="color: var(--text-secondary)" class="italic">$1</em>')
+    .replace(/___(.*?)___/g, '<strong style="color: var(--text-primary)" class="font-bold"><em>$1</em></strong>')
+    .replace(/__(.*?)__/g, '<strong style="color: var(--text-primary)" class="font-semibold">$1</strong>')
+    .replace(/_(.*?)_/g, '<em style="color: var(--text-secondary)" class="italic">$1</em>')
 
     // Inline code
-    .replace(/`([^`]+)`/g, '<code style="background-color: var(--muted-bg); color: #F59E0B" class="px-1.5 py-0.5 rounded text-sm font-mono">$1</code>')
+    .replace(/`([^`]+)`/g, '<code style="background-color: var(--bg-elevated); color: #F59E0B" class="px-1.5 py-0.5 rounded text-sm font-mono">$1</code>')
 
     // Links
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: #5E6AD2" class="hover:opacity-80 underline underline-offset-2" target="_blank" rel="noopener noreferrer">$1</a>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: #BF5AF2" class="hover:opacity-80 underline underline-offset-2" target="_blank" rel="noopener noreferrer">$1</a>')
 
     // Blockquotes
-    .replace(/^\&gt; (.*$)/gim, '<blockquote style="border-color: #5E6AD2; color: var(--subtle)" class="border-l-2 pl-4 py-1 my-4 italic">$1</blockquote>')
+    .replace(/^\&gt; (.*$)/gim, '<blockquote style="border-color: #BF5AF2; color: var(--text-secondary)" class="border-l-2 pl-4 py-1 my-4 italic">$1</blockquote>')
 
     // Horizontal rules
     .replace(/^---$/gim, '<hr style="border-color: var(--border)" class="my-6" />')
 
     // Unordered lists
-    .replace(/^\- (.*$)/gim, '<li style="color: var(--subtle)" class="ml-4 before:content-[\"•\"] before:mr-2 before:text-[#5E6AD2]">$1</li>')
-    .replace(/^\* (.*$)/gim, '<li style="color: var(--subtle)" class="ml-4 before:content-[\"•\"] before:mr-2 before:text-[#5E6AD2]">$1</li>')
+    .replace(/^\- (.*$)/gim, '<li style="color: var(--text-secondary)" class="ml-4 before:content-[\"•\"] before:mr-2 before:text-[#BF5AF2]">$1</li>')
+    .replace(/^\* (.*$)/gim, '<li style="color: var(--text-secondary)" class="ml-4 before:content-[\"•\"] before:mr-2 before:text-[#BF5AF2]">$1</li>')
 
     // Ordered lists
-    .replace(/^\d+\. (.*$)/gim, '<li style="color: var(--subtle)" class="ml-4 list-decimal">$1</li>')
+    .replace(/^\d+\. (.*$)/gim, '<li style="color: var(--text-secondary)" class="ml-4 list-decimal">$1</li>')
 
     // Code blocks
     .replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
       const languageClass = lang ? `language-${lang}` : '';
-      return `<pre style="background-color: var(--muted-bg); border-color: var(--border); color: var(--subtle)" class="border rounded-lg p-4 my-4 overflow-x-auto"><code class="text-sm font-mono ${languageClass}">${code.trim()}</code></pre>`;
+      return `<pre style="background-color: var(--bg-elevated); border-color: var(--border); color: var(--text-secondary)" class="border rounded-lg p-4 my-4 overflow-x-auto"><code class="text-sm font-mono ${languageClass}">${code.trim()}</code></pre>`;
     })
 
     // Paragraphs
-    .replace(/\n\n/g, '</p><p style="color: var(--subtle)" class="leading-relaxed my-3">')
+    .replace(/\n\n/g, '</p><p style="color: var(--text-secondary)" class="leading-relaxed my-3">')
 
     // Line breaks
     .replace(/\n/g, '<br />');
 
   // Wrap in paragraph if not starting with a block element
   if (!html.startsWith('<')) {
-    html = '<p style="color: var(--subtle)" class="leading-relaxed my-3">' + html + '</p>';
+    html = '<p style="color: var(--text-secondary)" class="leading-relaxed my-3">' + html + '</p>';
   }
 
   return html;
@@ -127,7 +127,7 @@ export function MarkdownViewer({ content, fileName, loading, onRefresh }: Markdo
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
         >
-          <RefreshCw className="w-6 h-6" style={{ color: '#5E6AD2' }} />
+          <RefreshCw className="w-6 h-6" style={{ color: 'var(--accent)' }} />
         </motion.div>
       </div>
     );
@@ -136,8 +136,8 @@ export function MarkdownViewer({ content, fileName, loading, onRefresh }: Markdo
   if (!content) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center">
-        <FileText className="w-12 h-12 mb-3 transition-colors duration-300" style={{ color: 'var(--subtle)' }} />
-        <p className="text-sm transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Select a file to view its contents</p>
+        <FileText className="w-12 h-12 mb-3 transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }} />
+        <p className="text-sm transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>Select a file to view its contents</p>
       </div>
     );
   }
@@ -152,13 +152,13 @@ export function MarkdownViewer({ content, fileName, loading, onRefresh }: Markdo
         style={{ borderBottom: '1px solid var(--border)' }}
       >
         <div className="flex items-center gap-2">
-          <FileText className="w-5 h-5" style={{ color: '#5E6AD2' }} />
-          <h2 className="text-lg font-semibold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{fileName}</h2>
+          <FileText className="w-5 h-5" style={{ color: 'var(--accent)' }} />
+          <h2 className="text-lg font-semibold transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>{fileName}</h2>
         </div>
 
         <div className="flex items-center gap-2">
           {/* Last updated */}
-          <div className="flex items-center gap-1 text-xs mr-2 transition-colors duration-300" style={{ color: 'var(--subtle)' }}>
+          <div className="flex items-center gap-1 text-xs mr-2 transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
             <Clock className="w-3.5 h-3.5" />
             <span>{lastUpdated.toLocaleTimeString()}</span>
           </div>
@@ -167,20 +167,20 @@ export function MarkdownViewer({ content, fileName, loading, onRefresh }: Markdo
           <motion.button
             onClick={handleCopy}
             className="p-2 rounded-lg transition-colors"
-            style={{ color: 'var(--subtle)' }}
+            style={{ color: 'var(--text-tertiary)' }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = 'var(--border)';
-              e.currentTarget.style.color = 'var(--foreground)';
+              e.currentTarget.style.color = 'var(--text-primary)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.color = 'var(--subtle)';
+              e.currentTarget.style.color = 'var(--text-tertiary)';
             }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             title="Copy content"
           >
-            {copied ? <Check className="w-4 h-4" style={{ color: '#5EAD5E' }} /> : <Copy className="w-4 h-4" />}
+            {copied ? <Check className="w-4 h-4" style={{ color: 'var(--color-green)' }} /> : <Copy className="w-4 h-4" />}
           </motion.button>
 
           {/* Refresh button */}
@@ -188,14 +188,14 @@ export function MarkdownViewer({ content, fileName, loading, onRefresh }: Markdo
             <motion.button
               onClick={onRefresh}
               className="p-2 rounded-lg transition-colors"
-              style={{ color: 'var(--subtle)' }}
+              style={{ color: 'var(--text-tertiary)' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = 'var(--border)';
-                e.currentTarget.style.color = 'var(--foreground)';
+                e.currentTarget.style.color = 'var(--text-primary)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = 'var(--subtle)';
+                e.currentTarget.style.color = 'var(--text-tertiary)';
               }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

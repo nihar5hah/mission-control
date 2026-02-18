@@ -45,19 +45,19 @@ function FileTreeItem({ file, level, selectedFile, onSelectFile, defaultExpanded
         className="w-full flex items-center gap-1.5 px-2 py-1.5 rounded text-sm transition-all"
         style={{
           paddingLeft: `${level * 12 + 8}px`,
-          backgroundColor: isSelected ? 'rgba(94, 106, 210, 0.1)' : 'transparent',
-          color: isSelected ? '#5E6AD2' : 'var(--subtle)',
+          backgroundColor: isSelected ? 'rgba(191,90,242,0.12)' : 'transparent',
+          color: isSelected ? '#BF5AF2' : 'var(--text-tertiary)',
         }}
         onMouseEnter={(e) => {
           if (!isSelected) {
-            e.currentTarget.style.backgroundColor = 'var(--border)';
-            e.currentTarget.style.color = 'var(--foreground)';
+            e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)';
+            e.currentTarget.style.color = 'var(--text-primary)';
           }
         }}
         onMouseLeave={(e) => {
           if (!isSelected) {
             e.currentTarget.style.backgroundColor = 'transparent';
-            e.currentTarget.style.color = 'var(--subtle)';
+            e.currentTarget.style.color = 'var(--text-tertiary)';
           }
         }}
         whileHover={{ x: 2 }}
@@ -75,13 +75,13 @@ function FileTreeItem({ file, level, selectedFile, onSelectFile, defaultExpanded
 
         {!isDirectory && <div className="w-3.5" />}
 
-        <FileIcon className="w-4 h-4 flex-shrink-0" style={{ color: isSelected ? '#5E6AD2' : 'inherit' }} />
+        <FileIcon className="w-4 h-4 flex-shrink-0" style={{ color: isSelected ? '#BF5AF2' : 'inherit' }} />
 
         <span className="truncate flex-1 text-left">{file.name}</span>
 
         {/* Priority star */}
         {showPriority && (
-          <Star className="w-3 h-3" style={{ color: '#F59E0B', fill: '#F59E0B' }} />
+          <Star className="w-3 h-3" style={{ color: 'var(--color-yellow)', fill: 'var(--color-yellow)' }} />
         )}
       </motion.button>
 
@@ -114,7 +114,7 @@ function FileTreeItem({ file, level, selectedFile, onSelectFile, defaultExpanded
 export function FileTree({ files, selectedFile, onSelectFile }: FileTreeProps) {
   if (files.length === 0) {
     return (
-      <div className="flex items-center justify-center py-8 text-sm text-[#666]">
+      <div className="flex items-center justify-center py-8 text-sm" style={{ color: 'var(--text-tertiary)' }}>
         No documentation files found
       </div>
     );
