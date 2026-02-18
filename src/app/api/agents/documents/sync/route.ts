@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { requireApiKey } from '@/lib/auth';
 import type { AgentId } from '@/types/agents';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -24,8 +25,7 @@ const DEFAULT_FILES = ['IDENTITY.md', 'MEMORY.md', 'SOUL.md', 'USER.md', 'AGENTS
 
 async function getRecentMemoryFiles(workspace: string, limit: number = 7) {
   const memoryDir = path.join(workspace, 'memory');
-  try {
-    const entries = await fs.readdir(memoryDir, { withFileTypes: true });
+  try {    const entries = await fs.readdir(memoryDir, { withFileTypes: true });
     const mdFiles = await Promise.all(entries
       .filter((entry) => entry.isFile() && entry.name.endsWith('.md'))
       .map(async (entry) => {

@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { requireApiKey } from '@/lib/auth';
 import type { AgentId, ActivityStatus } from '@/types/agents';
 
 // POST /api/agents/activity
 // Log a new agent activity and update session status
 export async function POST(request: NextRequest) {
   try {
+    const auth = requireApiKey(request);
+    if (auth) return auth;
     const body = await request.json();
     const {
       agent_id,

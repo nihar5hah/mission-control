@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
+import { requireApiKey } from '@/lib/auth';
 
 export async function POST(request: Request) {
   try {
+    const auth = requireApiKey(request);
+    if (auth) return auth;
     const url = new URL(request.url);
     const base = `${url.protocol}//${url.host}`;
     const response = await fetch(`${base}/api/agents/documents/sync-all`, {

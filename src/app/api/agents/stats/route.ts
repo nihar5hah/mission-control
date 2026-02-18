@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { requireApiKey } from '@/lib/auth';
 import type { AgentId } from '@/types/agents';
 
 // POST /api/agents/stats
 // Increment agent stats (tokens/tasks/active seconds)
 export async function POST(request: NextRequest) {
   try {
+    const auth = requireApiKey(request);
+    if (auth) return auth;
     const body = await request.json();
     const {
       agent_id,

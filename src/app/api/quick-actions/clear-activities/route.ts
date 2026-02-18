@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { requireApiKey } from '@/lib/auth';
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
+    const auth = requireApiKey(request);
+    if (auth) return auth;
     const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
     const { error } = await supabase

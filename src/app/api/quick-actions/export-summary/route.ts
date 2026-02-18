@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { requireApiKey } from '@/lib/auth';
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
+    const auth = requireApiKey(request);
+    if (auth) return auth;
     const start = new Date();
     start.setHours(0, 0, 0, 0);
 
