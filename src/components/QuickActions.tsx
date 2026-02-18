@@ -126,7 +126,7 @@ export function QuickActions() {
               onMouseEnter={(e) => {
                 if (!isLoading) {
                   e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-                  e.currentTarget.style.borderColor = 'rgba(6,64,43,0.25)';
+                  e.currentTarget.style.borderColor = 'rgba(6, 64, 43, 0.3)';
                 }
               }}
               onMouseLeave={(e) => {

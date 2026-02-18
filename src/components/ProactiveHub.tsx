@@ -84,9 +84,9 @@ const actionTypeConfig = {
   analysis: {
     label: 'Analysis',
     icon: Brain,
-    color: 'text-[#06402B]',
-    bg: 'bg-[#06402B]/10',
-    border: 'border-[#06402B]/30',
+    color: '#06402B',
+    bg: 'rgba(6, 64, 43, 0.1)',
+    border: 'rgba(6, 64, 43, 0.3)',
   },
 };
 
@@ -122,9 +122,9 @@ const patternCategoryConfig = {
   learning: {
     label: 'Learning',
     icon: GraduationCap,
-    color: 'text-[#06402B]',
-    bg: 'bg-[#06402B]/10',
-    border: 'border-[#06402B]/30',
+    color: '#06402B',
+    bg: 'rgba(6, 64, 43, 0.1)',
+    border: 'rgba(6, 64, 43, 0.3)',
   },
   collaboration: {
     label: 'Collaboration',
@@ -160,9 +160,9 @@ const opportunityTypeConfig = {
   learning: {
     label: 'Learning',
     icon: GraduationCap,
-    color: 'text-[#06402B]',
-    bg: 'bg-[#06402B]/10',
-    border: 'border-[#06402B]/30',
+    color: '#06402B',
+    bg: 'rgba(6, 64, 43, 0.1)',
+    border: 'rgba(6, 64, 43, 0.3)',
   },
   efficiency: {
     label: 'Efficiency',
@@ -300,17 +300,43 @@ function ActionCard({ action, onDismiss }: { action: ProactiveAction; onDismiss:
   const Icon = config.icon;
   const status = statusConfig[action.status as keyof typeof statusConfig] || statusConfig.pending;
 
-  // Extract hex from config and convert to rgba
-  const getColorValue = (hexColor: string) => {
-    const hex = hexColor.replace('#', '');
-    const r = parseInt(hex.slice(0, 2), 16);
-    const g = parseInt(hex.slice(2, 4), 16);
-    const b = parseInt(hex.slice(4, 6), 16);
-    return { hex: hexColor, rgba: `rgba(${r}, ${g}, ${b}, 0.1)` };
+  // Extract hex from config and convert to rgba - handles both old format (text-[#...]) and new format (#... or rgba(...))
+  const getColorValue = (colorValue: string) => {
+    let hex: string;
+    let rgba: string;
+
+    // Check if it's already an rgba value
+    if (colorValue.includes('rgba')) {
+      // Extract hex from the rgba string for icon color
+      const match = colorValue.match(/rgba\((\d+),\s*(\d+),\s*(\d+)/);
+      if (match) {
+        const r = parseInt(match[1], 10).toString(16).padStart(2, '0');
+        const g = parseInt(match[2], 10).toString(16).padStart(2, '0');
+        const b = parseInt(match[3], 10).toString(16).padStart(2, '0');
+        hex = '#' + r + g + b;
+        rgba = colorValue;
+      } else {
+        hex = '#06402B';
+        rgba = colorValue;
+      }
+    } else {
+      // Handle hex format (either #... or text-[#...])
+      hex = colorValue.replace('text-[#', '#').replace(']', '');
+      if (!hex.startsWith('#')) {
+        hex = '#' + hex;
+      }
+      const hexClean = hex.replace('#', '');
+      const r = parseInt(hexClean.slice(0, 2), 16);
+      const g = parseInt(hexClean.slice(2, 4), 16);
+      const b = parseInt(hexClean.slice(4, 6), 16);
+      rgba = `rgba(${r}, ${g}, ${b}, 0.1)`;
+    }
+
+    return { hex, rgba };
   };
 
-  const configColor = getColorValue(config.color.replace('text-[#', '#').replace(']', ''));
-  const statusColor = getColorValue(status.color.replace('text-[#', '#').replace(']', ''));
+  const configColor = getColorValue(config.color);
+  const statusColor = getColorValue(status.color);
 
   return (
     <motion.div
@@ -372,14 +398,39 @@ function PatternCard({ pattern }: { pattern: Pattern }) {
   const config = patternCategoryConfig[pattern.category as keyof typeof patternCategoryConfig] || patternCategoryConfig.time;
   const Icon = config.icon;
 
-  // Extract hex from config and convert to rgba
-  const getColorValue = (hexColor: string) => {
-    const hex = hexColor.replace('text-[#', '#').replace(']', '');
-    const hexClean = hex.replace('#', '');
-    const r = parseInt(hexClean.slice(0, 2), 16);
-    const g = parseInt(hexClean.slice(2, 4), 16);
-    const b = parseInt(hexClean.slice(4, 6), 16);
-    return { hex: '#' + hexClean, rgba: `rgba(${r}, ${g}, ${b}, 0.1)` };
+  // Extract hex from config and convert to rgba - handles both old format (text-[#...]) and new format (#... or rgba(...))
+  const getColorValue = (colorValue: string) => {
+    let hex: string;
+    let rgba: string;
+
+    // Check if it's already an rgba value
+    if (colorValue.includes('rgba')) {
+      // Extract hex from the rgba string for icon color
+      const match = colorValue.match(/rgba\((\d+),\s*(\d+),\s*(\d+)/);
+      if (match) {
+        const r = parseInt(match[1], 10).toString(16).padStart(2, '0');
+        const g = parseInt(match[2], 10).toString(16).padStart(2, '0');
+        const b = parseInt(match[3], 10).toString(16).padStart(2, '0');
+        hex = '#' + r + g + b;
+        rgba = colorValue;
+      } else {
+        hex = '#06402B';
+        rgba = colorValue;
+      }
+    } else {
+      // Handle hex format (either #... or text-[#...])
+      hex = colorValue.replace('text-[#', '#').replace(']', '');
+      if (!hex.startsWith('#')) {
+        hex = '#' + hex;
+      }
+      const hexClean = hex.replace('#', '');
+      const r = parseInt(hexClean.slice(0, 2), 16);
+      const g = parseInt(hexClean.slice(2, 4), 16);
+      const b = parseInt(hexClean.slice(4, 6), 16);
+      rgba = `rgba(${r}, ${g}, ${b}, 0.1)`;
+    }
+
+    return { hex, rgba };
   };
 
   const configColor = getColorValue(config.color);
@@ -455,14 +506,39 @@ function OpportunityCard({ opportunity, onUpdate }: { opportunity: Opportunity; 
     high: '#EF4444',
   };
 
-  // Extract hex from config and convert to rgba
-  const getColorValue = (hexColor: string) => {
-    const hex = hexColor.replace('text-[#', '#').replace(']', '');
-    const hexClean = hex.replace('#', '');
-    const r = parseInt(hexClean.slice(0, 2), 16);
-    const g = parseInt(hexClean.slice(2, 4), 16);
-    const b = parseInt(hexClean.slice(4, 6), 16);
-    return { hex: '#' + hexClean, rgba: `rgba(${r}, ${g}, ${b}, 0.1)` };
+  // Extract hex from config and convert to rgba - handles both old format (text-[#...]) and new format (#... or rgba(...))
+  const getColorValue = (colorValue: string) => {
+    let hex: string;
+    let rgba: string;
+
+    // Check if it's already an rgba value
+    if (colorValue.includes('rgba')) {
+      // Extract hex from the rgba string for icon color
+      const match = colorValue.match(/rgba\((\d+),\s*(\d+),\s*(\d+)/);
+      if (match) {
+        const r = parseInt(match[1], 10).toString(16).padStart(2, '0');
+        const g = parseInt(match[2], 10).toString(16).padStart(2, '0');
+        const b = parseInt(match[3], 10).toString(16).padStart(2, '0');
+        hex = '#' + r + g + b;
+        rgba = colorValue;
+      } else {
+        hex = '#06402B';
+        rgba = colorValue;
+      }
+    } else {
+      // Handle hex format (either #... or text-[#...])
+      hex = colorValue.replace('text-[#', '#').replace(']', '');
+      if (!hex.startsWith('#')) {
+        hex = '#' + hex;
+      }
+      const hexClean = hex.replace('#', '');
+      const r = parseInt(hexClean.slice(0, 2), 16);
+      const g = parseInt(hexClean.slice(2, 4), 16);
+      const b = parseInt(hexClean.slice(4, 6), 16);
+      rgba = `rgba(${r}, ${g}, ${b}, 0.1)`;
+    }
+
+    return { hex, rgba };
   };
 
   const configColor = getColorValue(config.color);

@@ -257,7 +257,7 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
           className="absolute left-10 bottom-16"
           animate={{ opacity: [0.2, 0.8, 0.2], y: [0, -6, 0] }}
           transition={{ duration: 3, repeat: Infinity }}
-          style={{ color: 'rgba(6,64,43,0.5)' }}
+          style={{ color: 'rgba(6, 64, 43, 0.6)' }}
         >
           <Sparkles className="w-4 h-4" />
         </motion.div>
