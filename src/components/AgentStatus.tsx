@@ -36,21 +36,18 @@ const mockAgents: Agent[] = [
 
 const statusConfig = {
   online: {
-    color: '#5EAD5E',
-    bg: 'rgba(94, 173, 94, 0.1)',
-    border: 'rgba(94, 173, 94, 0.3)',
+    color: 'var(--color-green)',
+    bg: 'var(--color-green-muted)',
     label: 'Online',
   },
   busy: {
-    color: '#F59E0B',
-    bg: 'rgba(245, 158, 11, 0.1)',
-    border: 'rgba(245, 158, 11, 0.3)',
+    color: 'var(--color-orange)',
+    bg: 'var(--color-orange-muted)',
     label: 'Busy',
   },
   offline: {
-    color: '#999',
-    bg: 'rgba(153, 153, 153, 0.1)',
-    border: 'rgba(153, 153, 153, 0.3)',
+    color: '#636366',
+    bg: 'rgba(255,255,255,0.04)',
     label: 'Offline',
   },
 };
@@ -93,7 +90,7 @@ export function AgentStatus({ compact = false }: AgentStatusProps) {
                 className="relative w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors duration-300"
                 style={{
                   backgroundColor: config.bg,
-                  borderColor: 'var(--background)',
+                  borderColor: 'var(--bg-card)',
                 }}
                 whileHover={{ scale: 1.1, zIndex: 10 }}
               >
@@ -102,7 +99,7 @@ export function AgentStatus({ compact = false }: AgentStatusProps) {
                   className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2"
                   style={{
                     backgroundColor: config.color,
-                    borderColor: 'var(--background)',
+                    borderColor: 'var(--bg-card)',
                   }}
                   animate={agent.status === 'busy' ? { scale: [1, 1.2, 1] } : {}}
                   transition={{ duration: 1.5, repeat: Infinity }}
@@ -111,7 +108,7 @@ export function AgentStatus({ compact = false }: AgentStatusProps) {
             );
           })}
         </div>
-        <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>
+        <span className="text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
           {agents.filter(a => a.status === 'online').length}/{agents.length} agents
         </span>
       </div>
@@ -122,16 +119,15 @@ export function AgentStatus({ compact = false }: AgentStatusProps) {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-lg p-4 transition-colors duration-300"
-      style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}
+      className="apple-card p-4"
     >
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold flex items-center gap-2 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>
-          <Bot className="w-4 h-4" style={{ color: '#5E6AD2' }} />
+        <h3 className="text-sm font-semibold flex items-center gap-2 transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>
+          <Bot className="w-4 h-4" style={{ color: 'var(--accent)' }} />
           Agent Status
         </h3>
-        <div className="flex items-center gap-1.5 text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>
-          <Wifi className="w-3.5 h-3.5" style={{ color: '#5EAD5E' }} />
+        <div className="flex items-center gap-1.5 text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
+          <Wifi className="w-3.5 h-3.5" style={{ color: 'var(--color-green)' }} />
           <span>Connected</span>
         </div>
       </div>
@@ -147,15 +143,14 @@ export function AgentStatus({ compact = false }: AgentStatusProps) {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 10 }}
-                className="flex items-center gap-3 p-3 rounded-lg transition-colors duration-300"
-                style={{ backgroundColor: 'var(--muted-bg)', border: '1px solid var(--border)' }}
+                className="flex items-center gap-3 p-3 rounded-xl"
+                style={{ background: 'rgba(255,255,255,0.04)' }}
               >
                 {/* Avatar */}
                 <motion.div
-                  className="relative w-10 h-10 rounded-full flex items-center justify-center border transition-colors duration-300"
+                  className="relative w-10 h-10 rounded-full flex items-center justify-center"
                   style={{
                     backgroundColor: config.bg,
-                    borderColor: config.border,
                   }}
                   whileHover={{ scale: 1.05 }}
                 >
@@ -166,7 +161,7 @@ export function AgentStatus({ compact = false }: AgentStatusProps) {
                     className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2"
                     style={{
                       backgroundColor: config.color,
-                      borderColor: 'var(--muted-bg)',
+                      borderColor: 'var(--bg-card)',
                     }}
                     animate={agent.status === 'busy' ? { scale: [1, 1.3, 1] } : {}}
                     transition={{ duration: 1.5, repeat: Infinity }}
@@ -176,18 +171,18 @@ export function AgentStatus({ compact = false }: AgentStatusProps) {
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{agent.name}</span>
-                    <span className="text-xs px-2 py-0.5 rounded-full border transition-colors duration-300" style={{ backgroundColor: config.bg, color: config.color, borderColor: config.border }}>
+                    <span className="text-sm font-medium transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>{agent.name}</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full transition-colors duration-300" style={{ backgroundColor: config.bg, color: config.color }}>
                       {config.label}
                     </span>
                   </div>
                   {agent.currentTask && (
-                    <p className="text-xs truncate mt-0.5 transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{agent.currentTask}</p>
+                    <p className="text-xs truncate mt-0.5 transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{agent.currentTask}</p>
                   )}
                 </div>
 
                 {/* Last activity */}
-                <div className="flex items-center gap-1 text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>
+                <div className="flex items-center gap-1 text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
                   <Clock className="w-3.5 h-3.5" />
                   <span>{formatLastActivity(agent.lastActivity)}</span>
                 </div>
