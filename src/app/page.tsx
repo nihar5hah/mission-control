@@ -634,12 +634,12 @@ export default function MissionControl() {
   const renderActivityFeed = () => {
     const agentIds: AgentId[] = ['begubot', 'coder', 'researcher'];
 
-    const statusStyles: Record<string, { bg: string; text: string; border: string }> = {
-      running: { bg: 'rgba(16, 185, 129, 0.1)', text: '#059669', border: 'rgba(16, 185, 129, 0.2)' },
-      completed: { bg: 'rgba(59, 130, 246, 0.1)', text: '#1d4ed8', border: 'rgba(59, 130, 246, 0.2)' },
-      failed: { bg: 'rgba(239, 68, 68, 0.1)', text: '#dc2626', border: 'rgba(239, 68, 68, 0.2)' },
-      idle: { bg: 'var(--muted-bg)', text: 'var(--foreground)', border: 'var(--border)' },
-      pending: { bg: 'rgba(217, 119, 6, 0.1)', text: '#b45309', border: 'rgba(217, 119, 6, 0.2)' },
+    const statusStyles: Record<string, { bg: string; text: string }> = {
+      running:   { bg: 'var(--color-green-muted)',  text: 'var(--color-green)' },
+      completed: { bg: 'var(--color-blue-muted)',   text: 'var(--color-blue)' },
+      failed:    { bg: 'var(--color-red-muted)',    text: 'var(--color-red)' },
+      idle:      { bg: 'rgba(255,255,255,0.06)',    text: 'var(--text-tertiary)' },
+      pending:   { bg: 'var(--color-orange-muted)', text: 'var(--color-orange)' },
     };
 
     const actionCategory = (action: string) => {
@@ -656,7 +656,7 @@ export default function MissionControl() {
       const { activities, loading } = useAgentActivities(agentId, 50);
 
       return (
-        <div className="rounded-lg shadow-sm p-4 flex flex-col transition-all duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
+        <div className="apple-card p-4 flex flex-col">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <span className="text-lg">{config.emoji}</span>
@@ -665,7 +665,7 @@ export default function MissionControl() {
                 <p className="text-[11px] transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{config.role}</p>
               </div>
             </div>
-            <span className="text-[10px] px-2 py-1 rounded-full" style={{ backgroundColor: `${config.color}15`, color: config.color }}>
+            <span className="text-[10px] px-2 py-0.5 rounded-full font-medium status-running">
               Live
             </span>
           </div>
@@ -686,17 +686,20 @@ export default function MissionControl() {
                 const StatusClass = statusStyles[activity.status] || statusStyles.pending;
                 const CategoryIcon = category.icon;
                 return (
-                  <div key={activity.id} className="flex items-start gap-2 p-2 rounded-md border transition-colors duration-300" style={{ backgroundColor: 'var(--muted-bg)', borderColor: 'var(--border)' }}>
-                    <div className="p-1.5 rounded border transition-colors duration-300" style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)' }}>
-                      <CategoryIcon className="w-3.5 h-3.5 transition-colors duration-300" style={{ color: 'var(--foreground)' }} />
+                  <div key={activity.id} className="flex items-start gap-2 p-2 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                    <div className="p-1.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                      <CategoryIcon className="w-3.5 h-3.5" style={{ color: 'var(--text-tertiary)' }} />
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs line-clamp-1 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{activity.description}</p>
-                      <div className="flex flex-wrap items-center gap-2 text-[10px] mt-1 transition-colors duration-300" style={{ color: 'var(--subtle)' }}>
+                      <p className="text-xs line-clamp-1" style={{ color: 'var(--text-primary)' }}>{activity.description}</p>
+                      <div className="flex flex-wrap items-center gap-2 text-[10px] mt-1" style={{ color: 'var(--text-tertiary)' }}>
                         <span>{category.label}</span>
-                        <span>•</span>
+                        <span>·</span>
                         <span>{formatTime(activity.timestamp)}</span>
-                        <span className="px-2 py-0.5 rounded-full border transition-colors duration-300" style={{ backgroundColor: StatusClass.bg, color: StatusClass.text, borderColor: StatusClass.border }}>
+                        <span
+                          className="px-2 py-0.5 rounded-full"
+                          style={{ background: StatusClass.bg, color: StatusClass.text }}
+                        >
                           {activity.status}
                         </span>
                       </div>
@@ -713,8 +716,8 @@ export default function MissionControl() {
     return (
       <motion.div key="activity" variants={tabVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.3 }}>
         <div className="mb-6">
-          <h2 className="text-2xl font-semibold mb-1 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>Live Agent Activity</h2>
-          <p className="text-sm transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Newest on top • Last 50 per agent</p>
+          <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)', letterSpacing: '-0.022em' }}>Live Activity</h2>
+          <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>Newest on top · Last 50 per agent</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
