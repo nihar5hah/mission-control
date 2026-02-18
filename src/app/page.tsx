@@ -764,8 +764,8 @@ export default function MissionControl() {
       <motion.div key="calendar" variants={tabVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.3 }}>
         <div className="mb-6 flex flex-col gap-4">
           <div>
-            <h2 className="text-2xl font-semibold mb-1 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>Agent Schedules</h2>
-            <p className="text-sm transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{scheduleItems.length} items scheduled</p>
+            <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)', letterSpacing: '-0.022em' }}>Agent Schedules</h2>
+            <p className="text-sm transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{scheduleItems.length} items scheduled</p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -773,8 +773,10 @@ export default function MissionControl() {
               whileHover={{ y: -1 }}
               whileTap={{ y: 0 }}
               onClick={() => setScheduleAgentFilter('all')}
-              className={`px-3 py-1.5 rounded-full text-xs border transition-all ${scheduleAgentFilter === 'all' ? 'border-teal-600 text-teal-700 bg-teal-50' : ''}`}
-              style={scheduleAgentFilter !== 'all' ? { border: '1px solid var(--border)', color: 'var(--foreground)', backgroundColor: 'var(--background)' } : {}}
+              className="px-3 py-1.5 rounded-full text-xs font-medium transition-all"
+              style={scheduleAgentFilter === 'all'
+                ? { background: 'var(--accent-muted)', color: 'var(--accent)', border: '1px solid rgba(191,90,242,0.3)' }
+                : { background: 'rgba(255,255,255,0.06)', color: 'var(--text-tertiary)', border: '1px solid rgba(255,255,255,0.08)' }}
             >
               All Agents
             </motion.button>
@@ -787,8 +789,10 @@ export default function MissionControl() {
                   whileHover={{ y: -1 }}
                   whileTap={{ y: 0 }}
                   onClick={() => setScheduleAgentFilter(agentId)}
-                  className="px-3 py-1.5 rounded-full text-xs border transition-all"
-                  style={isActive ? { borderColor: config.color, backgroundColor: config.color, color: 'white' } : { borderColor: 'var(--border)', backgroundColor: 'var(--background)', color: 'var(--foreground)' }}
+                  className="px-3 py-1.5 rounded-full text-xs transition-all"
+                  style={isActive
+                    ? { background: config.color, color: 'white', border: `1px solid ${config.color}` }
+                    : { background: 'rgba(255,255,255,0.06)', color: 'var(--text-tertiary)', border: '1px solid rgba(255,255,255,0.08)' }}
                 >
                   {config.emoji} {config.name}
                 </motion.button>
@@ -822,12 +826,14 @@ export default function MissionControl() {
                 <motion.div
                   key={idx}
                   variants={item}
-                  className={`rounded-lg border overflow-hidden hover:shadow-md transition-all ${isToday ? 'border-teal-600 bg-teal-50' : ''}`}
-                  style={!isToday ? { backgroundColor: 'var(--background)', border: '1px solid var(--border)' } : {}}
+                  className="rounded-2xl overflow-hidden transition-all"
+                  style={isToday
+                    ? { border: '1px solid rgba(191,90,242,0.5)', background: 'rgba(191,90,242,0.08)' }
+                    : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
                 >
-                  <div className={`p-3 border-b ${isToday ? 'border-teal-200 bg-teal-50' : ''}`} style={!isToday ? { borderBottom: '1px solid var(--border)', backgroundColor: 'var(--background)' } : {}}>
-                    <p className="text-xs font-medium uppercase transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{date.toLocaleDateString('en-US', { weekday: 'short', month: 'short' })}</p>
-                    <p className={`text-2xl font-semibold ${isToday ? 'text-teal-700' : ''}`} style={!isToday ? { color: 'var(--foreground)' } : {}}>{date.getDate()}</p>
+                  <div className="p-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                    <p className="text-xs font-medium uppercase transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{date.toLocaleDateString('en-US', { weekday: 'short', month: 'short' })}</p>
+                    <p className="text-2xl font-bold" style={{ color: isToday ? 'var(--accent)' : 'var(--text-primary)', letterSpacing: '-0.022em' }}>{date.getDate()}</p>
                   </div>
 
                   <div className="p-3 space-y-2 min-h-[120px]">
@@ -868,8 +874,8 @@ export default function MissionControl() {
     <motion.div key="documentation" variants={tabVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.3 }}>
       <div className="mb-6 flex flex-col gap-4">
         <div>
-          <h2 className="text-2xl font-semibold mb-1 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>Documentation</h2>
-          <p className="text-sm transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Real-time agent documentation (workspace + memory)</p>
+          <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)', letterSpacing: '-0.022em' }}>Documentation</h2>
+          <p className="text-sm transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>Real-time agent documentation (workspace + memory)</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -880,8 +886,8 @@ export default function MissionControl() {
               placeholder="Search agent docs..."
               value={docsQuery}
               onChange={(e) => setDocsQuery(e.target.value)}
-              className="w-full rounded-lg pl-9 pr-4 py-2 text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 transition-all"
-              style={{ backgroundColor: 'var(--input)', border: '1px solid var(--border)', color: 'var(--foreground)' }}
+              className="w-full rounded-xl pl-9 pr-4 py-2.5 text-sm"
+              style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-primary)' }}
             />
           </motion.div>
 
@@ -890,8 +896,10 @@ export default function MissionControl() {
               whileHover={{ y: -1 }}
               whileTap={{ y: 0 }}
               onClick={() => setDocsAgentFilter('all')}
-              className={`px-3 py-1.5 rounded-full text-xs border transition-all ${docsAgentFilter === 'all' ? 'border-teal-600 text-teal-700 bg-teal-50' : ''}`}
-              style={docsAgentFilter !== 'all' ? { border: '1px solid var(--border)', color: 'var(--foreground)', backgroundColor: 'var(--background)' } : {}}
+              className="px-3 py-1.5 rounded-full text-xs font-medium transition-all"
+              style={docsAgentFilter === 'all'
+                ? { background: 'var(--accent-muted)', color: 'var(--accent)', border: '1px solid rgba(191,90,242,0.3)' }
+                : { background: 'rgba(255,255,255,0.06)', color: 'var(--text-tertiary)', border: '1px solid rgba(255,255,255,0.08)' }}
             >
               All Agents
             </motion.button>
@@ -904,8 +912,10 @@ export default function MissionControl() {
                   whileHover={{ y: -1 }}
                   whileTap={{ y: 0 }}
                   onClick={() => setDocsAgentFilter(agentId)}
-                  className="px-3 py-1.5 rounded-full text-xs border transition-all"
-                  style={isActive ? { borderColor: config.color, backgroundColor: config.color, color: 'white' } : { borderColor: 'var(--border)', backgroundColor: 'var(--background)', color: 'var(--foreground)' }}
+                  className="px-3 py-1.5 rounded-full text-xs transition-all"
+                  style={isActive
+                    ? { background: config.color, color: 'white', border: `1px solid ${config.color}` }
+                    : { background: 'rgba(255,255,255,0.06)', color: 'var(--text-tertiary)', border: '1px solid rgba(255,255,255,0.08)' }}
                 >
                   {config.emoji} {config.name}
                 </motion.button>
@@ -983,7 +993,7 @@ export default function MissionControl() {
 
         return (
           <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4">
-            <div className="rounded-lg shadow-sm p-3 max-h-[600px] overflow-y-auto transition-all duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
+            <div className="apple-card p-3 max-h-[600px] overflow-y-auto">
               <FileTree
                 files={tree}
                 selectedFile={selectedDoc?.file || null}
@@ -991,7 +1001,7 @@ export default function MissionControl() {
               />
             </div>
 
-            <div className="rounded-lg shadow-sm p-4 min-h-[360px] transition-all duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
+            <div className="apple-card p-4 min-h-[360px]">
               <MarkdownViewer
                 content={selectedDoc?.content || ''}
                 fileName={selectedDoc?.file.name || 'Select a document'}
@@ -1009,15 +1019,15 @@ export default function MissionControl() {
     <motion.div key="office" variants={tabVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.3 }}>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold mb-1 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>Office Playground</h2>
-          <p className="text-sm transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Animated live office + real-time agent activity</p>
+          <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)', letterSpacing: '-0.022em' }}>Office Playground</h2>
+          <p className="text-sm transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>Animated live office + real-time agent activity</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-4">
         <OfficeScene agentStates={agentStates} />
 
-        <div className="rounded-lg shadow-sm p-4 transition-all duration-300" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }}>
+        <div className="apple-card p-4">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-semibold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>Live Agent Activity</h3>
             <span className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Real-time sync</span>
@@ -1042,11 +1052,11 @@ export default function MissionControl() {
                       {config.emoji}
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs text-slate-900">
+                      <p className="text-xs" style={{ color: 'var(--text-primary)' }}>
                         <span className="font-semibold">{config.name}</span> · {activity.action}
                       </p>
-                      <p className="text-[11px] text-slate-600 line-clamp-2">{activity.description}</p>
-                      <p className="text-[10px] text-slate-500 mt-1">{formatTime(activity.timestamp)}</p>
+                      <p className="text-[11px] line-clamp-2" style={{ color: 'var(--text-secondary)' }}>{activity.description}</p>
+                      <p className="text-[10px] mt-1" style={{ color: 'var(--text-tertiary)' }}>{formatTime(activity.timestamp)}</p>
                     </div>
                   </div>
                 );
@@ -1062,7 +1072,7 @@ export default function MissionControl() {
   const renderSearch = () => (
     <motion.div key="search" variants={tabVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.3 }}>
       <div className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4 transition-colors duration-300" style={{ color: 'var(--foreground)' }}>Global Search</h2>
+        <h2 className="text-2xl font-bold mb-4" style={{ color: 'var(--text-primary)', letterSpacing: '-0.022em' }}>Global Search</h2>
         <motion.div className="relative" whileHover={{ y: -2 }}>
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
           <input
@@ -1070,8 +1080,8 @@ export default function MissionControl() {
             placeholder="Search activities, documents, tasks, memories..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-lg pl-12 pr-4 py-3 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 transition-all"
-            style={{ backgroundColor: 'var(--input)', border: '1px solid var(--border)', color: 'var(--foreground)' }}
+            className="w-full rounded-xl pl-12 pr-4 py-3 text-sm"
+            style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-primary)' }}
           />
         </motion.div>
       </div>
@@ -1088,7 +1098,7 @@ export default function MissionControl() {
           <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 2, repeat: Infinity }} className="inline-block mb-4">
             <Sparkles className="w-12 h-12 text-teal-500/20" />
           </motion.div>
-          <p className="text-sm text-slate-600">Search your workspace</p>
+          <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>Search your workspace</p>
         </motion.div>
       ) : documents.length === 0 ? (
         <motion.div className="text-center py-12" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -1097,17 +1107,17 @@ export default function MissionControl() {
       ) : (
         <motion.div variants={container} initial="hidden" animate="show" className="space-y-3">
           {documents.map((doc) => (
-            <motion.div key={doc.id} variants={item} className="rounded-lg shadow-sm p-4 hover:shadow-md transition-all group" style={{ backgroundColor: 'var(--background)', border: '1px solid var(--border)' }} whileHover={{ x: 2 }}>
+            <motion.div key={doc.id} variants={item} className="apple-card p-4 group" whileHover={{ x: 2 }}>
               <div className="flex items-start justify-between gap-3 mb-2">
                 <div className="flex-1">
-                  <h3 className="font-semibold group-hover:text-teal-700 transition-colors" style={{ color: 'var(--foreground)' }}>{doc.title}</h3>
-                  {doc.category && <span className="inline-block mt-1 px-2 py-1 rounded-sm bg-teal-50 text-teal-700 text-xs font-medium">{doc.category}</span>}
+                  <h3 className="font-semibold transition-colors" style={{ color: 'var(--text-primary)' }}>{doc.title}</h3>
+                  {doc.category && <span className="inline-block mt-1 px-2 py-1 rounded-lg text-xs font-medium" style={{ background: 'var(--accent-muted)', color: 'var(--accent)' }}>{doc.category}</span>}
                 </div>
                 <motion.div className="opacity-0 group-hover:opacity-100 transition-opacity" whileHover={{ x: 4 }}>
                   <ArrowUpRight className="w-5 h-5 text-teal-600" />
                 </motion.div>
               </div>
-              <p className="text-sm line-clamp-2 mb-2 transition-colors duration-300" style={{ color: 'var(--subtle)' }}>{doc.content.substring(0, 150)}...</p>
+              <p className="text-sm line-clamp-2 mb-2 transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{doc.content.substring(0, 150)}...</p>
             </motion.div>
           ))}
         </motion.div>
