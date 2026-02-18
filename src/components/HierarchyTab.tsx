@@ -23,15 +23,16 @@ function HierarchyAvatar({ agentId, color, name, role }: { agentId: AgentId; col
     >
       {/* Avatar */}
       <motion.div
-        className="w-20 h-20 rounded-2xl flex items-center justify-center relative overflow-hidden transition-all duration-300"
+        className="w-20 h-20 rounded-2xl flex items-center justify-center relative overflow-hidden"
         style={{
           background: `${color}10`,
           border: '1px solid #06402B',
-          boxShadow: '0 0 16px rgba(6, 64, 43, 0.4)'
+          boxShadow: '0 0 16px var(--accent-glow)'
         }}
         whileHover={{
           scale: 1.05,
           rotate: [0, -5, 5, 0],
+          // Hover state: intensified glow for interactive feedback (20% more opaque than --accent-glow)
           boxShadow: '0 0 24px rgba(6, 64, 43, 0.6)'
         }}
         transition={{ duration: 0.3 }}
