@@ -389,51 +389,73 @@ export default function MissionControl() {
       initial="hidden"
       animate="show"
       variants={headerVariants}
-      transition={{ duration: 0.4 }}
-      className="sticky top-0 z-40 shadow-sm transition-all duration-300"
-      style={{
-        backgroundColor: 'var(--background)',
-        borderBottom: '1px solid var(--border)'
-      }}
+      transition={{ duration: 0.2 }}
+      className="sticky top-0 z-40 apple-header"
     >
-      <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-        <motion.div className="flex items-center gap-3" whileHover={{ scale: 1.02 }}>
-          <button
+      <div className="px-4 sm:px-6 py-3 flex items-center justify-between">
+        {/* Left: sidebar toggle + logo */}
+        <div className="flex items-center gap-3">
+          <motion.button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="w-11 h-11 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-105"
-            style={{
-              border: '1px solid var(--border)',
-              backgroundColor: 'var(--background)',
-              color: 'var(--foreground)'
+            className="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200"
+            style={{ color: 'var(--text-tertiary)' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+              e.currentTarget.style.color = 'var(--text-primary)';
             }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = 'var(--text-tertiary)';
+            }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             aria-label="Toggle sidebar"
           >
             <Menu className="w-5 h-5" />
-          </button>
-          <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center overflow-hidden" style={{ backgroundImage: 'linear-gradient(135deg, #14b8a6, #0d9488)', boxShadow: '0 10px 15px -3px rgba(20, 184, 166, 0.2)' }}>
-            <motion.div animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}>
-              <Building className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-            </motion.div>
-          </div>
-          <div>
-            <h1 className="text-base sm:text-lg font-semibold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>The Begu Company</h1>
-            <p className="text-[11px] sm:text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>Mission Control</p>
-          </div>
-        </motion.div>
+          </motion.button>
 
-        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            <div
+              className="w-8 h-8 rounded-xl flex items-center justify-center"
+              style={{
+                background: 'linear-gradient(135deg, #BF5AF2 0%, #9B42D4 100%)',
+                boxShadow: '0 4px 12px rgba(191,90,242,0.4)',
+              }}
+            >
+              <motion.div animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}>
+                <Building className="w-4 h-4 text-white" />
+              </motion.div>
+            </div>
+
+            <div>
+              <h1 className="text-sm font-semibold leading-tight" style={{ color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+                The Begu Company
+              </h1>
+              <p className="text-[11px] leading-tight" style={{ color: 'var(--text-tertiary)' }}>
+                Mission Control
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Right: agent status + theme toggle */}
+        <div className="flex items-center gap-2">
           <motion.div
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-300"
-            style={{
-              backgroundColor: 'var(--muted-bg)',
-              border: '1px solid var(--border)'
-            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
+            style={{ background: 'rgba(255,255,255,0.06)' }}
             animate={{ opacity: [0.8, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
-            <motion.div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#10b981' }} animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 2, repeat: Infinity }} />
-            <span className="text-xs font-medium transition-colors duration-300" style={{ color: 'var(--foreground)' }}>{agentStates.filter(s => s.isOnline).length}/3 Agents Online</span>
+            <motion.div
+              className="dot-online animate-pulse-dot"
+              animate={{ scale: [1, 1.15, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+            <span className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>
+              {agentStates.filter(s => s.isOnline).length}/3 Online
+            </span>
           </motion.div>
+
           <ThemeToggle />
         </div>
       </div>
