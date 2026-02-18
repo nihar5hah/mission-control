@@ -118,7 +118,7 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
 
   return (
     <div className="relative w-full overflow-hidden rounded-2xl" style={{ background: '#1c1c1e', border: '1px solid rgba(255,255,255,0.08)' }}>
-      <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, rgba(191,90,242,0.08) 0%, transparent 45%), radial-gradient(circle at 80% 10%, rgba(191,90,242,0.04) 0%, transparent 40%)' }} />
+      <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, rgba(6,64,43,0.08) 0%, transparent 45%), radial-gradient(circle at 80% 10%, rgba(6,64,43,0.04) 0%, transparent 40%)' }} />
 
       <div className="relative px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 flex items-center justify-between">
         <div>
@@ -257,7 +257,7 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
           className="absolute left-10 bottom-16"
           animate={{ opacity: [0.2, 0.8, 0.2], y: [0, -6, 0] }}
           transition={{ duration: 3, repeat: Infinity }}
-          style={{ color: 'rgba(191,90,242,0.5)' }}
+          style={{ color: 'rgba(6,64,43,0.5)' }}
         >
           <Sparkles className="w-4 h-4" />
         </motion.div>

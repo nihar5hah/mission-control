@@ -45,8 +45,8 @@ function FileTreeItem({ file, level, selectedFile, onSelectFile, defaultExpanded
         className="w-full flex items-center gap-1.5 px-2 py-1.5 rounded text-sm transition-all"
         style={{
           paddingLeft: `${level * 12 + 8}px`,
-          backgroundColor: isSelected ? 'rgba(191,90,242,0.12)' : 'transparent',
-          color: isSelected ? '#BF5AF2' : 'var(--text-tertiary)',
+          backgroundColor: isSelected ? 'var(--accent-muted)' : 'transparent',
+          color: isSelected ? 'var(--accent)' : 'var(--text-tertiary)',
         }}
         onMouseEnter={(e) => {
           if (!isSelected) {
@@ -75,7 +75,7 @@ function FileTreeItem({ file, level, selectedFile, onSelectFile, defaultExpanded
 
         {!isDirectory && <div className="w-3.5" />}
 
-        <FileIcon className="w-4 h-4 flex-shrink-0" style={{ color: isSelected ? '#BF5AF2' : 'inherit' }} />
+        <FileIcon className="w-4 h-4 flex-shrink-0" style={{ color: isSelected ? 'var(--accent)' : 'inherit' }} />
 
         <span className="truncate flex-1 text-left">{file.name}</span>
 

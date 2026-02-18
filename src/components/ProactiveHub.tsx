@@ -84,9 +84,9 @@ const actionTypeConfig = {
   analysis: {
     label: 'Analysis',
     icon: Brain,
-    color: 'text-[#BF5AF2]',
-    bg: 'bg-[#BF5AF2]/10',
-    border: 'border-[#BF5AF2]/30',
+    color: 'text-[#06402B]',
+    bg: 'bg-[#06402B]/10',
+    border: 'border-[#06402B]/30',
   },
 };
 
@@ -122,9 +122,9 @@ const patternCategoryConfig = {
   learning: {
     label: 'Learning',
     icon: GraduationCap,
-    color: 'text-[#BF5AF2]',
-    bg: 'bg-[#BF5AF2]/10',
-    border: 'border-[#BF5AF2]/30',
+    color: 'text-[#06402B]',
+    bg: 'bg-[#06402B]/10',
+    border: 'border-[#06402B]/30',
   },
   collaboration: {
     label: 'Collaboration',
@@ -160,9 +160,9 @@ const opportunityTypeConfig = {
   learning: {
     label: 'Learning',
     icon: GraduationCap,
-    color: 'text-[#BF5AF2]',
-    bg: 'bg-[#BF5AF2]/10',
-    border: 'border-[#BF5AF2]/30',
+    color: 'text-[#06402B]',
+    bg: 'bg-[#06402B]/10',
+    border: 'border-[#06402B]/30',
   },
   efficiency: {
     label: 'Efficiency',
@@ -426,7 +426,7 @@ function PatternCard({ pattern }: { pattern: Pattern }) {
           </div>
 
           {pattern.suggested_action && (
-            <p className="text-xs mt-3 rounded px-2 py-1.5 transition-colors duration-300" style={{ color: 'var(--accent)', backgroundColor: 'rgba(191, 90, 242, 0.05)', border: '1px solid rgba(191, 90, 242, 0.2)' }}>
+            <p className="text-xs mt-3 rounded px-2 py-1.5 transition-colors duration-300" style={{ color: 'var(--accent)', backgroundColor: 'var(--accent-muted)', border: '1px solid rgba(6, 64, 43, 0.2)' }}>
               💡 {pattern.suggested_action}
             </p>
           )}

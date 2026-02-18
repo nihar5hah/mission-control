@@ -776,7 +776,7 @@ export default function MissionControl() {
               onClick={() => setScheduleAgentFilter('all')}
               className="px-3 py-1.5 rounded-full text-xs font-medium transition-all"
               style={scheduleAgentFilter === 'all'
-                ? { background: 'var(--accent-muted)', color: 'var(--accent)', border: '1px solid rgba(191,90,242,0.3)' }
+                ? { background: 'var(--accent-muted)', color: 'var(--accent)', border: '1px solid rgba(6,64,43,0.3)' }
                 : { background: 'rgba(255,255,255,0.06)', color: 'var(--text-tertiary)', border: '1px solid rgba(255,255,255,0.08)' }}
             >
               All Agents
@@ -829,7 +829,7 @@ export default function MissionControl() {
                   variants={item}
                   className="rounded-2xl overflow-hidden transition-all"
                   style={isToday
-                    ? { border: '1px solid rgba(191,90,242,0.5)', background: 'rgba(191,90,242,0.08)' }
+                    ? { border: '1px solid rgba(6,64,43,0.5)', background: 'rgba(6,64,43,0.08)' }
                     : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
                 >
                   <div className="p-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
@@ -899,7 +899,7 @@ export default function MissionControl() {
               onClick={() => setDocsAgentFilter('all')}
               className="px-3 py-1.5 rounded-full text-xs font-medium transition-all"
               style={docsAgentFilter === 'all'
-                ? { background: 'var(--accent-muted)', color: 'var(--accent)', border: '1px solid rgba(191,90,242,0.3)' }
+                ? { background: 'var(--accent-muted)', color: 'var(--accent)', border: '1px solid rgba(6,64,43,0.3)' }
                 : { background: 'rgba(255,255,255,0.06)', color: 'var(--text-tertiary)', border: '1px solid rgba(255,255,255,0.08)' }}
             >
               All Agents

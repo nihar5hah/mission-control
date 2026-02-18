@@ -47,17 +47,17 @@ function parseMarkdown(md: string): string {
     .replace(/`([^`]+)`/g, '<code style="background-color: var(--bg-elevated); color: var(--color-orange)" class="px-1.5 py-0.5 rounded text-sm font-mono">$1</code>')
 
     // Links
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: #BF5AF2" class="hover:opacity-80 underline underline-offset-2" target="_blank" rel="noopener noreferrer">$1</a>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: var(--accent)" class="hover:opacity-80 underline underline-offset-2" target="_blank" rel="noopener noreferrer">$1</a>')
 
     // Blockquotes
-    .replace(/^\&gt; (.*$)/gim, '<blockquote style="border-color: #BF5AF2; color: var(--text-secondary)" class="border-l-2 pl-4 py-1 my-4 italic">$1</blockquote>')
+    .replace(/^\&gt; (.*$)/gim, '<blockquote style="border-color: var(--accent); color: var(--text-secondary)" class="border-l-2 pl-4 py-1 my-4 italic">$1</blockquote>')
 
     // Horizontal rules
     .replace(/^---$/gim, '<hr style="border-color: var(--border)" class="my-6" />')
 
     // Unordered lists
-    .replace(/^\- (.*$)/gim, '<li style="color: var(--text-secondary)" class="ml-4 before:content-[\"•\"] before:mr-2 before:text-[#BF5AF2]">$1</li>')
-    .replace(/^\* (.*$)/gim, '<li style="color: var(--text-secondary)" class="ml-4 before:content-[\"•\"] before:mr-2 before:text-[#BF5AF2]">$1</li>')
+    .replace(/^\- (.*$)/gim, '<li style="color: var(--text-secondary)" class="ml-4 before:content-[\"•\"] before:mr-2" style="--accent-color: var(--accent)"><span style="color: var(--accent)">•</span> $1</li>')
+    .replace(/^\* (.*$)/gim, '<li style="color: var(--text-secondary)" class="ml-4 before:content-[\"•\"] before:mr-2" style="--accent-color: var(--accent)"><span style="color: var(--accent)">•</span> $1</li>')
 
     // Ordered lists
     .replace(/^\d+\. (.*$)/gim, '<li style="color: var(--text-secondary)" class="ml-4 list-decimal">$1</li>')
