@@ -29,8 +29,8 @@ import type {
 // Default agents for fallback
 const DEFAULT_AGENTS: Agent[] = [
   { id: 'begubot', name: 'Begubot', role: 'Chief of Staff', color: '#8B5CF6', reports_to: undefined, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'coder', name: 'Coder', role: 'Employee', color: 'var(--color-green)', reports_to: 'begubot', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'researcher', name: 'Researcher', role: 'Employee', color: 'var(--color-orange)', reports_to: 'begubot', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'coder', name: 'Coder', role: 'Employee', color: '#30D158', reports_to: 'begubot', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'researcher', name: 'Researcher', role: 'Employee', color: '#FF9F0A', reports_to: 'begubot', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
 ];
 
 // =====================================================
