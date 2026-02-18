@@ -556,6 +556,10 @@ export default function MissionControl() {
           </motion.div>
         </div>
 
+        <div className="mb-8">
+          <QuickActions />
+        </div>
+
         {/* Agent Status Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {agentStates.map((state) => {
