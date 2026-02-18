@@ -465,42 +465,45 @@ export default function MissionControl() {
   /* ============ RENDER: TAB NAVIGATION ============ */
   const renderTabs = () => (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.1 }}
-      className="flex gap-1 mb-6 sm:mb-8 rounded-lg p-1 w-full md:w-fit overflow-x-auto shadow-sm"
-      style={{
-        backgroundColor: 'var(--background)',
-        borderColor: 'var(--border)',
-        borderWidth: '1px'
-      }}
+      transition={{ duration: 0.2, delay: 0.05 }}
+      className="flex mb-6 sm:mb-8 rounded-xl p-1 overflow-x-auto apple-tabs w-full md:w-fit"
+      style={{ scrollbarWidth: 'none' } as React.CSSProperties}
     >
       {tabs.map((tab) => {
         const Icon = tab.icon;
+        const isActive = activeTab === tab.id;
         return (
           <motion.button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
-            className="relative px-3 sm:px-4 py-2.5 rounded-md text-xs sm:text-sm font-medium transition-colors flex items-center gap-2 min-h-[44px] whitespace-nowrap"
-            whileHover={{ y: -1 }}
-            whileTap={{ y: 0 }}
+            className="relative px-3 sm:px-4 py-2 rounded-[9px] text-xs sm:text-sm font-medium flex items-center gap-1.5 whitespace-nowrap min-h-[36px] transition-colors"
+            style={{ color: isActive ? '#ffffff' : 'var(--text-tertiary)' }}
+            whileTap={{ scale: 0.97 }}
           >
-            {activeTab === tab.id && (
+            {isActive && (
               <motion.div
                 layoutId="active-tab"
-                className="absolute inset-0 rounded-md"
-                style={{ background: 'var(--gradient-primary)', opacity: 0.1 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                className="absolute inset-0 rounded-[9px]"
+                style={{ background: 'var(--accent)' }}
+                transition={{ type: 'spring', stiffness: 400, damping: 35 }}
               />
             )}
-            <span className={`relative z-10 flex items-center gap-2 font-medium transition-colors ${activeTab === tab.id ? 'font-semibold' : ''}`}
-              style={{
-                color: activeTab === tab.id ? 'var(--primary)' : 'var(--subtle)'
-              }}
-            >
-              <Icon className="w-4 h-4" />
+            <span className="relative z-10 flex items-center gap-1.5">
+              <Icon className="w-3.5 h-3.5" />
               {tab.label}
-              {tab.badge && <span className="ml-1 px-2 py-0.5 text-xs rounded-full text-white" style={{ background: 'var(--gradient-primary)' }}>{tab.badge}</span>}
+              {tab.badge ? (
+                <span
+                  className="ml-0.5 px-1.5 py-0.5 text-[10px] rounded-full font-medium"
+                  style={{
+                    background: isActive ? 'rgba(255,255,255,0.25)' : 'var(--accent-muted)',
+                    color: isActive ? '#fff' : 'var(--accent)',
+                  }}
+                >
+                  {tab.badge}
+                </span>
+              ) : null}
             </span>
           </motion.button>
         );
