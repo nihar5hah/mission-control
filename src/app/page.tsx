@@ -124,7 +124,7 @@ const actionTypeConfig: Record<string, { label: string; icon: React.ComponentTyp
 
 /* ============ MAIN COMPONENT ============ */
 export default function MissionControl() {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'activity' | 'calendar' | 'office' | 'search' | 'documentation' | 'hierarchy'>(() => {
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'activity' | 'calendar' | 'office' | 'search' | 'documentation' | 'hierarchy' | 'focus'>(() => {
     if (typeof window === 'undefined') return 'dashboard';
     return (localStorage.getItem('mc_activeTab') as any) || 'dashboard';
   });
@@ -402,6 +402,7 @@ export default function MissionControl() {
 
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: Zap },
+    { id: 'focus', label: 'Focus', icon: Target },
     { id: 'activity', label: 'Activity Log', icon: Activity, badge: activities.length },
     { id: 'calendar', label: 'Schedule', icon: Calendar, badge: agentSchedules.length },
     { id: 'office', label: 'Office', icon: Coffee },
@@ -663,7 +664,74 @@ export default function MissionControl() {
     );
   };
 
-      /* ============ RENDER: ACTIVITY FEED ============ */
+  /* ============ RENDER: FOCUS MODE ============ */
+  const renderFocus = () => {
+    const onlineAgents = agentStates.filter(s => s.isOnline);
+    const latest = agentActivities[0];
+    const upcoming = agentSchedules.slice(0, 3);
+
+    return (
+      <motion.div
+        key="focus"
+        variants={tabVariants}
+        initial="hidden"
+        animate="show"
+        exit="exit"
+        transition={{ duration: 0.3 }}
+      >
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)', letterSpacing: '-0.022em' }}>Focus Mode</h2>
+          <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>Minimal view for right now</p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="apple-card p-5">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Now</h3>
+              <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{onlineAgents.length}/3 online</span>
+            </div>
+            {latest ? (
+              <div className="rounded-xl px-3 py-3" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                <p className="text-xs mb-2" style={{ color: 'var(--text-tertiary)' }}>{AGENT_CONFIG[latest.agent_id as AgentId]?.name || latest.agent_id}</p>
+                <p className="text-sm" style={{ color: 'var(--text-primary)' }}>{latest.description}</p>
+              </div>
+            ) : (
+              <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>No recent activity yet.</p>
+            )}
+          </div>
+
+          <div className="apple-card p-5">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Next Up</h3>
+              <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{agentSchedules.length} scheduled</span>
+            </div>
+            {upcoming.length ? (
+              <div className="space-y-2">
+                {upcoming.map((item) => (
+                  <div key={item.id} className="rounded-xl px-3 py-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                    <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{item.agent_id}</p>
+                    <p className="text-sm" style={{ color: 'var(--text-primary)' }}>{item.title || 'Scheduled Task'}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>No upcoming tasks.</p>
+            )}
+          </div>
+
+          <div className="apple-card p-5">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Quick Actions</h3>
+              <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Immediate boosts</span>
+            </div>
+            <QuickActions />
+          </div>
+        </div>
+      </motion.div>
+    );
+  };
+
+  /* ============ RENDER: ACTIVITY FEED ============ */
   const renderActivityFeed = () => {
     const agentIds: AgentId[] = ['begubot', 'coder', 'researcher'];
 
@@ -1174,6 +1242,7 @@ export default function MissionControl() {
 
           <AnimatePresence mode="wait">
             {activeTab === 'dashboard' && renderDashboard()}
+            {activeTab === 'focus' && renderFocus()}
             {activeTab === 'activity' && renderActivityFeed()}
             {activeTab === 'calendar' && renderCalendar()}
             {activeTab === 'office' && renderOffice()}
