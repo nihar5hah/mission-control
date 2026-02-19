@@ -159,7 +159,8 @@ export default function MissionControl() {
   });
   const [logging, setLogging] = useState(false);
 
-  const { activities, loading: activitiesLoading, deleteActivity, updateActivity } = useActivities();
+  const { activities, loading: activitiesLoading } = useAgentActivities(undefined, 200);
+  const { deleteActivity, updateActivity } = useActivities();
   const { tasks, loading: tasksLoading, updateStatus, updateTask, createTask, deleteTask } = useTasks();
   const { documents, loading: documentsLoading } = useDocuments(searchQuery);
   const { agentStates, loading: agentsLoading } = useAgentState();
