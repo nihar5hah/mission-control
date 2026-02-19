@@ -1,11 +1,21 @@
 import { NextResponse } from 'next/server';
 import { requireApiKey } from '@/lib/auth';
+import { sendSessionMessage } from '@/lib/openclaw';
+
+const SESSION_KEY = process.env.OPENCLAW_SESSION_KEY || 'agent:main:main';
 
 export async function POST(request: Request) {
   try {
     const auth = requireApiKey(request);
     if (auth) return auth;
-    return NextResponse.json({ success: true, refreshed: true });
+
+    const result = await sendSessionMessage({
+      sessionKey: SESSION_KEY,
+      message: 'Refresh agent activities and stats now.',
+      timeoutSeconds: 0,
+    });
+
+    return NextResponse.json({ success: true, refreshed: true, result });
   } catch (error) {
     console.error('[QuickActions] Refresh activities error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
