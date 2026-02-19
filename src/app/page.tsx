@@ -193,6 +193,24 @@ export default function MissionControl() {
     return map;
   }, [agentActivities, todayStart]);
 
+  const timelineGroups = useMemo(() => {
+    const groups = new Map<string, { ts: number; items: typeof agentActivities }>();
+    for (const activity of agentActivities) {
+      const ts = new Date(activity.timestamp).getTime();
+      const label = new Date(activity.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const existing = groups.get(label);
+      if (existing) {
+        existing.items.push(activity);
+        existing.ts = Math.max(existing.ts, ts);
+      } else {
+        groups.set(label, { ts, items: [activity] });
+      }
+    }
+    return Array.from(groups.entries())
+      .map(([label, value]) => ({ label, ...value }))
+      .sort((a, b) => b.ts - a.ts);
+  }, [agentActivities]);
+
   /* ============ ENHANCED ACTIVITY DATA ============ */
   const enhancedActivities = activities.map((activity) => ({
     ...activity,
@@ -819,6 +837,37 @@ export default function MissionControl() {
         <div className="mb-6">
           <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)', letterSpacing: '-0.022em' }}>Live Activity</h2>
           <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>Newest on top · Last 50 per agent</p>
+        </div>
+
+        <div className="apple-card p-5 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Today Timeline</h3>
+            <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{agentActivities.length} events</span>
+          </div>
+          <div className="space-y-4">
+            {timelineGroups.length === 0 && (
+              <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>No activity yet.</p>
+            )}
+            {timelineGroups.slice(0, 12).map((group) => (
+              <div key={group.label} className="flex gap-4">
+                <div className="w-16 text-xs" style={{ color: 'var(--text-tertiary)' }}>{group.label}</div>
+                <div className="flex-1 space-y-2">
+                  {group.items.slice(0, 4).map((activity) => (
+                    <div key={activity.id} className="rounded-xl px-3 py-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{AGENT_CONFIG[activity.agent_id as AgentId]?.emoji}</span>
+                        <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{AGENT_CONFIG[activity.agent_id as AgentId]?.name || activity.agent_id}</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-tertiary)' }}>
+                          {activity.status}
+                        </span>
+                      </div>
+                      <p className="text-sm" style={{ color: 'var(--text-primary)' }}>{activity.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
