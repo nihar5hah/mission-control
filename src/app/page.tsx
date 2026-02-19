@@ -166,10 +166,32 @@ export default function MissionControl() {
   const { agentStates, loading: agentsLoading } = useAgentState();
   const { schedules: agentSchedules, loading: schedulesLoading, error: schedulesError } = useAgentSchedules();
   const { documents: agentDocuments, loading: agentDocsLoading, error: agentDocsError } = useAgentDocuments();
-  const { activities: agentActivities, loading: agentActivitiesLoading } = useAgentActivities(undefined, 15);
+  const { activities: agentActivities, loading: agentActivitiesLoading } = useAgentActivities(undefined, 200);
 
   // Hooks for additional functionality
   const { isCompletedOnDate, toggleCompletion: toggleDateCompletion, getStatusOnDate, preloadCompletions } = useTaskCompletions();
+
+  const todayStart = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
+
+  const derivedStats = useMemo(() => {
+    const map: Record<string, { tokens: number; tasks: number; activeSeconds: number }> = {};
+    for (const activity of agentActivities) {
+      const ts = new Date(activity.timestamp);
+      if (ts < todayStart) continue;
+      const agentId = activity.agent_id;
+      if (!map[agentId]) map[agentId] = { tokens: 0, tasks: 0, activeSeconds: 0 };
+      const tokens = Number(activity?.metadata?.tokens_used || 0);
+      const activeSeconds = Number(activity?.metadata?.active_seconds || activity?.metadata?.duration_seconds || 0);
+      map[agentId].tokens += isNaN(tokens) ? 0 : tokens;
+      map[agentId].activeSeconds += isNaN(activeSeconds) ? 0 : activeSeconds;
+      if (activity.status === 'completed') map[agentId].tasks += 1;
+    }
+    return map;
+  }, [agentActivities, todayStart]);
 
   /* ============ ENHANCED ACTIVITY DATA ============ */
   const enhancedActivities = activities.map((activity) => ({
@@ -524,9 +546,9 @@ export default function MissionControl() {
 
   /* ============ RENDER: DASHBOARD ============ */
   const renderDashboard = () => {
-    const totalTokens = agentStates.reduce((sum, s) => sum + (s.stats?.daily_tokens_used || 0), 0);
-    const totalTasks = agentStates.reduce((sum, s) => sum + (s.stats?.daily_tasks_completed || 0), 0);
-    const totalActiveTime = agentStates.reduce((sum, s) => sum + (s.stats?.daily_active_seconds || 0), 0);
+    const totalTokens = agentStates.reduce((sum, s) => sum + (s.stats?.daily_tokens_used || derivedStats[s.agent.id]?.tokens || 0), 0);
+    const totalTasks = agentStates.reduce((sum, s) => sum + (s.stats?.daily_tasks_completed || derivedStats[s.agent.id]?.tasks || 0), 0);
+    const totalActiveTime = agentStates.reduce((sum, s) => sum + (s.stats?.daily_active_seconds || derivedStats[s.agent.id]?.activeSeconds || 0), 0);
 
     const formatDuration = (seconds: number) => {
       const hours = Math.floor(seconds / 3600);
@@ -1055,7 +1077,7 @@ export default function MissionControl() {
             <p className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>No recent agent activity</p>
           ) : (
             <div className="space-y-3">
-              {agentActivities.map((activity) => {
+              {agentActivities.slice(0, 12).map((activity) => {
                 const config = AGENT_CONFIG[activity.agent_id];
                 return (
                   <div key={activity.id} className="flex items-start gap-3">
