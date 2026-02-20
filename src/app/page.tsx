@@ -69,6 +69,7 @@ import { AGENT_CONFIG } from '@/types/agents';
 import type { AgentId } from '@/types/agents';
 import { OfficeScene } from '@/components/OfficeScene';
 import { QuickActions } from '@/components/QuickActions';
+import { TasksBoard } from '@/components/TasksBoard';
 import { Toaster } from '@/components/ui/sonner';
 
 /* ============ ANIMATION VARIANTS ============ */
@@ -124,7 +125,7 @@ const actionTypeConfig: Record<string, { label: string; icon: React.ComponentTyp
 
 /* ============ MAIN COMPONENT ============ */
 export default function MissionControl() {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'activity' | 'calendar' | 'office' | 'search' | 'documentation' | 'hierarchy' | 'focus'>(() => {
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'activity' | 'calendar' | 'office' | 'search' | 'documentation' | 'hierarchy' | 'focus' | 'tasks'>(() => {
     if (typeof window === 'undefined') return 'dashboard';
     return (localStorage.getItem('mc_activeTab') as any) || 'dashboard';
   });
@@ -421,6 +422,7 @@ export default function MissionControl() {
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: Zap },
     { id: 'focus', label: 'Focus', icon: Target },
+    { id: 'tasks', label: 'Tasks', icon: CheckCircle2 },
     { id: 'activity', label: 'Activity Log', icon: Activity, badge: activities.length },
     { id: 'calendar', label: 'Schedule', icon: Calendar, badge: agentSchedules.length },
     { id: 'office', label: 'Office', icon: Coffee },
@@ -1292,6 +1294,7 @@ export default function MissionControl() {
           <AnimatePresence mode="wait">
             {activeTab === 'dashboard' && renderDashboard()}
             {activeTab === 'focus' && renderFocus()}
+            {activeTab === 'tasks' && <TasksBoard />}
             {activeTab === 'activity' && renderActivityFeed()}
             {activeTab === 'calendar' && renderCalendar()}
             {activeTab === 'office' && renderOffice()}
