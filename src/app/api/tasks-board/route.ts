@@ -43,15 +43,18 @@ async function notifyAgent(agentId: string, taskId: string, title: string, prior
   }
 
   try {
-    const response = await fetch(`${OPENCLAW_GATEWAY}/api/sessions/send`, {
+    // Use /tools/invoke endpoint with sessions_send tool
+    const response = await fetch(`${OPENCLAW_GATEWAY}/tools/invoke`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${OPENCLAW_TOKEN}`,
       },
       body: JSON.stringify({
-        sessionKey,
-        message: `📋 **NEW TASK ASSIGNED**
+        tool: 'sessions_send',
+        args: {
+          sessionKey,
+          message: `📋 **NEW TASK ASSIGNED**
 
 **Task ID:** ${taskId}
 **Title:** ${title}
@@ -64,7 +67,8 @@ Use these commands:
 - \`PATCH /api/tasks-board/${taskId}\` to update status
 
 Start when ready!`,
-        timeoutSeconds: 0,
+          timeoutSeconds: 0,
+        },
       }),
     });
 
