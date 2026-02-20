@@ -27,7 +27,7 @@ async function logAgentActivity(agent_id: string, action: string, description: s
     });
 }
 
-async function notifyAgent(agentId: string, taskId: string, title: string, priority: string) {
+async function notifyAgent(agentId: string, taskId: string, title: string, priority: string, description?: string) {
   // Map agent IDs to session keys
   const agentSessionMap: Record<string, string> = {
     'extractor': 'agent:extractor:main',
@@ -47,11 +47,13 @@ async function notifyAgent(agentId: string, taskId: string, title: string, prior
     return;
   }
 
+  // Auto-start for CRITICAL priority tasks
+  const autoStart = priority === 'CRITICAL';
+  const urgencyNote = autoStart ? '\n\n⚠️ **AUTO-START ENABLED** - This CRITICAL task will begin immediately!' : '';
+
   try {
     // Use /tools/invoke endpoint with sessions_send tool
-    // Note: Tailscale Funnel uses self-signed certs, but Node 18 fetch doesn't allow disabling SSL verification
-    // The notification may fail if Vercel doesn't trust the Tailscale certificate
-    console.log(`[TasksBoard] Attempting to notify agent ${agentId} via ${OPENCLAW_GATEWAY}`);
+    console.log(`[TasksBoard] Attempting to notify agent ${agentId} via ${OPENCLAW_GATEWAY}${autoStart ? ' (AUTO-START)' : ''}`);
     
     const response = await fetch(`${OPENCLAW_GATEWAY}/tools/invoke`, {
       method: 'POST',
@@ -63,19 +65,28 @@ async function notifyAgent(agentId: string, taskId: string, title: string, prior
         tool: 'sessions_send',
         args: {
           sessionKey,
-          message: `📋 **NEW TASK ASSIGNED**
+          message: `📋 **NEW TASK ASSIGNED**${autoStart ? ' 🔥 CRITICAL' : ''}
 
 **Task ID:** ${taskId}
 **Title:** ${title}
 **Priority:** ${priority}
+${description ? `**Description:** ${description}` : ''}${urgencyNote}
 
-You have been assigned a new task. When you start working on it, mark it as IN_PROGRESS. When complete, mark it as DONE.
+${autoStart ? 
+`**AUTO-START INSTRUCTIONS:**
+1. Immediately claim task: \`PATCH /api/tasks-board/${taskId}\` with \`{"status": "IN_PROGRESS"}\`
+2. Execute the task without waiting for confirmation
+3. Complete when done: \`PATCH /api/tasks-board/${taskId}\` with \`{"status": "DONE"}\`
+
+This is a CRITICAL priority task - start NOW!` :
+`You have been assigned a new task. When you start working on it, mark it as IN_PROGRESS. When complete, mark it as DONE.
 
 Use these commands:
 - \`GET /api/tasks-board?owner=${agentId}\` to see your tasks
 - \`PATCH /api/tasks-board/${taskId}\` to update status
 
-Start when ready!`,
+Start when ready!`}
+`,
           timeoutSeconds: 0,
         },
       }),
@@ -147,8 +158,8 @@ export async function POST(request: NextRequest) {
 
     await logAgentActivity(owner, 'task-create', `Created task: ${title}`);
     
-    // Notify the assigned agent
-    await notifyAgent(owner, data.id, title, priority);
+    // Notify the assigned agent (include description for auto-start)
+    await notifyAgent(owner, data.id, title, priority, description);
 
     return NextResponse.json(data, { status: 201 });
   } catch (error) {
