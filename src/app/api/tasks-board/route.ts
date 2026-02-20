@@ -42,8 +42,17 @@ async function notifyAgent(agentId: string, taskId: string, title: string, prior
     return;
   }
 
+  if (!OPENCLAW_GATEWAY) {
+    console.log(`[TasksBoard] Cannot notify agent: ${agentId} (no gateway URL)`);
+    return;
+  }
+
   try {
     // Use /tools/invoke endpoint with sessions_send tool
+    // Note: Tailscale Funnel uses self-signed certs, but Node 18 fetch doesn't allow disabling SSL verification
+    // The notification may fail if Vercel doesn't trust the Tailscale certificate
+    console.log(`[TasksBoard] Attempting to notify agent ${agentId} via ${OPENCLAW_GATEWAY}`);
+    
     const response = await fetch(`${OPENCLAW_GATEWAY}/tools/invoke`, {
       method: 'POST',
       headers: {
