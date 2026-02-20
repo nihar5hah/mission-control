@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useTasksBoard } from '@/hooks/useTasksBoard';
 import type { TaskBoardItem, TaskBoardPriority, TaskBoardStatus } from '@/types/tasks-board';
 
-const owners = ['begu', 'begubot', 'coder', 'researcher'];
+const owners = ['extractor', 'begubot', 'coder', 'researcher'];
 const priorities: TaskBoardPriority[] = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
 
 const statusColumns: { id: TaskBoardStatus; label: string; accent: string }[] = [
@@ -18,7 +18,7 @@ const statusColumns: { id: TaskBoardStatus; label: string; accent: string }[] = 
 
 export function TasksBoard() {
   const { tasks, loading, createTask, updateTask, updateStatus, deleteTask } = useTasksBoard();
-  const [form, setForm] = useState({ title: '', description: '', owner: 'begu', priority: 'MEDIUM' as TaskBoardPriority });
+  const [form, setForm] = useState({ title: '', description: '', owner: 'extractor', priority: 'MEDIUM' as TaskBoardPriority });
 
   const grouped = useMemo(() => {
     const map: Record<TaskBoardStatus, TaskBoardItem[]> = { TODO: [], IN_PROGRESS: [], DONE: [] };
