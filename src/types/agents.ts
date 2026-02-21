@@ -4,10 +4,10 @@
 // =====================================================
 
 // Agent IDs
-export type AgentId = 'begubot' | 'coder' | 'researcher';
+export type AgentId = 'begubot' | 'coder' | 'researcher' | 'extractor';
 
 // Agent roles
-export type AgentRole = 'Chief of Staff' | 'Employee';
+export type AgentRole = 'Chief of Staff' | 'Employee' | 'Analysis & Learning';
 
 // Agent status
 export type AgentStatus = 'active' | 'idle' | 'offline';
@@ -236,17 +236,24 @@ export const AGENT_CONFIG: Record<AgentId, {
     description: 'Coordinates operations and manages the team',
   },
   coder: {
-    name: 'Coder',
+    name: 'Codex',
     role: 'Employee',
     color: '#30D158',
     emoji: '💻',
     description: 'Builds and maintains code infrastructure',
   },
   researcher: {
-    name: 'Researcher',
+    name: 'Slock',
     role: 'Employee',
     color: '#FF9F0A',
     emoji: '🔬',
     description: 'Conducts research and analysis',
+  },
+  extractor: {
+    name: 'Axiom',
+    role: 'Analysis & Learning',
+    color: '#7C3AED',
+    emoji: '🌙',
+    description: 'Synthesizes insights and deep analysis',
   },
 };

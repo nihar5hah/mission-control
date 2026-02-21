@@ -5,9 +5,11 @@ import { motion } from 'framer-motion';
 import { Plus, User, ChevronRight, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useTasksBoard } from '@/hooks/useTasksBoard';
+import { AGENT_CONFIG } from '@/types/agents';
+import type { AgentId } from '@/types/agents';
 import type { TaskBoardItem, TaskBoardPriority, TaskBoardStatus } from '@/types/tasks-board';
 
-const owners = ['extractor', 'begubot', 'coder', 'researcher'];
+const owners: AgentId[] = ['extractor', 'begubot', 'coder', 'researcher'];
 const priorities: TaskBoardPriority[] = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
 
 const statusColumns: { id: TaskBoardStatus; label: string; accent: string }[] = [
@@ -17,8 +19,9 @@ const statusColumns: { id: TaskBoardStatus; label: string; accent: string }[] = 
 ];
 
 export function TasksBoard() {
-  const { tasks, loading, createTask, updateTask, updateStatus, deleteTask } = useTasksBoard();
-  const [form, setForm] = useState({ title: '', description: '', owner: 'extractor', priority: 'MEDIUM' as TaskBoardPriority });
+  const { tasks, loading, createTask, updateTask, updateStatus, deleteTask, claimTask } = useTasksBoard();
+  const [form, setForm] = useState({ title: '', description: '', owner: 'extractor', priority: 'MEDIUM' as TaskBoardPriority, labels: '' });
+  const [claimAgent, setClaimAgent] = useState('coder');
 
   const grouped = useMemo(() => {
     const map: Record<TaskBoardStatus, TaskBoardItem[]> = { TODO: [], IN_PROGRESS: [], DONE: [] };
@@ -36,7 +39,7 @@ export function TasksBoard() {
     <div>
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)', letterSpacing: '-0.022em' }}>Tasks Board</h2>
+          <h2 className="text-2xl font-bold text-gradient-metallic" style={{ letterSpacing: '-0.022em' }}>Tasks Board</h2>
           <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>Volunteer, claim, and complete tasks in one place.</p>
         </div>
 
@@ -65,6 +68,12 @@ export function TasksBoard() {
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
               />
+              <input
+                className="w-full glass-tertiary px-3 py-2 text-sm rounded-xl focus:outline-none"
+                placeholder="Labels (comma separated)"
+                value={form.labels}
+                onChange={(e) => setForm({ ...form, labels: e.target.value })}
+              />
               <div className="grid grid-cols-2 gap-2">
                 <select
                   className="glass-tertiary px-3 py-2 text-sm rounded-xl"
@@ -72,7 +81,7 @@ export function TasksBoard() {
                   onChange={(e) => setForm({ ...form, owner: e.target.value })}
                 >
                   {owners.map((owner) => (
-                    <option key={owner} value={owner}>{owner}</option>
+                    <option key={owner} value={owner}>{AGENT_CONFIG[owner]?.name || owner}</option>
                   ))}
                 </select>
                 <select
@@ -89,7 +98,7 @@ export function TasksBoard() {
             <DialogFooter>
               <button
                 className="btn-apple-secondary px-4 py-2 rounded-xl text-sm"
-                onClick={() => setForm({ title: '', description: '', owner: 'begu', priority: 'MEDIUM' })}
+                onClick={() => setForm({ title: '', description: '', owner: 'begu', priority: 'MEDIUM', labels: '' })}
               >
                 Reset
               </button>
@@ -103,8 +112,9 @@ export function TasksBoard() {
                     owner: form.owner,
                     priority: form.priority,
                     status: 'TODO',
+                    labels: form.labels.split(',').map((label) => label.trim()).filter(Boolean),
                   });
-                  setForm({ title: '', description: '', owner: 'begu', priority: 'MEDIUM' });
+                  setForm({ title: '', description: '', owner: 'begu', priority: 'MEDIUM', labels: '' });
                 }}
               >
                 Create
@@ -158,13 +168,14 @@ export function TasksBoard() {
 
                   <div className="flex items-center gap-2 text-[10px]" style={{ color: 'var(--text-tertiary)' }}>
                     <User className="w-3 h-3" />
-                    {task.owner}
+                    {task.assigned_to ? `Assigned to ${AGENT_CONFIG[task.assigned_to as AgentId]?.name || task.assigned_to}` : `Owner ${AGENT_CONFIG[task.owner as AgentId]?.name || task.owner}`}
                     <span>·</span>
                     <span>{task.priority}</span>
                   </div>
 
                   <div className="flex items-center gap-2 text-[10px]" style={{ color: 'var(--text-tertiary)' }}>
                     <span>Created {formatDate(task.created_at)}</span>
+                    {task.claimed_at && <span>· Claimed {formatDate(task.claimed_at)}</span>}
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2">
@@ -174,7 +185,7 @@ export function TasksBoard() {
                       onChange={(e) => updateTask(task.id, { owner: e.target.value })}
                     >
                       {owners.map((owner) => (
-                        <option key={owner} value={owner}>{owner}</option>
+                        <option key={owner} value={owner}>{AGENT_CONFIG[owner]?.name || owner}</option>
                       ))}
                     </select>
 
@@ -187,6 +198,27 @@ export function TasksBoard() {
                         <option key={priority} value={priority}>{priority}</option>
                       ))}
                     </select>
+
+                    {task.status === 'TODO' && !task.assigned_to && (
+                      <div className="flex items-center gap-1">
+                        <select
+                          className="glass-tertiary px-2 py-1 text-xs rounded-lg"
+                          value={claimAgent}
+                          onChange={(e) => setClaimAgent(e.target.value)}
+                        >
+                          {owners.map((owner) => (
+                            <option key={owner} value={owner}>{AGENT_CONFIG[owner]?.name || owner}</option>
+                          ))}
+                        </select>
+                        <button
+                          className="px-2 py-1 text-xs rounded-lg"
+                          style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-primary)' }}
+                          onClick={() => claimTask(task.id, claimAgent, 'Manual claim from dashboard')}
+                        >
+                          Claim
+                        </button>
+                      </div>
+                    )}
 
                     {task.status !== 'DONE' && (
                       <button

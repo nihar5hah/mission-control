@@ -11,6 +11,7 @@ import {
   Bot,
   Code,
   Microscope,
+  Moon,
 } from 'lucide-react';
 import type { AgentId } from '@/types/agents';
 
@@ -19,6 +20,7 @@ export function getAgentIcon(agentId: AgentId) {
   if (agentId === 'begubot') return Bot;
   if (agentId === 'coder') return Code;
   if (agentId === 'researcher') return Microscope;
+  if (agentId === 'extractor') return Moon;
   return Bot; // default
 }
 

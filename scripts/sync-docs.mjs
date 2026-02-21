@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { createClient } from '@supabase/supabase-js';
 import fs from 'fs';
 import path from 'path';
@@ -7,113 +8,156 @@ const supabase = createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFidGxzbGFnd2Jncm5udWFhc21hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwOTAzNzksImV4cCI6MjA4NjY2NjM3OX0.95mIKqkW4Q6wtx6vvJk_XdDVK8vobmX2v98f1KRITSk'
 );
 
-const AGENTS = {
-  begubot: '/home/hyper/.openclaw/workspace',
-  coder: '/home/hyper/.openclaw/workspace-coder',
-  researcher: '/home/hyper/.openclaw/workspace-researcher'
+// Agent ID mapping (internal id -> database id)
+const AGENT_DB_IDS = {
+  'main': 'begubot',
+  'coder': 'coder',
+  'researcher': 'researcher',
+  'extractor': 'extractor'  // Database uses 'extractor', not 'axiom'
 };
 
-const ROOT_FILES = [
-  { name: 'IDENTITY.md', category: 'identity' },
-  { name: 'MEMORY.md', category: 'memory' },
-  { name: 'SOUL.md', category: 'soul' },
-  { name: 'USER.md', category: 'guide' },
-  { name: 'AGENTS.md', category: 'config' },
-  { name: 'HEARTBEAT.md', category: 'config' },
-  { name: 'TOOLS.md', category: 'config' }
-];
+// Default workspace mapping
+const DEFAULT_WORKSPACES = {
+  'begubot': '/home/hyper/.openclaw/workspace',
+  'coder': '/home/hyper/.openclaw/workspace-coder',
+  'researcher': '/home/hyper/.openclaw/workspace-researcher',
+  'extractor': '/home/hyper/.openclaw/workspace-extractor'
+};
 
-function getLast7Days() {
-  const days = [];
-  for (let i = 0; i < 7; i++) {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
-    days.push(date.toISOString().split('T')[0]); // YYYY-MM-DD
+// Auto-discover agents from openclaw.json
+function discoverAgents() {
+  const configPath = '/home/hyper/.openclaw/openclaw.json';
+  const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+  
+  const agents = {};
+  for (const agent of config.agents.list) {
+    const internalId = agent.id;
+    const dbId = AGENT_DB_IDS[internalId] || internalId;
+    const workspace = agent.workspace || DEFAULT_WORKSPACES[dbId] || `/home/hyper/.openclaw/workspace-${internalId}`;
+    
+    if (fs.existsSync(workspace)) {
+      agents[dbId] = workspace;
+    }
   }
-  return days;
+  
+  return agents;
+}
+
+// Determine category based on file path and name
+function getFileCategory(filePath, fileName) {
+  if (filePath.includes('/memory/')) return 'memory';
+  if (filePath.includes('/tasks/')) return 'tasks';
+  if (filePath.includes('/skills/')) return 'skills';
+  
+  const categoryMap = {
+    'IDENTITY.md': 'identity',
+    'MEMORY.md': 'memory',
+    'SOUL.md': 'soul',
+    'USER.md': 'guide',
+    'AGENTS.md': 'config',
+    'HEARTBEAT.md': 'config',
+    'TOOLS.md': 'config',
+    'TASK_MANIFEST.md': 'config',
+    'SKILLS_STATUS.md': 'config',
+    'WORKFLOW.md': 'workflow',
+    'CONTENT_INTAKE.md': 'workflow',
+    'SEND_AND_ARCHIVE.md': 'workflow'
+  };
+  
+  return categoryMap[fileName] || 'documents';
+}
+
+// Get all .md files recursively from a directory
+function getAllMdFiles(dir, baseDir = dir) {
+  const files = [];
+  
+  if (!fs.existsSync(dir)) return files;
+  
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+    
+    // Skip hidden directories and node_modules
+    if (entry.name.startsWith('.') || entry.name === 'node_modules') continue;
+    
+    if (entry.isDirectory()) {
+      files.push(...getAllMdFiles(fullPath, baseDir));
+    } else if (entry.name.endsWith('.md')) {
+      const relativePath = path.relative(baseDir, fullPath);
+      files.push({
+        fullPath,
+        relativePath,
+        fileName: entry.name
+      });
+    }
+  }
+  
+  return files;
 }
 
 async function syncDocuments() {
-  console.log('Syncing agent documents...\n');
+  console.log('🔄 Syncing agent documents...\n');
   
   // Clear existing documents
   await supabase.from('agent_documents').delete().neq('id', 0);
-  console.log('Cleared existing documents\n');
+  console.log('✅ Cleared existing documents\n');
   
-  const last7Days = getLast7Days();
+  // Auto-discover agents
+  const agents = discoverAgents();
+  console.log(`📋 Found ${Object.keys(agents).length} agents: ${Object.keys(agents).join(', ')}\n`);
   
-  for (const [agentId, workspace] of Object.entries(AGENTS)) {
+  let totalSynced = 0;
+  let totalFailed = 0;
+  
+  for (const [agentId, workspace] of Object.entries(agents)) {
     console.log(`\n📝 ${agentId.toUpperCase()}`);
     
-    // Sync root files
-    for (const file of ROOT_FILES) {
-      const filePath = path.join(workspace, file.name);
-      
+    // Get all .md files in workspace
+    const files = getAllMdFiles(workspace);
+    console.log(`   Found ${files.length} .md files`);
+    
+    for (const file of files) {
       try {
-        if (fs.existsSync(filePath)) {
-          const content = fs.readFileSync(filePath, 'utf-8');
-          const stats = fs.statSync(filePath);
-          
-          const { error } = await supabase
-            .from('agent_documents')
-            .insert({
-              agent_id: agentId,
-              title: file.name,
-              content: content,
-              category: file.category,
-              source_file: filePath,
-              tags: [file.category, agentId],
-              updated_at: new Date().toISOString()
-            });
-          
-          if (error) {
-            console.log(`  ❌ ${file.name}: ${error.message}`);
-          } else {
-            console.log(`  ✅ ${file.name} (${content.length} chars)`);
+        const content = fs.readFileSync(file.fullPath, 'utf-8');
+        const category = getFileCategory(file.fullPath, file.fileName);
+        
+        const { error } = await supabase
+          .from('agent_documents')
+          .insert({
+            agent_id: agentId,
+            title: file.relativePath,
+            content: content,
+            category: category,
+            source_file: file.fullPath,
+            tags: [category, agentId, file.fileName.replace('.md', '')],
+            updated_at: new Date().toISOString()
+          });
+        
+        if (error) {
+          console.log(`   ❌ ${file.relativePath}: ${error.message}`);
+          totalFailed++;
+        } else {
+          totalSynced++;
+          // Only log non-memory files or if verbose
+          if (category !== 'memory' || content.length > 5000) {
+            console.log(`   ✅ ${file.relativePath} (${content.length} chars)`);
           }
         }
       } catch (err) {
-        console.log(`  ⚠️ ${file.name}: ${err.message}`);
-      }
-    }
-    
-    // Sync memory/*.md files (last 7 days)
-    const memoryDir = path.join(workspace, 'memory');
-    if (fs.existsSync(memoryDir)) {
-      for (const day of last7Days) {
-        const memoryFile = path.join(memoryDir, `${day}.md`);
-        
-        try {
-          if (fs.existsSync(memoryFile)) {
-            const content = fs.readFileSync(memoryFile, 'utf-8');
-            const stats = fs.statSync(memoryFile);
-            
-            const { error } = await supabase
-              .from('agent_documents')
-              .insert({
-                agent_id: agentId,
-                title: `memory/${day}.md`,
-                content: content,
-                category: 'memory',
-                source_file: memoryFile,
-                tags: ['daily', 'memory', day, agentId],
-                updated_at: new Date().toISOString()
-              });
-            
-            if (error) {
-              console.log(`  ❌ memory/${day}.md: ${error.message}`);
-            } else {
-              console.log(`  ✅ memory/${day}.md (${content.length} chars)`);
-            }
-          }
-        } catch (err) {
-          // File doesn't exist, skip silently
-        }
+        console.log(`   ⚠️ ${file.relativePath}: ${err.message}`);
+        totalFailed++;
       }
     }
   }
   
+  console.log(`\n\n📊 SUMMARY`);
+  console.log(`   Synced: ${totalSynced} files`);
+  console.log(`   Failed: ${totalFailed} files`);
+  console.log(`   Agents: ${Object.keys(agents).join(', ')}`);
   console.log('\n✅ Sync complete!');
+  
+  return { totalSynced, totalFailed, agentCount: Object.keys(agents).length };
 }
 
-syncDocuments();
+syncDocuments().catch(console.error);

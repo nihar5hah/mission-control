@@ -189,18 +189,19 @@ export function AgentsSidebar({ isOpen = false, onClose }: { isOpen?: boolean; o
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            className="hidden md:flex flex-col h-full shadow-sm transition-all duration-300"
+            className="hidden md:flex h-full shadow-sm overflow-hidden"
             style={{
               backgroundColor: '#1c1c1e',
               borderRight: '1px solid rgba(255,255,255,0.06)',
-              width: '320px'
             }}
-            initial={{ x: -320, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -320, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: 320, opacity: 1 }}
+            exit={{ width: 0, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           >
-            {sidebarContent}
+            <div style={{ width: 320, height: '100%', display: 'flex', flexDirection: 'column' }}>
+              {sidebarContent}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -216,7 +217,7 @@ export function AgentsSidebar({ isOpen = false, onClose }: { isOpen?: boolean; o
           >
             <div className="absolute inset-0 bg-black/60" onClick={onClose} />
             <motion.div
-              className="absolute left-0 top-0 h-full w-72 flex flex-col shadow-lg transition-all duration-300"
+              className="absolute left-0 top-0 h-full w-72 flex flex-col shadow-lg"
               style={{
                 backgroundColor: '#1c1c1e',
                 borderRight: '1px solid rgba(255,255,255,0.06)'

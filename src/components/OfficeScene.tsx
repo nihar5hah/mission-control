@@ -10,27 +10,31 @@ const PHASES = ['work', 'chat', 'meeting', 'water', 'return'] as const;
 type OfficePhase = (typeof PHASES)[number];
 
 const DESK_POSITIONS: Record<AgentId, { x: number; y: number }> = {
-  begubot: { x: 18, y: 62 },
-  coder: { x: 44, y: 72 },
-  researcher: { x: 70, y: 62 },
+  begubot: { x: 12, y: 62 },
+  coder: { x: 34, y: 72 },
+  researcher: { x: 58, y: 62 },
+  extractor: { x: 80, y: 72 },
 };
 
 const MEETING_SPOTS: Record<AgentId, { x: number; y: number }> = {
-  begubot: { x: 34, y: 22 },
-  coder: { x: 46, y: 18 },
-  researcher: { x: 58, y: 22 },
+  begubot: { x: 28, y: 22 },
+  coder: { x: 42, y: 18 },
+  researcher: { x: 56, y: 22 },
+  extractor: { x: 70, y: 18 },
 };
 
 const WATER_COOLER_SPOTS: Record<AgentId, { x: number; y: number }> = {
-  begubot: { x: 64, y: 78 },
-  coder: { x: 52, y: 82 },
-  researcher: { x: 74, y: 84 },
+  begubot: { x: 60, y: 78 },
+  coder: { x: 48, y: 82 },
+  researcher: { x: 72, y: 84 },
+  extractor: { x: 84, y: 80 },
 };
 
 const CHAT_SPOTS: Record<AgentId, { x: number; y: number }> = {
-  begubot: { x: 30, y: 50 },
-  coder: { x: 42, y: 54 },
-  researcher: { x: 54, y: 50 },
+  begubot: { x: 26, y: 50 },
+  coder: { x: 38, y: 54 },
+  researcher: { x: 50, y: 50 },
+  extractor: { x: 62, y: 54 },
 };
 
 const speechLines = [
@@ -71,7 +75,7 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
     return agentStates.reduce<Record<AgentId, AgentState | undefined>>((acc, state) => {
       acc[state.agent.id] = state;
       return acc;
-    }, { begubot: undefined, coder: undefined, researcher: undefined });
+    }, { begubot: undefined, coder: undefined, researcher: undefined, extractor: undefined });
   }, [agentStates]);
 
   useEffect(() => {
@@ -100,7 +104,7 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
     if (speechTimerRef.current) clearTimeout(speechTimerRef.current);
 
     if (phase === 'chat' || phase === 'meeting' || phase === 'water') {
-      const agentIds: AgentId[] = ['begubot', 'coder', 'researcher'];
+      const agentIds: AgentId[] = ['begubot', 'coder', 'researcher', 'extractor'];
       const talker = agentIds[Math.floor(Math.random() * agentIds.length)];
       const line = speechLines[Math.floor(Math.random() * speechLines.length)];
       speechTimerRef.current = setTimeout(() => {
@@ -155,7 +159,7 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
         </div>
 
         {/* Desks */}
-        {(['begubot', 'coder', 'researcher'] as AgentId[]).map((agentId) => {
+        {(['begubot', 'coder', 'researcher', 'extractor'] as AgentId[]).map((agentId) => {
           const desk = DESK_POSITIONS[agentId];
           const config = AGENT_CONFIG[agentId];
           return (
@@ -179,7 +183,7 @@ export function OfficeScene({ agentStates }: { agentStates: AgentState[] }) {
         })}
 
         {/* Agents */}
-        {(['begubot', 'coder', 'researcher'] as AgentId[]).map((agentId) => {
+        {(['begubot', 'coder', 'researcher', 'extractor'] as AgentId[]).map((agentId) => {
           const config = AGENT_CONFIG[agentId];
           const state = agentStateMap[agentId];
           const action = getAgentAction(state);

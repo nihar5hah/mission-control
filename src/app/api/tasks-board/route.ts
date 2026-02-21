@@ -153,7 +153,8 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      return NextResponse.json({ error: 'Failed to create task' }, { status: 500 });
+      console.error('[TasksBoard] Insert error:', error);
+      return NextResponse.json({ error: 'Failed to create task', details: error.message }, { status: 500 });
     }
 
     await logAgentActivity(owner, 'task-create', `Created task: ${title}`);

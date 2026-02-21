@@ -11,7 +11,7 @@ export async function POST(request: Request) {
 
     const result = await sendSessionMessage({
       sessionKey: SESSION_KEY,
-      message: 'Run the morning brief now and post a summary.',
+      message: 'Run the morning brief now and post a summary. Include agent health summary (underutilized/overworked/inactive).',
       timeoutSeconds: 0,
     });
 

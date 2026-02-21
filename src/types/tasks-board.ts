@@ -7,6 +7,9 @@ export interface TaskBoardItem {
   description?: string | null;
   status: TaskBoardStatus;
   owner: string;
+  assigned_to?: string | null;
+  claimed_at?: string | null;
+  labels?: string[] | null;
   priority: TaskBoardPriority;
   created_at: string;
   updated_at: string;

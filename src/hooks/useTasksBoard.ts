@@ -51,6 +51,22 @@ export function useTasksBoard() {
     setTasks((prev) => [...prev, newTask]);
   };
 
+  const claimTask = async (id: string, agentId: string, reason?: string) => {
+    const response = await fetch(`/api/tasks-board/${id}/claim`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agent_id: agentId, reason }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data?.error || 'Failed to claim task');
+    }
+
+    const data = await response.json();
+    setTasks((prev) => prev.map((task) => task.id === id ? data.task : task));
+  };
+
   const updateTask = async (id: string, data: Partial<TaskBoardItem>) => {
     const updated = await tasksBoardApi.update(id, data);
     setTasks((prev) => prev.map((t) => t.id === id ? updated : t));
@@ -66,5 +82,5 @@ export function useTasksBoard() {
     setTasks((prev) => prev.filter((t) => t.id !== id));
   };
 
-  return { tasks, loading, error, createTask, updateTask, updateStatus, deleteTask };
+  return { tasks, loading, error, createTask, updateTask, updateStatus, deleteTask, claimTask };
 }

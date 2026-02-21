@@ -84,9 +84,9 @@ const actionTypeConfig = {
   analysis: {
     label: 'Analysis',
     icon: Brain,
-    color: '#06402B',
-    bg: 'rgba(6, 64, 43, 0.1)',
-    border: 'rgba(6, 64, 43, 0.3)',
+    color: 'text-[#8B5CF6]',
+    bg: 'bg-[#8B5CF6]/10',
+    border: 'border-[#8B5CF6]/30',
   },
 };
 
@@ -122,9 +122,9 @@ const patternCategoryConfig = {
   learning: {
     label: 'Learning',
     icon: GraduationCap,
-    color: '#06402B',
-    bg: 'rgba(6, 64, 43, 0.1)',
-    border: 'rgba(6, 64, 43, 0.3)',
+    color: 'text-[#0A84FF]',
+    bg: 'bg-[#0A84FF]/10',
+    border: 'border-[#0A84FF]/30',
   },
   collaboration: {
     label: 'Collaboration',
@@ -160,9 +160,9 @@ const opportunityTypeConfig = {
   learning: {
     label: 'Learning',
     icon: GraduationCap,
-    color: '#06402B',
-    bg: 'rgba(6, 64, 43, 0.1)',
-    border: 'rgba(6, 64, 43, 0.3)',
+    color: 'text-[#0A84FF]',
+    bg: 'bg-[#0A84FF]/10',
+    border: 'border-[#0A84FF]/30',
   },
   efficiency: {
     label: 'Efficiency',
@@ -316,7 +316,7 @@ function ActionCard({ action, onDismiss }: { action: ProactiveAction; onDismiss:
         hex = '#' + r + g + b;
         rgba = colorValue;
       } else {
-        hex = '#06402B';
+        hex = '#0A84FF';
         rgba = colorValue;
       }
     } else {
@@ -414,7 +414,7 @@ function PatternCard({ pattern }: { pattern: Pattern }) {
         hex = '#' + r + g + b;
         rgba = colorValue;
       } else {
-        hex = '#06402B';
+        hex = '#0A84FF';
         rgba = colorValue;
       }
     } else {
@@ -477,7 +477,7 @@ function PatternCard({ pattern }: { pattern: Pattern }) {
           </div>
 
           {pattern.suggested_action && (
-            <p className="text-xs mt-3 rounded px-2 py-1.5 transition-colors duration-300" style={{ color: 'var(--accent)', backgroundColor: 'var(--accent-muted)', border: '1px solid rgba(6, 64, 43, 0.2)' }}>
+            <p className="text-xs mt-3 rounded px-2 py-1.5 transition-colors duration-300" style={{ color: 'var(--text-primary)', backgroundColor: 'var(--accent-muted)', border: '0.5px solid var(--border)' }}>
               💡 {pattern.suggested_action}
             </p>
           )}
@@ -522,7 +522,7 @@ function OpportunityCard({ opportunity, onUpdate }: { opportunity: Opportunity; 
         hex = '#' + r + g + b;
         rgba = colorValue;
       } else {
-        hex = '#06402B';
+        hex = '#0A84FF';
         rgba = colorValue;
       }
     } else {
@@ -761,7 +761,7 @@ export default function ProactiveHub() {
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold mb-1 flex items-center gap-2 transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>
+          <h2 className="text-2xl font-semibold mb-1 flex items-center gap-2 transition-colors duration-300 text-gradient-metallic">
             <Bot className="w-6 h-6" style={{ color: 'var(--accent)' }} />
             Proactive Intelligence
           </h2>

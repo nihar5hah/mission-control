@@ -70,6 +70,8 @@ import type { AgentId } from '@/types/agents';
 import { OfficeScene } from '@/components/OfficeScene';
 import { QuickActions } from '@/components/QuickActions';
 import { TasksBoard } from '@/components/TasksBoard';
+import { AgentHealthCard } from '@/components/AgentHealthCard';
+import { AgentTaskQueue } from '@/components/AgentTaskQueue';
 import { Toaster } from '@/components/ui/sonner';
 
 /* ============ ANIMATION VARIANTS ============ */
@@ -125,7 +127,7 @@ const actionTypeConfig: Record<string, { label: string; icon: React.ComponentTyp
 
 /* ============ MAIN COMPONENT ============ */
 export default function MissionControl() {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'activity' | 'calendar' | 'office' | 'search' | 'documentation' | 'hierarchy' | 'focus' | 'tasks'>(() => {
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'activity' | 'calendar' | 'office' | 'search' | 'documentation' | 'hierarchy' | 'focus' | 'tasks' | 'health'>(() => {
     if (typeof window === 'undefined') return 'dashboard';
     return (localStorage.getItem('mc_activeTab') as any) || 'dashboard';
   });
@@ -149,6 +151,9 @@ export default function MissionControl() {
   });
   const [docsQuery, setDocsQuery] = useState('');
   const [selectedDoc, setSelectedDoc] = useState<{ file: FileNode; content: string } | null>(null);
+  const [activityAgentFilter, setActivityAgentFilter] = useState<AgentId | 'all'>('all');
+  const [activityStatusFilter, setActivityStatusFilter] = useState<'all' | 'running' | 'completed' | 'failed' | 'pending' | 'idle'>('all');
+  const [activityQuery, setActivityQuery] = useState('');
 
   // Log Activity Modal State
   const [showLogModal, setShowLogModal] = useState(false);
@@ -422,6 +427,7 @@ export default function MissionControl() {
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: Zap },
     { id: 'focus', label: 'Focus', icon: Target },
+    { id: 'health', label: 'Health', icon: Activity },
     { id: 'tasks', label: 'Tasks', icon: CheckCircle2 },
     { id: 'activity', label: 'Activity Log', icon: Activity, badge: activities.length },
     { id: 'calendar', label: 'Schedule', icon: Calendar, badge: agentSchedules.length },
@@ -470,19 +476,20 @@ export default function MissionControl() {
 
           <div className="flex items-center gap-2.5">
             <div
-              className="w-8 h-8 rounded-xl flex items-center justify-center"
+              className="w-8 h-8 rounded-xl flex items-center justify-center shadow-sm"
               style={{
-                background: 'linear-gradient(135deg, #06402B 0%, #04311f 100%)',
-                boxShadow: '0 4px 12px rgba(6, 64, 43, 0.4)',
+                background: 'var(--gradient-metallic)',
+                boxShadow: '0 4px 14px rgba(255, 255, 255, 0.1)',
+                border: '0.5px solid rgba(255, 255, 255, 0.2)'
               }}
             >
               <motion.div animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}>
-                <Command className="w-4 h-4 text-white" />
+                <Command className="w-5 h-5 text-black" />
               </motion.div>
             </div>
 
             <div>
-              <h1 className="text-sm font-semibold leading-tight" style={{ color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+              <h1 className="text-sm font-semibold leading-tight text-gradient-metallic" style={{ letterSpacing: '-0.01em' }}>
                 CCPL
               </h1>
               <p className="text-[11px] leading-tight" style={{ color: 'var(--text-tertiary)' }}>
@@ -506,7 +513,7 @@ export default function MissionControl() {
               transition={{ duration: 2, repeat: Infinity }}
             />
             <span className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>
-              {agentStates.filter(s => s.isOnline).length}/3 Online
+              {agentStates.filter(s => s.isOnline).length}/{agentStates.length} Online
             </span>
           </motion.div>
 
@@ -533,7 +540,7 @@ export default function MissionControl() {
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
             className="relative px-3 sm:px-4 py-2 rounded-[9px] text-xs sm:text-sm font-medium flex items-center gap-1.5 whitespace-nowrap min-h-[36px] transition-colors"
-            style={{ color: isActive ? '#ffffff' : 'var(--text-tertiary)' }}
+            style={{ color: isActive ? 'var(--bg-base)' : 'var(--text-secondary)' }}
             whileTap={{ scale: 0.97 }}
           >
             {isActive && (
@@ -545,14 +552,14 @@ export default function MissionControl() {
               />
             )}
             <span className="relative z-10 flex items-center gap-1.5">
-              <Icon className="w-3.5 h-3.5" />
+              <Icon className={`w-3.5 h-3.5 ${!isActive ? 'metallic-icon' : ''}`} />
               {tab.label}
               {tab.badge ? (
                 <span
                   className="ml-0.5 px-1.5 py-0.5 text-[10px] rounded-full font-medium"
                   style={{
-                    background: isActive ? 'rgba(255,255,255,0.25)' : 'var(--accent-muted)',
-                    color: isActive ? '#fff' : 'var(--accent)',
+                    background: isActive ? 'rgba(0,0,0,0.1)' : 'var(--accent-muted)',
+                    color: isActive ? 'var(--bg-base)' : 'var(--text-primary)',
                   }}
                 >
                   {tab.badge}
@@ -588,14 +595,14 @@ export default function MissionControl() {
         transition={{ duration: 0.3 }}
       >
         <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)', letterSpacing: '-0.022em' }}>Dashboard</h2>
+          <h2 className="text-2xl font-bold mb-1 text-gradient-metallic" style={{ letterSpacing: '-0.02em' }}>Dashboard</h2>
           <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>Real-time statistics for all agents</p>
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6 sm:mb-8">
           {[
-            { label: 'Active Agents', value: `${agentStates.filter(s => s.isOnline).length}/3`, icon: Users, color: 'var(--color-purple)', muted: 'var(--color-purple-muted)' },
+            { label: 'Active Agents', value: `${agentStates.filter(s => s.isOnline).length}/${agentStates.length}`, icon: Users, color: 'var(--color-purple)', muted: 'var(--color-purple-muted)' },
             { label: 'Tokens Today', value: totalTokens.toLocaleString(), icon: Zap, color: 'var(--color-teal)', muted: 'var(--color-teal-muted)' },
             { label: 'Tasks Done', value: totalTasks.toString(), icon: CheckCircle2, color: 'var(--color-green)', muted: 'var(--color-green-muted)' },
             { label: 'Active Time', value: formatDuration(totalActiveTime), icon: Clock, color: 'var(--color-orange)', muted: 'var(--color-orange-muted)' },
@@ -700,7 +707,7 @@ export default function MissionControl() {
         transition={{ duration: 0.3 }}
       >
         <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)', letterSpacing: '-0.022em' }}>Focus Mode</h2>
+          <h2 className="text-2xl font-bold mb-1 text-gradient-metallic" style={{ letterSpacing: '-0.02em' }}>Focus Mode</h2>
           <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>Minimal view for right now</p>
         </div>
 
@@ -708,7 +715,7 @@ export default function MissionControl() {
           <div className="apple-card p-5">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Now</h3>
-              <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{onlineAgents.length}/3 online</span>
+              <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{onlineAgents.length}/{agentStates.length} online</span>
             </div>
             {latest ? (
               <div className="rounded-xl px-3 py-3" style={{ background: 'rgba(255,255,255,0.04)' }}>
@@ -753,14 +760,23 @@ export default function MissionControl() {
 
   /* ============ RENDER: ACTIVITY FEED ============ */
   const renderActivityFeed = () => {
-    const agentIds: AgentId[] = ['begubot', 'coder', 'researcher'];
+    const agentIds: AgentId[] = ['begubot', 'coder', 'researcher', 'extractor'];
+    const normalizedQuery = activityQuery.trim().toLowerCase();
+
+    const matchesFilters = (activity: (typeof agentActivities)[number]) => {
+      if (activityAgentFilter !== 'all' && activity.agent_id !== activityAgentFilter) return false;
+      if (activityStatusFilter !== 'all' && activity.status !== activityStatusFilter) return false;
+      if (!normalizedQuery) return true;
+      const haystack = `${activity.action} ${activity.description}`.toLowerCase();
+      return haystack.includes(normalizedQuery);
+    };
 
     const statusStyles: Record<string, { bg: string; text: string }> = {
-      running:   { bg: 'var(--color-green-muted)',  text: 'var(--color-green)' },
-      completed: { bg: 'var(--color-blue-muted)',   text: 'var(--color-blue)' },
-      failed:    { bg: 'var(--color-red-muted)',    text: 'var(--color-red)' },
-      idle:      { bg: 'rgba(255,255,255,0.06)',    text: 'var(--text-tertiary)' },
-      pending:   { bg: 'var(--color-orange-muted)', text: 'var(--color-orange)' },
+      running: { bg: 'var(--color-green-muted)', text: 'var(--color-green)' },
+      completed: { bg: 'var(--color-blue-muted)', text: 'var(--color-blue)' },
+      failed: { bg: 'var(--color-red-muted)', text: 'var(--color-red)' },
+      idle: { bg: 'rgba(255,255,255,0.06)', text: 'var(--text-tertiary)' },
+      pending: { bg: 'var(--color-orange-muted)', text: 'var(--color-orange)' },
     };
 
     const actionCategory = (action: string) => {
@@ -775,6 +791,12 @@ export default function MissionControl() {
     const ActivityColumn = ({ agentId }: { agentId: AgentId }) => {
       const config = AGENT_CONFIG[agentId];
       const { activities, loading } = useAgentActivities(agentId, 50);
+      const filtered = activities.filter((activity) => {
+        if (activityStatusFilter !== 'all' && activity.status !== activityStatusFilter) return false;
+        if (!normalizedQuery) return true;
+        const haystack = `${activity.action} ${activity.description}`.toLowerCase();
+        return haystack.includes(normalizedQuery);
+      });
 
       return (
         <div className="apple-card p-4 flex flex-col">
@@ -798,11 +820,11 @@ export default function MissionControl() {
               </motion.div>
               <span className="ml-2">Syncing...</span>
             </div>
-          ) : activities.length === 0 ? (
+          ) : filtered.length === 0 ? (
             <p className="text-xs transition-colors duration-300" style={{ color: 'var(--subtle)' }}>No activity yet</p>
           ) : (
             <div className="space-y-2 max-h-[520px] overflow-y-auto pr-1">
-              {activities.map((activity) => {
+              {filtered.map((activity) => {
                 const category = actionCategory(activity.action);
                 const StatusClass = statusStyles[activity.status] || statusStyles.pending;
                 const CategoryIcon = category.icon;
@@ -837,40 +859,90 @@ export default function MissionControl() {
     return (
       <motion.div key="activity" variants={tabVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.3 }}>
         <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)', letterSpacing: '-0.022em' }}>Live Activity</h2>
+          <h2 className="text-2xl font-bold mb-1 text-gradient-metallic" style={{ letterSpacing: '-0.022em' }}>Live Activity</h2>
           <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>Newest on top · Last 50 per agent</p>
         </div>
 
-        <div className="apple-card p-5 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Today Timeline</h3>
-            <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{agentActivities.length} events</span>
-          </div>
-          <div className="space-y-4">
-            {timelineGroups.length === 0 && (
-              <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>No activity yet.</p>
-            )}
-            {timelineGroups.slice(0, 12).map((group) => (
-              <div key={group.label} className="flex gap-4">
-                <div className="w-16 text-xs" style={{ color: 'var(--text-tertiary)' }}>{group.label}</div>
-                <div className="flex-1 space-y-2">
-                  {group.items.slice(0, 4).map((activity) => (
-                    <div key={activity.id} className="rounded-xl px-3 py-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{AGENT_CONFIG[activity.agent_id as AgentId]?.emoji}</span>
-                        <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{AGENT_CONFIG[activity.agent_id as AgentId]?.name || activity.agent_id}</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-tertiary)' }}>
-                          {activity.status}
-                        </span>
-                      </div>
-                      <p className="text-sm" style={{ color: 'var(--text-primary)' }}>{activity.description}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
+        <div className="apple-card p-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_180px_200px] gap-3 items-center">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search activity..."
+                value={activityQuery}
+                onChange={(e) => setActivityQuery(e.target.value)}
+                className="w-full rounded-xl pl-9 pr-3 py-2 text-xs"
+                style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-primary)' }}
+              />
+            </div>
+            <select
+              className="glass-tertiary px-3 py-2 text-xs rounded-xl"
+              value={activityStatusFilter}
+              onChange={(e) => setActivityStatusFilter(e.target.value as typeof activityStatusFilter)}
+            >
+              {['all', 'running', 'completed', 'failed', 'pending', 'idle'].map((status) => (
+                <option key={status} value={status}>
+                  {status === 'all' ? 'All statuses' : status}
+                </option>
+              ))}
+            </select>
+            <select
+              className="glass-tertiary px-3 py-2 text-xs rounded-xl"
+              value={activityAgentFilter}
+              onChange={(e) => setActivityAgentFilter(e.target.value as AgentId | 'all')}
+            >
+              <option value="all">All agents</option>
+              {agentIds.map((agentId) => (
+                <option key={agentId} value={agentId}>{AGENT_CONFIG[agentId].name}</option>
+              ))}
+            </select>
           </div>
         </div>
+
+        {(() => {
+          const filteredTimelineGroups = timelineGroups
+            .map((group) => ({
+              ...group,
+              items: group.items.filter(matchesFilters),
+            }))
+            .filter((group) => group.items.length > 0);
+
+          const filteredEventsCount = filteredTimelineGroups.reduce((sum, group) => sum + group.items.length, 0);
+
+          return (
+            <div className="apple-card p-5 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Today Timeline</h3>
+                <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{filteredEventsCount} events</span>
+              </div>
+              <div className="space-y-4">
+                {filteredTimelineGroups.length === 0 && (
+                  <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>No activity yet.</p>
+                )}
+                {filteredTimelineGroups.slice(0, 12).map((group) => (
+                  <div key={group.label} className="flex gap-4">
+                    <div className="w-16 text-xs" style={{ color: 'var(--text-tertiary)' }}>{group.label}</div>
+                    <div className="flex-1 space-y-2">
+                      {group.items.slice(0, 4).map((activity) => (
+                        <div key={activity.id} className="rounded-xl px-3 py-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{AGENT_CONFIG[activity.agent_id as AgentId]?.emoji}</span>
+                            <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{AGENT_CONFIG[activity.agent_id as AgentId]?.name || activity.agent_id}</span>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--text-tertiary)' }}>
+                              {activity.status}
+                            </span>
+                          </div>
+                          <p className="text-sm" style={{ color: 'var(--text-primary)' }}>{activity.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {agentIds.map((agentId) => (
@@ -880,7 +952,7 @@ export default function MissionControl() {
       </motion.div>
     );
   };
-/* ============ RENDER: CALENDAR VIEW ============ */
+  /* ============ RENDER: CALENDAR VIEW ============ */
   const renderCalendar = () => {
     const allTaskDays = getAllTaskDays();
     const scheduleItems = scheduleAgentFilter === 'all'
@@ -916,7 +988,7 @@ export default function MissionControl() {
       <motion.div key="calendar" variants={tabVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.3 }}>
         <div className="mb-6 flex flex-col gap-4">
           <div>
-            <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)', letterSpacing: '-0.022em' }}>Agent Schedules</h2>
+            <h2 className="text-2xl font-bold mb-1 text-gradient-metallic" style={{ letterSpacing: '-0.022em' }}>Agent Schedules</h2>
             <p className="text-sm transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>{scheduleItems.length} items scheduled</p>
           </div>
 
@@ -932,7 +1004,7 @@ export default function MissionControl() {
             >
               All Agents
             </motion.button>
-            {(['begubot', 'coder', 'researcher'] as AgentId[]).map((agentId) => {
+            {(['begubot', 'coder', 'researcher', 'extractor'] as AgentId[]).map((agentId) => {
               const config = AGENT_CONFIG[agentId];
               const isActive = scheduleAgentFilter === agentId;
               return (
@@ -1021,12 +1093,12 @@ export default function MissionControl() {
     );
   };
 
-      /* ============ RENDER: DOCUMENTATION ============ */
+  /* ============ RENDER: DOCUMENTATION ============ */
   const renderDocumentation = () => (
     <motion.div key="documentation" variants={tabVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.3 }}>
       <div className="mb-6 flex flex-col gap-4">
         <div>
-          <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)', letterSpacing: '-0.022em' }}>Documentation</h2>
+          <h2 className="text-2xl font-bold mb-1 text-gradient-metallic" style={{ letterSpacing: '-0.022em' }}>Documentation</h2>
           <p className="text-sm transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>Real-time agent documentation (workspace + memory)</p>
         </div>
 
@@ -1055,7 +1127,7 @@ export default function MissionControl() {
             >
               All Agents
             </motion.button>
-            {(['begubot', 'coder', 'researcher'] as AgentId[]).map((agentId) => {
+            {(['begubot', 'coder', 'researcher', 'extractor'] as AgentId[]).map((agentId) => {
               const config = AGENT_CONFIG[agentId];
               const isActive = docsAgentFilter === agentId;
               return (
@@ -1105,8 +1177,6 @@ export default function MissionControl() {
         const buildAgentTree = (agentId: AgentId): FileNode => {
           const config = AGENT_CONFIG[agentId];
           const docs = filteredDocs.filter((doc) => doc.agent_id === agentId);
-          const memoryDocs = docs.filter((doc) => doc.source_file?.includes('/memory/'));
-          const rootDocs = docs.filter((doc) => !doc.source_file?.includes('/memory/'));
 
           const toFileNode = (doc: typeof docs[number]): FileNode => ({
             name: doc.title,
@@ -1116,20 +1186,51 @@ export default function MissionControl() {
             content: doc.content,
           });
 
-          const children: FileNode[] = [];
-          if (rootDocs.length > 0) {
-            children.push(...rootDocs.map(toFileNode));
-          }
-          if (memoryDocs.length > 0) {
-            children.push({
-              name: 'memory',
-              path: `${agentId}-memory`,
-              type: 'directory',
-              children: memoryDocs
-                .sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''))
-                .map(toFileNode),
+          // Group documents by category
+          const categories: Record<string, typeof docs> = {};
+          docs.forEach((doc) => {
+            const cat = doc.category || 'documents';
+            if (!categories[cat]) categories[cat] = [];
+            categories[cat].push(doc);
+          });
+
+          // Category display names and order
+          const categoryConfig: Record<string, { name: string; icon: string; order: number }> = {
+            identity: { name: 'Identity', icon: '👤', order: 1 },
+            soul: { name: 'Soul & Purpose', icon: '💫', order: 2 },
+            guide: { name: 'User Guide', icon: '📖', order: 3 },
+            config: { name: 'Configuration', icon: '⚙️', order: 4 },
+            workflow: { name: 'Workflows', icon: '🔄', order: 5 },
+            memory: { name: 'Memory & Logs', icon: '🧠', order: 6 },
+            tasks: { name: 'Tasks', icon: '📋', order: 7 },
+            skills: { name: 'Skills', icon: '🎯', order: 8 },
+            documents: { name: 'Documents', icon: '📄', order: 9 },
+          };
+
+          const children: FileNode[] = Object.entries(categories)
+            .sort((a, b) => (categoryConfig[a[0]]?.order || 99) - (categoryConfig[b[0]]?.order || 99))
+            .map(([cat, catDocs]) => {
+              const cfg = categoryConfig[cat] || { name: cat, icon: '📁', order: 99 };
+              const sortedDocs = catDocs.sort((a, b) => {
+                // Priority files first
+                const aPriority = ['IDENTITY.md', 'MEMORY.md', 'SOUL.md'].includes(a.title) ? 0 : 1;
+                const bPriority = ['IDENTITY.md', 'MEMORY.md', 'SOUL.md'].includes(b.title) ? 0 : 1;
+                if (aPriority !== bPriority) return aPriority - bPriority;
+                return (b.updated_at || '').localeCompare(a.updated_at || '');
+              });
+
+              // If only one doc in category and it's root level, show directly
+              if (sortedDocs.length === 1 && cat === 'documents') {
+                return toFileNode(sortedDocs[0]);
+              }
+
+              return {
+                name: `${cfg.icon} ${cfg.name}`,
+                path: `${agentId}-${cat}`,
+                type: 'directory',
+                children: sortedDocs.map(toFileNode),
+              };
             });
-          }
 
           return {
             name: `${config.emoji} ${config.name}`,
@@ -1139,7 +1240,7 @@ export default function MissionControl() {
           };
         };
 
-        const tree: FileNode[] = ['begubot', 'coder', 'researcher']
+        const tree: FileNode[] = ['begubot', 'coder', 'researcher', 'extractor']
           .filter((agentId) => docsAgentFilter === 'all' || agentId === docsAgentFilter)
           .map((agentId) => buildAgentTree(agentId as AgentId));
 
@@ -1166,12 +1267,12 @@ export default function MissionControl() {
   );
 
   /* ============ RENDER: OFFICE SCENE ============ */
-/* ============ RENDER: OFFICE SCENE ============ */
+  /* ============ RENDER: OFFICE SCENE ============ */
   const renderOffice = () => (
     <motion.div key="office" variants={tabVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.3 }}>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)', letterSpacing: '-0.022em' }}>Office Playground</h2>
+          <h2 className="text-2xl font-bold mb-1 text-gradient-metallic" style={{ letterSpacing: '-0.022em' }}>Office Playground</h2>
           <p className="text-sm transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>Animated live office + real-time agent activity</p>
         </div>
       </div>
@@ -1224,7 +1325,7 @@ export default function MissionControl() {
   const renderSearch = () => (
     <motion.div key="search" variants={tabVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.3 }}>
       <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-4" style={{ color: 'var(--text-primary)', letterSpacing: '-0.022em' }}>Global Search</h2>
+        <h2 className="text-2xl font-bold mb-4 text-gradient-metallic" style={{ letterSpacing: '-0.022em' }}>Global Search</h2>
         <motion.div className="relative" whileHover={{ y: -2 }}>
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
           <input
@@ -1295,6 +1396,18 @@ export default function MissionControl() {
             {activeTab === 'dashboard' && renderDashboard()}
             {activeTab === 'focus' && renderFocus()}
             {activeTab === 'tasks' && <TasksBoard />}
+            {activeTab === 'health' && (
+              <motion.div key="health" variants={tabVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.3 }}>
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold mb-1 text-gradient-metallic" style={{ letterSpacing: '-0.022em' }}>Agent Health</h2>
+                  <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>Real-time health scores and workload balance</p>
+                </div>
+                <div className="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-4">
+                  <AgentHealthCard />
+                  <AgentTaskQueue />
+                </div>
+              </motion.div>
+            )}
             {activeTab === 'activity' && renderActivityFeed()}
             {activeTab === 'calendar' && renderCalendar()}
             {activeTab === 'office' && renderOffice()}

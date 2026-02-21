@@ -13,16 +13,8 @@ export function ThemeToggle() {
     const html = document.documentElement;
     const storedTheme = localStorage.getItem('theme');
 
-    let shouldBeDark = false;
-
-    if (storedTheme === 'dark') {
-      shouldBeDark = true;
-    } else if (storedTheme === 'light') {
-      shouldBeDark = false;
-    } else {
-      // No stored preference → default to dark
-      shouldBeDark = true;
-    }
+    // Force Dark Mode per user preference
+    let shouldBeDark = true;
 
     setIsDark(shouldBeDark);
     applyTheme(shouldBeDark);

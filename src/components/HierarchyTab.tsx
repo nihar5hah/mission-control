@@ -6,13 +6,19 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Bot, Code, Microscope, Users, Building, ArrowDown, ChevronDown } from 'lucide-react';
+import { Bot, Code, Microscope, Moon, Users, Building, ArrowDown, ChevronDown } from 'lucide-react';
 import type { AgentId } from '@/types/agents';
 import { AGENT_CONFIG } from '@/types/agents';
 
 // Agent avatar component
 function HierarchyAvatar({ agentId, color, name, role }: { agentId: AgentId; color: string; name: string; role: string }) {
-  const Icon = agentId === 'begubot' ? Bot : agentId === 'coder' ? Code : Microscope;
+  const Icon = agentId === 'begubot'
+    ? Bot
+    : agentId === 'coder'
+      ? Code
+      : agentId === 'researcher'
+        ? Microscope
+        : Moon;
 
   return (
     <motion.div
@@ -26,14 +32,14 @@ function HierarchyAvatar({ agentId, color, name, role }: { agentId: AgentId; col
         className="w-20 h-20 rounded-2xl flex items-center justify-center relative overflow-hidden"
         style={{
           background: `${color}10`,
-          border: '1px solid #06402B',
+          border: '1px solid var(--border)',
           boxShadow: '0 0 16px var(--accent-glow)'
         }}
         whileHover={{
           scale: 1.05,
           rotate: [0, -5, 5, 0],
-          // Hover state: intensified glow for interactive feedback (20% more opaque than --accent-glow)
-          boxShadow: '0 0 24px rgba(6, 64, 43, 0.6)'
+          // Hover state: intensified glow for interactive feedback
+          boxShadow: '0 0 24px rgba(255, 255, 255, 0.3)'
         }}
         transition={{ duration: 0.3 }}
       >
@@ -84,6 +90,7 @@ export function HierarchyTab() {
   const begubot = AGENT_CONFIG.begubot;
   const coder = AGENT_CONFIG.coder;
   const researcher = AGENT_CONFIG.researcher;
+  const extractor = AGENT_CONFIG.extractor;
 
   return (
     <motion.div
@@ -96,7 +103,7 @@ export function HierarchyTab() {
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
           <Building className="w-6 h-6" style={{ color: 'var(--accent)' }} />
-          <h2 className="text-2xl font-bold transition-colors duration-300" style={{ color: 'var(--text-primary)', letterSpacing: '-0.022em' }}>Company Hierarchy</h2>
+          <h2 className="text-2xl font-bold transition-colors duration-300 text-gradient-metallic" style={{ letterSpacing: '-0.022em' }}>Company Hierarchy</h2>
         </div>
         <p className="text-sm transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
           CCPL • Organizational structure
@@ -116,49 +123,59 @@ export function HierarchyTab() {
         </div>
 
         {/* Connection lines */}
-        <div className="flex items-start gap-32 my-4">
-          <ConnectionLine color={coder.color} />
-          <ConnectionLine color={begubot.color} />
-          <ConnectionLine color={researcher.color} />
+        <div className="w-full max-w-2xl px-6">
+          <div className="grid grid-cols-3 justify-items-center my-4">
+            <ConnectionLine color={coder.color} />
+            <ConnectionLine color={researcher.color} />
+            <ConnectionLine color={extractor.color} />
+          </div>
+
+          {/* Horizontal connector */}
+          <motion.div
+            className="relative h-0.5 mb-4 transition-colors duration-300"
+            style={{ backgroundColor: 'var(--border)' }}
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            {/* Center vertical line */}
+            <motion.div
+              className="absolute left-1/2 -translate-x-1/2 w-0.5 h-8 transition-colors duration-300"
+              style={{ backgroundColor: 'var(--border)', top: '-2rem' }}
+              initial={{ scaleY: 0 }}
+              animate={{ scaleY: 1 }}
+              transition={{ duration: 0.3, delay: 0.5 }}
+            />
+          </motion.div>
         </div>
 
-        {/* Horizontal connector */}
-        <motion.div
-          className="relative w-64 h-0.5 mb-4 transition-colors duration-300"
-          style={{ backgroundColor: 'var(--border)' }}
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          {/* Center vertical line */}
-          <motion.div
-            className="absolute left-1/2 -translate-x-1/2 w-0.5 h-8 transition-colors duration-300"
-            style={{ backgroundColor: 'var(--border)', top: '-2rem' }}
-            initial={{ scaleY: 0 }}
-            animate={{ scaleY: 1 }}
-            transition={{ duration: 0.3, delay: 0.5 }}
-          />
-        </motion.div>
-
         {/* Employees */}
-        <div className="flex items-start gap-16">
-          <HierarchyAvatar
-            agentId="coder"
-            color={coder.color}
-            name={coder.name}
-            role={coder.role}
-          />
-          <HierarchyAvatar
-            agentId="researcher"
-            color={researcher.color}
-            name={researcher.name}
-            role={researcher.role}
-          />
+        <div className="w-full max-w-2xl px-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 justify-items-center">
+            <HierarchyAvatar
+              agentId="coder"
+              color={coder.color}
+              name={coder.name}
+              role={coder.role}
+            />
+            <HierarchyAvatar
+              agentId="researcher"
+              color={researcher.color}
+              name={researcher.name}
+              role={researcher.role}
+            />
+            <HierarchyAvatar
+              agentId="extractor"
+              color={extractor.color}
+              name={extractor.name}
+              role={extractor.role}
+            />
+          </div>
         </div>
       </div>
 
       {/* Info cards */}
-      <div className="grid grid-cols-3 gap-4 mt-8">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-8">
         <motion.div
           className="apple-card p-4"
           initial={{ opacity: 0, y: 20 }}
@@ -204,6 +221,22 @@ export function HierarchyTab() {
           <p className="text-xs transition-colors duration-300" style={{ color: 'var(--text-secondary)' }}>{researcher.description}</p>
           <div className="mt-2 text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
             Reports to: <span style={{ color: researcher.color }}>{begubot.name}</span>
+          </div>
+        </motion.div>
+
+        <motion.div
+          className="apple-card p-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9 }}
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: extractor.color }} />
+            <h4 className="font-semibold text-sm transition-colors duration-300" style={{ color: 'var(--text-primary)' }}>{extractor.name}</h4>
+          </div>
+          <p className="text-xs transition-colors duration-300" style={{ color: 'var(--text-secondary)' }}>{extractor.description}</p>
+          <div className="mt-2 text-xs transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
+            Reports to: <span style={{ color: extractor.color }}>{begubot.name}</span>
           </div>
         </motion.div>
       </div>

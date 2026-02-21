@@ -5,28 +5,32 @@
 
 -- Agent Definitions
 -- 1. begubot - Chief of Staff (top level)
--- 2. coder - Employee (reports to begubot)
--- 3. researcher - Employee (reports to begubot)
+-- 2. coder - Employee (reports to begubot) [Codex]
+-- 3. researcher - Employee (reports to begubot) [Slock]
+-- 4. extractor - Analysis & Learning (reports to begubot) [Axiom]
 
 -- =====================================================
 -- AGENTS TABLE
 -- =====================================================
 CREATE TABLE IF NOT EXISTS agents (
-  id TEXT PRIMARY KEY, -- 'begubot', 'coder', 'researcher'
+  id TEXT PRIMARY KEY, -- 'begubot', 'coder', 'researcher', 'extractor'
   name TEXT NOT NULL,
   role TEXT NOT NULL, -- 'Chief of Staff', 'Employee'
   avatar_url TEXT,
   color TEXT NOT NULL DEFAULT '#5E6AD2', -- Theme color for the agent
   reports_to TEXT, -- NULL for top-level, agent_id for others
+  capabilities TEXT[] DEFAULT '{}',
+  current_workload INT DEFAULT 0,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Insert the three agents
-INSERT INTO agents (id, name, role, color, reports_to) VALUES
-  ('begubot', 'Begubot', 'Chief of Staff', '#8B5CF6', NULL),
-  ('coder', 'Coder', 'Employee', '#10B981', 'begubot'),
-  ('researcher', 'Researcher', 'Employee', '#F59E0B', 'begubot')
+-- Insert the four agents
+INSERT INTO agents (id, name, role, color, reports_to, capabilities) VALUES
+  ('begubot', 'Begubot', 'Chief of Staff', '#8B5CF6', NULL, ARRAY['coordination','planning','review']),
+  ('coder', 'Codex', 'Employee', '#10B981', 'begubot', ARRAY['coding','frontend','backend','deployment']),
+  ('researcher', 'Slock', 'Employee', '#F59E0B', 'begubot', ARRAY['research','analysis','web-search']),
+  ('extractor', 'Axiom', 'Analysis & Learning', '#7C3AED', 'begubot', ARRAY['analysis','learning-extraction','summarization'])
 ON CONFLICT (id) DO NOTHING;
 
 -- =====================================================
@@ -95,7 +99,8 @@ CREATE TABLE IF NOT EXISTS agent_stats (
 INSERT INTO agent_stats (agent_id) VALUES
   ('begubot'),
   ('coder'),
-  ('researcher')
+  ('researcher'),
+  ('extractor')
 ON CONFLICT (agent_id) DO NOTHING;
 
 -- =====================================================
@@ -176,27 +181,32 @@ INSERT INTO agent_activities (agent_id, action, description, status, timestamp) 
   ('begubot', 'coordinating', 'Managing daily operations and task assignments', 'running', NOW()),
   ('coder', 'building', 'Implementing new Mission Control features', 'running', NOW() - INTERVAL '10 minutes'),
   ('researcher', 'researching', 'Analyzing best practices for agent architecture', 'running', NOW() - INTERVAL '5 minutes'),
+  ('extractor', 'researching', 'Synthesizing learning notes and insights', 'running', NOW() - INTERVAL '7 minutes'),
   ('begubot', 'meeting', 'Daily standup coordination', 'completed', NOW() - INTERVAL '1 hour'),
   ('coder', 'testing', 'Running integration tests for Supabase sync', 'completed', NOW() - INTERVAL '2 hours'),
-  ('researcher', 'documenting', 'Creating documentation for new API endpoints', 'completed', NOW() - INTERVAL '3 hours');
+  ('researcher', 'documenting', 'Creating documentation for new API endpoints', 'completed', NOW() - INTERVAL '3 hours'),
+  ('extractor', 'documenting', 'Summarizing analysis outputs', 'completed', NOW() - INTERVAL '4 hours');
 
 -- Sample sessions
 INSERT INTO agent_sessions (agent_id, session_key, status, current_action, started_at, last_active) VALUES
   ('begubot', 'begubot-main-session', 'active', 'coordinating', NOW() - INTERVAL '8 hours', NOW()),
   ('coder', 'coder-main-session', 'active', 'building', NOW() - INTERVAL '4 hours', NOW() - INTERVAL '2 minutes'),
-  ('researcher', 'researcher-main-session', 'active', 'researching', NOW() - INTERVAL '6 hours', NOW() - INTERVAL '5 minutes');
+  ('researcher', 'researcher-main-session', 'active', 'researching', NOW() - INTERVAL '6 hours', NOW() - INTERVAL '5 minutes'),
+  ('extractor', 'extractor-main-session', 'active', 'researching', NOW() - INTERVAL '3 hours', NOW() - INTERVAL '3 minutes');
 
 -- Sample schedules
 INSERT INTO agent_schedules (agent_id, title, description, scheduled_for, duration_minutes, recurrence) VALUES
   ('begubot', 'Morning Brief', 'Prepare and deliver daily briefing', NOW() + INTERVAL '1 day', 30, 'daily'),
-  ('begubot', 'Team Coordination', 'Coordinate tasks between Coder and Researcher', NOW() + INTERVAL '4 hours', 60, NULL),
+  ('begubot', 'Team Coordination', 'Coordinate tasks between Codex, Slock, and Axiom', NOW() + INTERVAL '4 hours', 60, NULL),
   ('coder', 'Code Review', 'Review pending pull requests', NOW() + INTERVAL '2 hours', 45, 'daily'),
   ('coder', 'Feature Development', 'Continue Mission Control dashboard work', NOW() + INTERVAL '6 hours', 120, NULL),
   ('researcher', 'Research Block', 'Deep research session on AI architectures', NOW() + INTERVAL '3 hours', 90, 'daily'),
-  ('researcher', 'Documentation Update', 'Update project documentation', NOW() + INTERVAL '8 hours', 60, NULL);
+  ('researcher', 'Documentation Update', 'Update project documentation', NOW() + INTERVAL '8 hours', 60, NULL),
+  ('extractor', 'Analysis Block', 'Synthesize and analyze incoming notes', NOW() + INTERVAL '5 hours', 75, 'daily');
 
 -- Sample documents
 INSERT INTO agent_documents (agent_id, title, content, category, tags) VALUES
   ('begubot', 'Chief of Staff Guide', 'Begubot is the Chief of Staff for The Begu Company. Responsibilities include: coordinating tasks between agents, managing schedules, delivering daily briefings, and ensuring smooth operations.', 'guide', ARRAY['role', 'responsibilities']),
-  ('coder', 'Coding Standards', 'The Coder agent follows strict coding standards including: TypeScript best practices, component-based architecture, comprehensive testing, and clean code principles.', 'guide', ARRAY['coding', 'standards']),
-  ('researcher', 'Research Methodology', 'The Researcher agent uses systematic research methods: web search, documentation analysis, best practice synthesis, and knowledge organization.', 'guide', ARRAY['research', 'methodology']);
+  ('coder', 'Coding Standards', 'Codex follows strict coding standards including: TypeScript best practices, component-based architecture, comprehensive testing, and clean code principles.', 'guide', ARRAY['coding', 'standards']),
+  ('researcher', 'Research Methodology', 'Slock uses systematic research methods: web search, documentation analysis, best practice synthesis, and knowledge organization.', 'guide', ARRAY['research', 'methodology']),
+  ('extractor', 'Analysis Protocols', 'Axiom synthesizes learning notes, extracts insights, and maintains analysis summaries across projects.', 'guide', ARRAY['analysis', 'learning']);

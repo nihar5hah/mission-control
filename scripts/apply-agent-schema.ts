@@ -1,7 +1,7 @@
 /**
  * Apply Agent Schema to Supabase
  * 
- * This script creates the necessary tables for the 3-agent system:
+ * This script creates the necessary tables for the 4-agent system:
  * - agents
  * - agent_activities
  * - agent_sessions
@@ -63,8 +63,9 @@ async function applySchema() {
     
     const { error: insertError } = await supabase.from('agents').insert([
       { id: 'begubot', name: 'Begubot', role: 'Chief of Staff', color: '#8B5CF6', reports_to: null },
-      { id: 'coder', name: 'Coder', role: 'Employee', color: '#10B981', reports_to: 'begubot' },
-      { id: 'researcher', name: 'Researcher', role: 'Employee', color: '#F59E0B', reports_to: 'begubot' },
+      { id: 'coder', name: 'Codex', role: 'Employee', color: '#10B981', reports_to: 'begubot' },
+      { id: 'researcher', name: 'Slock', role: 'Employee', color: '#F59E0B', reports_to: 'begubot' },
+      { id: 'extractor', name: 'Axiom', role: 'Analysis & Learning', color: '#7C3AED', reports_to: 'begubot' },
     ]);
 
     if (insertError) {

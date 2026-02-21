@@ -9,6 +9,7 @@ const AGENT_WORKSPACES: Record<AgentId, string> = {
   begubot: '/home/hyper/.openclaw/workspace',
   coder: '/home/hyper/.openclaw/workspace-coder',
   researcher: '/home/hyper/.openclaw/workspace-researcher',
+  extractor: '/home/hyper/.openclaw/workspace-extractor',
 };
 
 const FILE_CATEGORIES: Record<string, string> = {
@@ -124,6 +125,7 @@ export async function POST(request: NextRequest) {
       begubot: await syncAgentDocuments('begubot', files),
       coder: await syncAgentDocuments('coder', files),
       researcher: await syncAgentDocuments('researcher', files),
+      extractor: await syncAgentDocuments('extractor', files),
     };
 
     return NextResponse.json({ success: true, results: allResults }, { status: 200 });

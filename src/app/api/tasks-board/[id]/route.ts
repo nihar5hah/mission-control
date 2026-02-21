@@ -29,7 +29,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     if (auth) return auth;
 
     const body = await request.json();
-    const { status, owner, priority, title, description } = body;
+    const { status, owner, priority, title, description, assigned_to, claimed_at, labels } = body;
 
     const updates: Record<string, any> = {
       ...(status ? { status } : {}),
@@ -37,6 +37,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       ...(priority ? { priority } : {}),
       ...(title ? { title } : {}),
       ...(description !== undefined ? { description } : {}),
+      ...(assigned_to !== undefined ? { assigned_to } : {}),
+      ...(claimed_at !== undefined ? { claimed_at } : {}),
+      ...(labels !== undefined ? { labels } : {}),
     };
 
     if (status === 'DONE') {

@@ -9,13 +9,31 @@ export async function POST(request: Request) {
     const auth = requireApiKey(request);
     if (auth) return auth;
 
-    const result = await sendSessionMessage({
-      sessionKey: SESSION_KEY,
-      message: 'Refresh agent activities and stats now.',
-      timeoutSeconds: 0,
+    const url = new URL(request.url);
+    const base = `${url.protocol}//${url.host}`;
+
+    const aggregateResponse = await fetch(`${base}/api/agents/stats/aggregate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
     });
 
-    return NextResponse.json({ success: true, refreshed: true, result });
+    if (!aggregateResponse.ok) {
+      return NextResponse.json({ error: 'Failed to refresh stats' }, { status: 500 });
+    }
+
+    let openclawResult: unknown = null;
+    try {
+      openclawResult = await sendSessionMessage({
+        sessionKey: SESSION_KEY,
+        message: 'Refresh agent activities and stats now.',
+        timeoutSeconds: 0,
+      });
+    } catch (error) {
+      console.warn('[QuickActions] OpenClaw refresh message failed:', error);
+    }
+
+    return NextResponse.json({ success: true, refreshed: true, openclaw: !!openclawResult });
   } catch (error) {
     console.error('[QuickActions] Refresh activities error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

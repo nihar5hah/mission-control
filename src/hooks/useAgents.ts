@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import {
   agentsApi,
@@ -29,8 +29,9 @@ import type {
 // Default agents for fallback
 const DEFAULT_AGENTS: Agent[] = [
   { id: 'begubot', name: 'Begubot', role: 'Chief of Staff', color: '#8B5CF6', reports_to: undefined, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'coder', name: 'Coder', role: 'Employee', color: '#30D158', reports_to: 'begubot', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: 'researcher', name: 'Researcher', role: 'Employee', color: '#FF9F0A', reports_to: 'begubot', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'coder', name: 'Codex', role: 'Employee', color: '#30D158', reports_to: 'begubot', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'researcher', name: 'Slock', role: 'Employee', color: '#FF9F0A', reports_to: 'begubot', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: 'extractor', name: 'Axiom', role: 'Analysis & Learning', color: '#7C3AED', reports_to: 'begubot', created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
 ];
 
 // =====================================================
@@ -423,6 +424,8 @@ export function useAgentState(): {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const lastUpdateRef = useRef<number>(Date.now());
+
   const fetchAll = useCallback(async () => {
     try {
       setLoading(true);
@@ -434,6 +437,8 @@ export function useAgentState(): {
         agentStatsApi.getAll(),
         agentActivitiesApi.getAll(3),
       ]);
+
+      lastUpdateRef.current = Date.now();
 
       // Use real data or empty arrays - no fallback
       const agents = agentsResult.status === 'fulfilled' && agentsResult.value.length > 0 
@@ -455,12 +460,15 @@ export function useAgentState(): {
         const agentStats = stats.find((s) => s.agent_id === agent.id);
         const latestActivity = activities.find((a) => a.agent_id === agent.id);
         
+        const lastActive = session?.last_active ? new Date(session.last_active).getTime() : 0;
+        const isOnline = lastActive > 0 && Date.now() - lastActive < 30 * 60 * 1000; // 30 min threshold
+
         return {
           agent,
           session,
           stats: agentStats,
           latestActivity,
-          isOnline: !!session && session.status !== 'offline',
+          isOnline,
         };
       });
 
@@ -505,11 +513,18 @@ export function useAgentState(): {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'agent_activities' }, fetchAll)
       .subscribe();
 
+    const fallbackInterval = setInterval(() => {
+      if (Date.now() - lastUpdateRef.current > 2 * 60 * 1000) {
+        fetchAll();
+      }
+    }, 30000);
+
     return () => {
       supabase.removeChannel(agentsChannel);
       supabase.removeChannel(sessionsChannel);
       supabase.removeChannel(statsChannel);
       supabase.removeChannel(activitiesChannel);
+      clearInterval(fallbackInterval);
     };
   }, [fetchAll]);
 
