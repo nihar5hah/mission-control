@@ -71,6 +71,8 @@ import { OfficeScene } from '@/components/OfficeScene';
 import { QuickActions } from '@/components/QuickActions';
 import { TasksBoard } from '@/components/TasksBoard';
 import { AgentHealthCard } from '@/components/AgentHealthCard';
+import { GatewayHealthCard } from '@/components/GatewayHealthCard';
+import { PolymarketOpportunitiesCard } from '@/components/PolymarketOpportunitiesCard';
 import { AgentTaskQueue } from '@/components/AgentTaskQueue';
 import { Toaster } from '@/components/ui/sonner';
 
@@ -628,6 +630,10 @@ export default function MissionControl() {
 
         <div className="mb-8">
           <QuickActions />
+        </div>
+
+        <div className="mb-8">
+          <PolymarketOpportunitiesCard />
         </div>
 
         {/* Agent Status Cards */}
@@ -1405,6 +1411,12 @@ export default function MissionControl() {
                 <div className="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-4">
                   <AgentHealthCard />
                   <AgentTaskQueue />
+                </div>
+
+                <div className="mt-8">
+                  <h3 className="text-lg font-semibold mb-1 text-gradient-metallic">System Health</h3>
+                  <p className="text-sm mb-4" style={{ color: 'var(--text-tertiary)' }}>Gateway monitoring and runtime visibility</p>
+                  <GatewayHealthCard />
                 </div>
               </motion.div>
             )}
