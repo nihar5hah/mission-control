@@ -75,6 +75,9 @@ import { GatewayHealthCard } from '@/components/GatewayHealthCard';
 import { PolymarketOpportunitiesCard } from '@/components/PolymarketOpportunitiesCard';
 import { AgentTaskQueue } from '@/components/AgentTaskQueue';
 import { Toaster } from '@/components/ui/sonner';
+import { DailyReview } from '@/components/DailyReview';
+import { QuickTaskCapture } from '@/components/QuickTaskCapture';
+import { WorkSessionTimer } from '@/components/WorkSessionTimer';
 
 /* ============ ANIMATION VARIANTS ============ */
 const container = {
@@ -129,7 +132,7 @@ const actionTypeConfig: Record<string, { label: string; icon: React.ComponentTyp
 
 /* ============ MAIN COMPONENT ============ */
 export default function MissionControl() {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'activity' | 'calendar' | 'office' | 'search' | 'documentation' | 'hierarchy' | 'focus' | 'tasks' | 'health'>(() => {
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'activity' | 'calendar' | 'office' | 'search' | 'documentation' | 'hierarchy' | 'focus' | 'tasks' | 'health' | 'review'>(() => {
     if (typeof window === 'undefined') return 'dashboard';
     return (localStorage.getItem('mc_activeTab') as any) || 'dashboard';
   });
@@ -429,6 +432,7 @@ export default function MissionControl() {
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: Zap },
     { id: 'focus', label: 'Focus', icon: Target },
+    { id: 'review', label: 'Review', icon: TrendingUp },
     { id: 'health', label: 'Health', icon: Activity },
     { id: 'tasks', label: 'Tasks', icon: CheckCircle2 },
     { id: 'activity', label: 'Activity Log', icon: Activity, badge: activities.length },
@@ -1401,6 +1405,18 @@ export default function MissionControl() {
           <AnimatePresence mode="wait">
             {activeTab === 'dashboard' && renderDashboard()}
             {activeTab === 'focus' && renderFocus()}
+            {activeTab === 'review' && (
+              <motion.div key="review" variants={tabVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.3 }}>
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold mb-1 text-gradient-metallic" style={{ letterSpacing: '-0.022em' }}>Daily Review</h2>
+                  <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>What got done today at a glance</p>
+                </div>
+                <div className="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-4">
+                  <DailyReview />
+                  <WorkSessionTimer />
+                </div>
+              </motion.div>
+            )}
             {activeTab === 'tasks' && <TasksBoard />}
             {activeTab === 'health' && (
               <motion.div key="health" variants={tabVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.3 }}>
@@ -1429,6 +1445,7 @@ export default function MissionControl() {
           </AnimatePresence>
         </main>
       </div>
+      <QuickTaskCapture />
     </div>
   );
 }
