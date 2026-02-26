@@ -151,6 +151,20 @@ export function WorkSessionTimer() {
         }),
       }).catch(console.error);
 
+      // Save to work-sessions API for persistence
+      fetch('/api/work-sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agent_id: 'begu',
+          session_type: sessionType,
+          duration_seconds: durationSeconds,
+          started_at: sessionStart.toISOString(),
+          ended_at: now.toISOString(),
+          completed,
+        }),
+      }).catch(console.error);
+
       // Show notification
       if (completed) {
         toast.success(`Session complete! Great focus 🎯`);

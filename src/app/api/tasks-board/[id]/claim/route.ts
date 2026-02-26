@@ -11,6 +11,9 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Paper mode - when true, simulate actions without executing
+const PAPER_MODE = process.env.AGENT_PAPER_MODE === 'true';
+
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const auth = requireApiKey(request);
@@ -38,7 +41,36 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ error: 'Task already claimed or completed', status: existing.status }, { status: 409 });
     }
 
-    // Update task to IN_PROGRESS and change owner to claiming agent
+    // PAPER MODE: Simulate claim without executing
+    if (PAPER_MODE) {
+      console.log(`[PAPER MODE] Agent ${agent_id} would claim task ${params.id}: ${existing.title}`);
+      
+      // Log simulated activity
+      await supabase.from('activities').insert({
+        agent_id,
+        action: 'task-claim-simulated',
+        description: `[PAPER] Would claim task: ${existing.title}${reason ? ` (${reason})` : ''}`,
+        status: 'completed',
+        timestamp: new Date().toISOString(),
+        metadata: { paper_mode: true, task_id: params.id },
+      });
+
+      return NextResponse.json({
+        simulated: true,
+        paper_mode: true,
+        action: 'claim',
+        task_id: params.id,
+        task_title: existing.title,
+        agent_id,
+        message: 'Paper mode enabled - action simulated, not executed',
+        would_have: {
+          status: 'IN_PROGRESS',
+          owner: agent_id,
+        },
+      });
+    }
+
+    // LIVE MODE: Actually claim the task
     const { data: task, error } = await supabase
       .from('tasks_board')
       .update({
@@ -55,7 +87,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     }
 
     // Log activity
-    await supabase.from('agent_activities').insert({
+    await supabase.from('activities').insert({
       agent_id,
       action: 'task-claim',
       description: `Claimed task: ${task.title}${reason ? ` (${reason})` : ''}`,
@@ -63,7 +95,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       timestamp: new Date().toISOString(),
     });
 
-    return NextResponse.json({ success: true, task });
+    return NextResponse.json({ success: true, task, paper_mode: false });
   } catch (error) {
     console.error('[TasksBoard] Claim error', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

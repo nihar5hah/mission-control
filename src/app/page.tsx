@@ -78,6 +78,12 @@ import { Toaster } from '@/components/ui/sonner';
 import { DailyReview } from '@/components/DailyReview';
 import { QuickTaskCapture } from '@/components/QuickTaskCapture';
 import { WorkSessionTimer } from '@/components/WorkSessionTimer';
+import { CommandPalette, useCommandPalette } from '@/components/ui/command';
+import { SnippetGenerator } from '@/components/SnippetGenerator';
+import { DonationEmbed } from '@/components/DonationEmbed';
+import { AutomationHub } from '@/components/AutomationHub';
+import { OvernightSummary } from '@/components/OvernightSummary';
+import { useOvernightSummary } from '@/hooks/useOvernightSummary';
 
 /* ============ ANIMATION VARIANTS ============ */
 const container = {
@@ -132,7 +138,7 @@ const actionTypeConfig: Record<string, { label: string; icon: React.ComponentTyp
 
 /* ============ MAIN COMPONENT ============ */
 export default function MissionControl() {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'activity' | 'calendar' | 'office' | 'search' | 'documentation' | 'hierarchy' | 'focus' | 'tasks' | 'health' | 'review'>(() => {
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'activity' | 'calendar' | 'office' | 'search' | 'documentation' | 'hierarchy' | 'focus' | 'tasks' | 'health' | 'review' | 'workflows'>(() => {
     if (typeof window === 'undefined') return 'dashboard';
     return (localStorage.getItem('mc_activeTab') as any) || 'dashboard';
   });
@@ -181,6 +187,12 @@ export default function MissionControl() {
 
   // Hooks for additional functionality
   const { isCompletedOnDate, toggleCompletion: toggleDateCompletion, getStatusOnDate, preloadCompletions } = useTaskCompletions();
+
+  // Command Palette (⌘K)
+  const { open: commandPaletteOpen, setOpen: setCommandPaletteOpen } = useCommandPalette();
+
+  // Overnight Summary
+  const { activities: overnightActivities, stats: overnightStats, loading: overnightLoading } = useOvernightSummary({ hours: 8 });
 
   const todayStart = useMemo(() => {
     const d = new Date();
@@ -435,6 +447,7 @@ export default function MissionControl() {
     { id: 'review', label: 'Review', icon: TrendingUp },
     { id: 'health', label: 'Health', icon: Activity },
     { id: 'tasks', label: 'Tasks', icon: CheckCircle2 },
+    { id: 'workflows', label: 'Workflows', icon: Workflow },
     { id: 'activity', label: 'Activity Log', icon: Activity, badge: activities.length },
     { id: 'calendar', label: 'Schedule', icon: Calendar, badge: agentSchedules.length },
     { id: 'office', label: 'Office', icon: Coffee },
@@ -638,6 +651,14 @@ export default function MissionControl() {
 
         <div className="mb-8">
           <PolymarketOpportunitiesCard />
+        </div>
+
+        {/* Overnight Summary */}
+        <div className="mb-8">
+          <OvernightSummary 
+            agentActivities={overnightActivities}
+            isLoading={overnightLoading}
+          />
         </div>
 
         {/* Agent Status Cards */}
@@ -1418,6 +1439,31 @@ export default function MissionControl() {
               </motion.div>
             )}
             {activeTab === 'tasks' && <TasksBoard />}
+            {activeTab === 'workflows' && (
+              <motion.div key="workflows" variants={tabVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.3 }}>
+                <div className="mb-8">
+                  <h2 className="text-2xl font-bold mb-1 text-gradient-metallic" style={{ letterSpacing: '-0.02em' }}>Workflow Improvements</h2>
+                  <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>Tools, Automation, and Support</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="space-y-6">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">DevTools</h3>
+                    <SnippetGenerator />
+                  </div>
+
+                  <div className="space-y-6">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">Automation</h3>
+                    <AutomationHub />
+                  </div>
+
+                  <div className="space-y-6">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">Monetization</h3>
+                    <DonationEmbed />
+                  </div>
+                </div>
+              </motion.div>
+            )}
             {activeTab === 'health' && (
               <motion.div key="health" variants={tabVariants} initial="hidden" animate="show" exit="exit" transition={{ duration: 0.3 }}>
                 <div className="mb-6">
@@ -1446,6 +1492,16 @@ export default function MissionControl() {
         </main>
       </div>
       <QuickTaskCapture />
+      
+      {/* Command Palette (⌘K) */}
+      <CommandPalette 
+        open={commandPaletteOpen} 
+        onOpenChange={setCommandPaletteOpen}
+        onNavigate={(tab) => {
+          setActiveTab(tab as any);
+          localStorage.setItem('mc_activeTab', tab);
+        }}
+      />
     </div>
   );
 }
