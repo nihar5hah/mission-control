@@ -1,6 +1,6 @@
 // =====================================================
 // HIERARCHY TAB COMPONENT
-// Visual org chart for CCPL
+// Visual org chart for Nihar's
 // =====================================================
 
 'use client';
@@ -106,7 +106,7 @@ export function HierarchyTab() {
           <h2 className="text-2xl font-bold transition-colors duration-300 text-gradient-metallic" style={{ letterSpacing: '-0.022em' }}>Company Hierarchy</h2>
         </div>
         <p className="text-sm transition-colors duration-300" style={{ color: 'var(--text-tertiary)' }}>
-          CCPL • Organizational structure
+          Nihar's • Organizational structure
         </p>
       </div>
 

@@ -117,7 +117,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
             className="text-2xl font-bold text-gradient-metallic mb-1"
             style={{ letterSpacing: '-0.02em' }}
           >
-            CCPL Mission Control
+            Nihar's Mission Control
           </h1>
           <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
             AI Agent Operations Dashboard

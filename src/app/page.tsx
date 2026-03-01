@@ -808,7 +808,7 @@ function MissionControl() {
                 className="text-sm font-semibold leading-tight text-gradient-metallic"
                 style={{ letterSpacing: "-0.01em" }}
               >
-                CCPL
+                Nihar's
               </h1>
               <p
                 className="text-[11px] leading-tight"
