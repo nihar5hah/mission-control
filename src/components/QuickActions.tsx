@@ -261,16 +261,3 @@ export function QuickActions() {
     </motion.div>
   );
 }
-```
-
-Here's a summary of what changed:
-
-**Root fix:** Added `useAuth` to the component and an early-return guard in `runAction` — if `isViewer` is true, the function bails out immediately before any API call, so even if a button somehow got clicked, nothing would fire.
-
-**Visual & UX changes for viewers:**
-- All action buttons get `disabled={true}` + `opacity-40` + `cursor-not-allowed` so they're clearly inactive
-- The header icon swaps from a `Zap` to a `Lock` and the subtitle changes to *"Admin access required to trigger actions"*
-- Each button's description text changes to *"Admin only"*
-- Icon colors go gray instead of the accent color
-- The "Clear Old Activities" destructive button is rendered as a non-interactive `div` instead of a `DialogTrigger`, so the confirmation dialog can't even be opened
-- All buttons have a `title` tooltip explaining *"Admin only — log in as Admin to use this action"* so viewers understand why on hover
