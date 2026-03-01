@@ -12,6 +12,7 @@ import {
   Trash2,
   Loader2,
   Zap,
+  Lock,
 } from 'lucide-react';
 import {
   Dialog,
@@ -22,6 +23,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { useAuth } from '@/lib/auth-context';
 
 const ACTIONS = [
   {
@@ -46,7 +48,7 @@ const ACTIONS = [
     id: 'export-summary',
     label: "Export Today's Summary",
     icon: Download,
-    description: 'Download a JSON summary of today\'s activity.',
+    description: "Download a JSON summary of today's activity.",
   },
   {
     id: 'test-notification',
@@ -57,9 +59,12 @@ const ACTIONS = [
 ];
 
 export function QuickActions() {
+  const { isViewer } = useAuth();
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
 
   const runAction = async (actionId: string) => {
+    if (isViewer) return;
+
     setLoadingAction(actionId);
     try {
       const response = await fetch(`/api/quick-actions/${actionId}`, {
@@ -102,10 +107,16 @@ export function QuickActions() {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>Quick Actions</h3>
-          <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Trigger key workflows instantly</p>
+          <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+            {isViewer ? 'Admin access required to trigger actions' : 'Trigger key workflows instantly'}
+          </p>
         </div>
         <div className="w-8 h-8 rounded-[10px] flex items-center justify-center" style={{ background: 'var(--accent-muted)' }}>
-          <Zap className="w-4 h-4" style={{ color: 'var(--accent)' }} />
+          {isViewer ? (
+            <Lock className="w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />
+          ) : (
+            <Zap className="w-4 h-4" style={{ color: 'var(--accent)' }} />
+          )}
         </div>
       </div>
 
@@ -113,92 +124,153 @@ export function QuickActions() {
         {ACTIONS.map((action) => {
           const Icon = action.icon;
           const isLoading = loadingAction === action.id;
+          const disabled = isLoading || isViewer;
+
           return (
-            <button
+            <div
               key={action.id}
-              onClick={() => runAction(action.id)}
-              disabled={isLoading}
-              className="flex items-start gap-3 w-full p-3.5 rounded-xl text-left transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.06)',
-              }}
-              onMouseEnter={(e) => {
-                if (!isLoading) {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-                  e.currentTarget.style.borderColor = 'rgba(6, 64, 43, 0.3)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
-              }}
+              title={isViewer ? 'Admin only — log in as Admin to use this action' : undefined}
+              className="relative"
             >
-              <div className="w-8 h-8 rounded-[10px] flex items-center justify-center flex-shrink-0" style={{ background: 'var(--accent-muted)' }}>
-                {isLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" style={{ color: 'var(--accent)' }} />
-                ) : (
-                  <Icon className="w-4 h-4" style={{ color: 'var(--accent)' }} />
-                )}
-              </div>
-              <div>
-                <span className="text-sm font-medium block" style={{ color: 'var(--text-primary)' }}>{action.label}</span>
-                <span className="text-[11px]" style={{ color: 'var(--text-tertiary)' }}>{action.description}</span>
-              </div>
-            </button>
+              <button
+                onClick={() => runAction(action.id)}
+                disabled={disabled}
+                className="flex items-start gap-3 w-full p-3.5 rounded-xl text-left transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                style={{
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                }}
+                onMouseEnter={(e) => {
+                  if (!disabled) {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                    e.currentTarget.style.borderColor = 'rgba(6, 64, 43, 0.3)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
+                }}
+              >
+                <div
+                  className="w-8 h-8 rounded-[10px] flex items-center justify-center flex-shrink-0"
+                  style={{ background: isViewer ? 'rgba(255,255,255,0.06)' : 'var(--accent-muted)' }}
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" style={{ color: 'var(--accent)' }} />
+                  ) : isViewer ? (
+                    <Icon className="w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />
+                  ) : (
+                    <Icon className="w-4 h-4" style={{ color: 'var(--accent)' }} />
+                  )}
+                </div>
+                <div>
+                  <span className="text-sm font-medium block" style={{ color: 'var(--text-primary)' }}>
+                    {action.label}
+                  </span>
+                  <span className="text-[11px]" style={{ color: 'var(--text-tertiary)' }}>
+                    {isViewer ? 'Admin only' : action.description}
+                  </span>
+                </div>
+              </button>
+            </div>
           );
         })}
 
-        <Dialog>
-          <DialogTrigger asChild>
-            <button
-              className="flex items-start gap-3 w-full p-3.5 rounded-xl text-left transition-all"
-              style={{
-                background: 'var(--color-red-muted)',
-                border: '1px solid rgba(255,69,58,0.2)',
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,69,58,0.22)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--color-red-muted)'; }}
+        {/* Destructive: Clear Old Activities */}
+        {isViewer ? (
+          <div
+            title="Admin only — log in as Admin to use this action"
+            className="flex items-start gap-3 w-full p-3.5 rounded-xl text-left opacity-40 cursor-not-allowed"
+            style={{
+              background: 'var(--color-red-muted)',
+              border: '1px solid rgba(255,69,58,0.2)',
+            }}
+          >
+            <div
+              className="w-8 h-8 rounded-[10px] flex items-center justify-center flex-shrink-0"
+              style={{ background: 'rgba(255,69,58,0.2)' }}
             >
-              <div className="w-8 h-8 rounded-[10px] flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(255,69,58,0.2)' }}>
-                <Trash2 className="w-4 h-4" style={{ color: 'var(--color-red)' }} />
-              </div>
-              <div>
-                <span className="text-sm font-medium block" style={{ color: 'var(--color-red)' }}>Clear Old Activities</span>
-                <span className="text-[11px]" style={{ color: 'rgba(255,69,58,0.7)' }}>Delete 7+ day entries</span>
-              </div>
-            </button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Clear old activities?</DialogTitle>
-              <DialogDescription>
-                This permanently deletes all agent activity entries older than 7 days.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
+              <Trash2 className="w-4 h-4" style={{ color: 'var(--color-red)' }} />
+            </div>
+            <div>
+              <span className="text-sm font-medium block" style={{ color: 'var(--color-red)' }}>
+                Clear Old Activities
+              </span>
+              <span className="text-[11px]" style={{ color: 'rgba(255,69,58,0.7)' }}>
+                Admin only
+              </span>
+            </div>
+          </div>
+        ) : (
+          <Dialog>
+            <DialogTrigger asChild>
               <button
-                className="px-4 py-2 rounded-xl text-sm font-medium btn-apple-secondary"
+                className="flex items-start gap-3 w-full p-3.5 rounded-xl text-left transition-all"
+                style={{
+                  background: 'var(--color-red-muted)',
+                  border: '1px solid rgba(255,69,58,0.2)',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,69,58,0.22)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--color-red-muted)'; }}
               >
-                Cancel
+                <div
+                  className="w-8 h-8 rounded-[10px] flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(255,69,58,0.2)' }}
+                >
+                  <Trash2 className="w-4 h-4" style={{ color: 'var(--color-red)' }} />
+                </div>
+                <div>
+                  <span className="text-sm font-medium block" style={{ color: 'var(--color-red)' }}>
+                    Clear Old Activities
+                  </span>
+                  <span className="text-[11px]" style={{ color: 'rgba(255,69,58,0.7)' }}>
+                    Delete 7+ day entries
+                  </span>
+                </div>
               </button>
-              <button
-                onClick={() => runAction('clear-activities')}
-                disabled={loadingAction === 'clear-activities'}
-                className="px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2 disabled:opacity-50"
-                style={{ background: 'var(--color-red)', color: 'white' }}
-              >
-                {loadingAction === 'clear-activities' ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Trash2 className="w-4 h-4" />
-                )}
-                Confirm Delete
-              </button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Clear old activities?</DialogTitle>
+                <DialogDescription>
+                  This permanently deletes all agent activity entries older than 7 days.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <button className="px-4 py-2 rounded-xl text-sm font-medium btn-apple-secondary">
+                  Cancel
+                </button>
+                <button
+                  onClick={() => runAction('clear-activities')}
+                  disabled={loadingAction === 'clear-activities'}
+                  className="px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2 disabled:opacity-50"
+                  style={{ background: 'var(--color-red)', color: 'white' }}
+                >
+                  {loadingAction === 'clear-activities' ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
+                  Confirm Delete
+                </button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     </motion.div>
   );
 }
+```
+
+Here's a summary of what changed:
+
+**Root fix:** Added `useAuth` to the component and an early-return guard in `runAction` — if `isViewer` is true, the function bails out immediately before any API call, so even if a button somehow got clicked, nothing would fire.
+
+**Visual & UX changes for viewers:**
+- All action buttons get `disabled={true}` + `opacity-40` + `cursor-not-allowed` so they're clearly inactive
+- The header icon swaps from a `Zap` to a `Lock` and the subtitle changes to *"Admin access required to trigger actions"*
+- Each button's description text changes to *"Admin only"*
+- Icon colors go gray instead of the accent color
+- The "Clear Old Activities" destructive button is rendered as a non-interactive `div` instead of a `DialogTrigger`, so the confirmation dialog can't even be opened
+- All buttons have a `title` tooltip explaining *"Admin only — log in as Admin to use this action"* so viewers understand why on hover
