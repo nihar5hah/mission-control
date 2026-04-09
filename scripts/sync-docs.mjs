@@ -2,6 +2,7 @@
 import { createClient } from '@supabase/supabase-js';
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 
 const supabase = createClient(
   'https://qbtlslagwbgrnnuaasma.supabase.co',
@@ -11,8 +12,8 @@ const supabase = createClient(
 // Agent ID mapping (internal id -> database id)
 const AGENT_DB_IDS = {
   'main': 'begubot',
-  'coder': 'coder',
-  'researcher': 'researcher',
+  'codex': 'coder',
+  'slock': 'researcher',
   'extractor': 'extractor'  // Database uses 'extractor', not 'axiom'
 };
 
@@ -24,19 +25,49 @@ const DEFAULT_WORKSPACES = {
   'extractor': '/home/hyper/.openclaw/workspace-extractor'
 };
 
+// Expand ~ to home directory
+function expandPath(p) {
+  if (p.startsWith('~/')) {
+    return path.join(os.homedir(), p.slice(2));
+  }
+  return p;
+}
+
 // Auto-discover agents from openclaw.json
 function discoverAgents() {
   const configPath = '/home/hyper/.openclaw/openclaw.json';
-  const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
   
+  // Default to built-in workspace mapping if config doesn't have agents
   const agents = {};
-  for (const agent of config.agents.list) {
-    const internalId = agent.id;
-    const dbId = AGENT_DB_IDS[internalId] || internalId;
-    const workspace = agent.workspace || DEFAULT_WORKSPACES[dbId] || `/home/hyper/.openclaw/workspace-${internalId}`;
+  
+  try {
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
     
-    if (fs.existsSync(workspace)) {
-      agents[dbId] = workspace;
+    if (config.agents && config.agents.list) {
+      for (const agent of config.agents.list) {
+        const internalId = agent.id;
+        const dbId = AGENT_DB_IDS[internalId] || internalId;
+        const rawWorkspace = agent.workspace || DEFAULT_WORKSPACES[dbId] || `/home/hyper/.openclaw/workspace-${internalId}`;
+        const workspace = expandPath(rawWorkspace);
+        
+        if (fs.existsSync(workspace)) {
+          agents[dbId] = workspace;
+        }
+      }
+    } else {
+      // Use default workspaces
+      for (const [dbId, workspace] of Object.entries(DEFAULT_WORKSPACES)) {
+        if (fs.existsSync(workspace)) {
+          agents[dbId] = workspace;
+        }
+      }
+    }
+  } catch (e) {
+    // Fallback to default workspaces
+    for (const [dbId, workspace] of Object.entries(DEFAULT_WORKSPACES)) {
+      if (fs.existsSync(workspace)) {
+        agents[dbId] = workspace;
+      }
     }
   }
   
